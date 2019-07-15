@@ -20,7 +20,7 @@ title                    : "DreamSeeker"
 title_separator          : "-"
 name                     : "SH"
 description              : "An amazing website."
-url                      : "https://kimmydkemf.github.io"# the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+url                      : "https://kimmydkemf.github.io" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
@@ -31,7 +31,7 @@ words_per_minute         : 200
 comments:
   provider               : "disqus" # false (default), "disqus", "discourse", "facebook", "staticman", "staticman_v2", "utterances", "custom"
   disqus:
-    shortname            : "kimmydkemf"# https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
+    shortname            : "kimmydkemf" # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
   discourse:
     server               : # https://meta.discourse.org/t/embedding-discourse-comments-via-javascript/31963 , e.g.: meta.discourse.org
   facebook:
