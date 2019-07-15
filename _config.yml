@@ -199,7 +199,6 @@ excerpt_separator: "\n\n"
 incremental: false
 
 
-disqus-shortname:kimmydkemf
 
 # Markdown Processing
 kramdown:
