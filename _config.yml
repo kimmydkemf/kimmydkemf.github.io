@@ -295,5 +295,3 @@ defaults:
       comments: # true
       share: true
       related: true
-
-	  {% if site.disqus-shortname %}{% include disqus.html %}{% endif %}
