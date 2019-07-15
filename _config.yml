@@ -199,6 +199,8 @@ excerpt_separator: "\n\n"
 incremental: false
 
 
+disqus-shortname:gitest1
+
 # Markdown Processing
 kramdown:
   input: GFM
@@ -293,3 +295,5 @@ defaults:
       comments: # true
       share: true
       related: true
+
+	  {% if site.disqus-shortname %}{% include disqus.html %}{% endif %}
