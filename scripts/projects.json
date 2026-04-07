@@ -1,11 +1,7 @@
 {
-  "known": [
-    "kimmydkemf.github.io",
-    "BadminOne_flutter",
-    "MyNote"
-  ],
   "excluded": [
     "kimmydkemf.github.io",
     "MyNote"
-  ]
+  ],
+  "repos": {}
 }
