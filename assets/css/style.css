@@ -197,6 +197,9 @@ summary::-webkit-details-marker { display: none; }
   background: rgba(100,181,246,0.08);
   color: var(--accent); border: 1px solid rgba(100,181,246,0.18);
 }
+.chip.award {
+  background: rgba(255,167,38,0.1); border-color: rgba(255,167,38,0.3); color: #ffa726;
+}
 .arrow { color: var(--muted); font-size: 0.75rem; flex-shrink: 0; padding-top: 4px; transition: transform 0.2s; }
 details[open] .arrow { transform: rotate(90deg); }
 
