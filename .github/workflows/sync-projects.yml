@@ -1,0 +1,39 @@
+name: Sync GitHub Projects
+
+on:
+  schedule:
+    # 매주 월요일 오전 9시 (KST = UTC+9, 즉 UTC 00:00)
+    - cron: '0 0 * * 1'
+  workflow_dispatch:  # 수동 실행 버튼
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout portfolio
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run sync script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/sync_projects.py
+
+      - name: Commit changes (if any)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html scripts/projects.json
+          if git diff --staged --quiet; then
+            echo "변경사항 없음 — 커밋 스킵"
+          else
+            git commit -m "auto: sync new GitHub projects $(date +'%Y-%m-%d')"
+            git push
+          fi
