@@ -251,6 +251,37 @@ details[open] .arrow { transform: rotate(90deg); }
 .contact-btn:hover { border-color: var(--accent); transform: translateY(-2px); color: var(--text); }
 .contact-btn .ci { font-size: 1.1rem; }
 
+/* ── FLOATING CLAUDE BADGE ── */
+.float-badge {
+  position: fixed; bottom: 24px; right: 24px; z-index: 200;
+  background: var(--bg2);
+  border: 1px solid rgba(100,181,246,0.3);
+  border-radius: 14px;
+  width: 220px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.float-badge:hover { box-shadow: 0 12px 40px rgba(100,181,246,0.15); }
+.float-badge-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; cursor: pointer;
+  font-size: 0.82rem; font-weight: 600; color: var(--accent);
+  user-select: none;
+}
+.float-badge-toggle { margin-left: auto; font-size: 0.7rem; color: var(--muted); transition: transform 0.2s; }
+.float-badge.expanded .float-badge-toggle { transform: rotate(180deg); }
+.float-badge-body {
+  max-height: 0; overflow: hidden;
+  font-size: 0.78rem; color: var(--muted); line-height: 1.6;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  padding: 0 14px;
+}
+.float-badge.expanded .float-badge-body {
+  max-height: 80px;
+  padding: 0 14px 12px;
+}
+
 /* ── FOOTER ── */
 footer {
   text-align: center; padding: 40px 24px;
