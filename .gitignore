@@ -1,2 +1,21 @@
 .DS_Store
 **/.obsidian/
+
+# 이미지/첨부파일 — LiveSync로만 동기화, Git 제외
+attachments/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg
+*.bmp
+*.mp4
+*.mov
+*.mp3
+*.pdf
+*.zip
+
+# OS
+Thumbs.db
+desktop.ini
