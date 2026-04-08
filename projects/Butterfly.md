@@ -1,4 +1,3 @@
-# Butterfly — Interactive Visual Media Project
 
 ## 기본 정보
 

@@ -1,4 +1,3 @@
-# P.S — Private Secretary
 
 ## 기본 정보
 

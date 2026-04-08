@@ -1,4 +1,3 @@
-# HGU 졸업 Project — 캠퍼스 안내 AR/VR 투어
 
 ## 기본 정보
 
