@@ -3,41 +3,21 @@
     "MyNote",
     "kimmydkemf.github.io"
   ],
+  "skip_repos": [
+    "MeetingGround"
+  ],
   "repos": {
     "health-tracker": {
       "sha": "b23270a908405cca1568a615068b73e84448397e",
       "start": "2026.04",
-      "end": "2026.04"
-    },
-    "my-cloude": {
-      "sha": "",
-      "start": "2026.03",
-      "end": "2026.03"
-    },
-    "BadminOne_flutter": {
-      "sha": "d017284d0b25e8c5a8fed5e3d1892c3f4d50c921",
-      "start": "2023.11",
-      "end": "2023.11"
-    },
-    "BadminOne": {
-      "sha": "",
-      "start": "2023.11",
-      "end": "2023.11"
-    },
-    "PloblemSolving": {
-      "sha": "",
-      "start": "2022.10",
-      "end": "2022.10"
+      "end": "2026.04",
+      "title": "Pacer"
     },
     "SharePaper": {
       "sha": "15689a9fbe186722673509a9738ad44229cf898c",
       "start": "2020.04",
-      "end": "2020.04"
-    },
-    "MeetingGround": {
-      "sha": "97a597c21e5d80e0008bef5a23887af7fcfa778d",
-      "start": "2020.11",
-      "end": "2020.11"
+      "end": "2020.04",
+      "title": "SharePaper"
     }
   }
 }

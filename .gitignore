@@ -19,3 +19,6 @@ attachments/
 # OS
 Thumbs.db
 desktop.ini
+
+# 로컬 실행 전용 — Git 제외 (API 토큰 포함)
+scripts/.env
