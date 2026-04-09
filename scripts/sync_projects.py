@@ -66,27 +66,31 @@ def _gh(url: str):
 
 
 def fetch_repos() -> list[dict]:
+    token = os.environ.get("GITHUB_TOKEN", "")
+    if token:
+        # 토큰 있을 때: 인증된 엔드포인트로 private + collaborator 레포 포함 전체 조회
+        return _gh("https://api.github.com/user/repos?per_page=100&sort=updated&affiliation=owner,collaborator") or []
     return _gh(f"https://api.github.com/users/{GITHUB_USER}/repos?per_page=100&sort=updated") or []
 
 
-def fetch_readme(name: str) -> tuple[str, str]:
+def fetch_readme(full_name: str) -> tuple[str, str]:
     """(content, sha) 반환. README 없으면 ('', '')"""
-    data = _gh(f"https://api.github.com/repos/{GITHUB_USER}/{name}/readme")
+    data = _gh(f"https://api.github.com/repos/{full_name}/readme")
     if not data:
         return "", ""
     content = base64.b64decode(data["content"]).decode("utf-8", errors="replace")
     return content, data.get("sha", "")
 
 
-def fetch_period(name: str) -> tuple[str, str]:
+def fetch_period(full_name: str) -> tuple[str, str]:
     """(첫 커밋 날짜 YYYY.MM, 마지막 커밋 날짜 YYYY.MM) 반환"""
     # 첫 커밋 — 마지막 페이지 1개
     first_url = (
-        f"https://api.github.com/repos/{GITHUB_USER}/{name}"
+        f"https://api.github.com/repos/{full_name}"
         f"/commits?per_page=1&direction=asc"
     )
     last_url = (
-        f"https://api.github.com/repos/{GITHUB_USER}/{name}"
+        f"https://api.github.com/repos/{full_name}"
         f"/commits?per_page=1"
     )
     first_data = _gh(first_url)
@@ -391,8 +395,10 @@ def main():
         if name in excluded:
             continue
 
+        full_name = repo.get("full_name", f"{GITHUB_USER}/{name}")
+
         # README 가져오기
-        readme_text, readme_sha = fetch_readme(name)
+        readme_text, readme_sha = fetch_readme(full_name)
         saved_sha = repo_cfg.get(name, {}).get("sha", "")
 
         is_new    = name not in repo_cfg
@@ -408,7 +414,7 @@ def main():
         # 기간 계산
         saved_start = repo_cfg.get(name, {}).get("start", "")
         saved_end   = repo_cfg.get(name, {}).get("end", "")
-        start, end  = fetch_period(name)
+        start, end  = fetch_period(full_name)
         if not start:
             start = saved_start
         if not end:
