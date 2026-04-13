@@ -19,6 +19,10 @@
       <a href="#projects">Projects</a>
       <a href="#contact">Contact</a>
     </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="테마 전환">
+      <span class="toggle-icon">🌙</span>
+      <span class="toggle-label">Dark</span>
+    </button>
   </div>
 </nav>
 
@@ -549,5 +553,37 @@
   <p>© 2026 Dounselor · Built with GitHub Pages</p>
 </footer>
 
+<script>
+  (function() {
+    const toggle = document.getElementById('themeToggle');
+    const icon   = toggle.querySelector('.toggle-icon');
+    const label  = toggle.querySelector('.toggle-label');
+    const html   = document.documentElement;
+
+    function applyTheme(theme) {
+      if (theme === 'light') {
+        html.setAttribute('data-theme', 'light');
+        icon.textContent  = '☀️';
+        label.textContent = 'Light';
+      } else {
+        html.removeAttribute('data-theme');
+        icon.textContent  = '🌙';
+        label.textContent = 'Dark';
+      }
+    }
+
+    // 저장된 테마 또는 시스템 설정 적용
+    const saved = localStorage.getItem('theme');
+    const preferLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+    applyTheme(saved || (preferLight ? 'light' : 'dark'));
+
+    toggle.addEventListener('click', function() {
+      const current = html.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+      const next = current === 'light' ? 'dark' : 'light';
+      applyTheme(next);
+      localStorage.setItem('theme', next);
+    });
+  })();
+</script>
 </body>
 </html>

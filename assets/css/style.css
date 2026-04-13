@@ -15,6 +15,23 @@
   --shadow:   0 16px 48px rgba(0,0,0,0.6);
 }
 
+/* ── LIGHT THEME ── */
+[data-theme="light"] {
+  --bg:       #f8fafc;
+  --bg2:      #ffffff;
+  --bg3:      #f1f5f9;
+  --border:   #e2e8f0;
+  --text:     #1e293b;
+  --muted:    #64748b;
+  --accent:   #0284c7;
+  --accent2:  #0369a1;
+  --green:    #16a34a;
+  --orange:   #ea580c;
+  --purple:   #9333ea;
+  --pink:     #db2777;
+  --shadow:   0 16px 48px rgba(0,0,0,0.08);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
@@ -23,6 +40,7 @@ body {
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
   line-height: 1.7;
+  transition: background 0.3s, color 0.3s;
 }
 
 a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
@@ -33,10 +51,14 @@ a:hover { color: var(--accent2); }
 /* ── NAV ── */
 nav {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(10,12,16,0.85);
+  background: rgba(7,9,15,0.85);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   padding: 14px 0;
+  transition: background 0.3s;
+}
+[data-theme="light"] nav {
+  background: rgba(248,250,252,0.9);
 }
 nav .inner {
   max-width: 880px; margin: 0 auto; padding: 0 24px;
@@ -46,6 +68,23 @@ nav .inner {
 .nav-links { display: flex; gap: 24px; }
 .nav-links a { font-size: 0.88rem; color: var(--muted); }
 .nav-links a:hover { color: var(--text); }
+
+/* ── THEME TOGGLE ── */
+.theme-toggle {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--muted);
+  display: flex; align-items: center; gap: 6px;
+  transition: border-color 0.2s, color 0.2s, background 0.3s;
+  user-select: none;
+  white-space: nowrap;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle .toggle-icon { font-size: 1rem; }
 
 /* ── HERO ── */
 header {
@@ -87,6 +126,13 @@ header::before {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   filter: drop-shadow(0 0 24px rgba(56,189,248,0.25));
+}
+[data-theme="light"] .hero-name {
+  background: linear-gradient(135deg, #1e293b 0%, var(--accent) 50%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 16px rgba(2,132,199,0.15));
 }
 .hero-meaning {
   font-size: 0.9rem;
