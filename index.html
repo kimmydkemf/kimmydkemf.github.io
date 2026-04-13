@@ -130,11 +130,10 @@
             <div class="proj-chips">
               <span class="chip dev">React 18</span>
               <span class="chip dev">Vite</span>
-              <span class="chip dev">React Router v6</span>
               <span class="chip dev">FastAPI</span>
-              <span class="chip dev">SQLAlchemy</span>
               <span class="chip dev">SQLite (WAL)</span>
-              <span class="chip dev">Google Gemini 2.5 Flash (비전)</span>
+              <span class="chip ai">Google Gemini 2.5 Flash</span>
+              <span class="chip">PWA</span>
             </div>
           </div>
           <span class="arrow">▶</span>
@@ -142,7 +141,19 @@
         <div class="detail">
           <div class="dl-section">
             <h4>프로젝트 소개</h4>
-            <p>내용을 입력하세요.</p>
+            <p>개인 건강 관리를 위한 PWA(Progressive Web App). 식사, 운동, 음주를 기록하고 AI 기반 음식 사진 분석까지 지원합니다.<br>
+              식단 사진을 찍으면 Google Gemini가 칼로리를 자동 분석하고, MET 기반 운동 소모량과 합산해 하루 칼로리를 한눈에 파악할 수 있습니다.</p>
+          </div>
+          <div class="dl-section">
+            <h4>주요 기능</h4>
+            <ul>
+              <li>식단 사진 업로드 → Gemini AI 자동 음식 인식 + 칼로리 추정</li>
+              <li>운동 기록 (MET 기반 칼로리 소모량 계산, 주간 요약)</li>
+              <li>음료 컬렉션 — AI 술 사진 인식, CocktailDB 연동, 시음 기록</li>
+              <li>대시보드 — 섭취/소모/순칼로리 그라데이션 카드</li>
+              <li>Telegram 봇 연동 (Claude Code CLI와 연동)</li>
+              <li>모바일 PWA — ngrok 터널로 외부 접속 지원</li>
+            </ul>
           </div>
           <div class="dl-section">
             <h4>Repository</h4>

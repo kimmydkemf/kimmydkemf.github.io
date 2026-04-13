@@ -238,19 +238,20 @@ def _parse_readme_fallback(readme: str, repo: dict) -> dict:
     lines = readme.splitlines()
     sections: dict[str, list[str]] = {"__top__": []}
     current = "__top__"
-
-    # 첫 h1을 프로젝트 제목으로
-    for line in lines:
-        h1 = re.match(r'^#\s+(.+)$', line)
-        if h1:
-            result["proj_title"] = h1.group(1).strip()
-            break
+    h1_found = False
 
     for line in lines:
-        hm = re.match(r'^#{1,3}\s+(.+)$', line)
+        hm = re.match(r'^(#{1,3})\s+(.+)$', line)
         if hm:
-            current = hm.group(1).strip()
-            sections[current] = []
+            level, title = len(hm.group(1)), hm.group(2).strip()
+            if level == 1 and not h1_found:
+                # 첫 h1은 제목으로 처리하고 그 아래 내용은 __top__에 계속 수집
+                result["proj_title"] = title
+                h1_found = True
+                current = "__top__"
+            else:
+                current = title
+                sections[current] = []
         else:
             sections.setdefault(current, []).append(line)
 
@@ -279,7 +280,7 @@ def _parse_readme_fallback(readme: str, repo: dict) -> dict:
         out = []
         for l in raw:
             l = clean(l)
-            if l and not l.startswith(('#', '!', '|', '-|', '|-')):
+            if l and not l.startswith(('#', '!', '|', '-|', '|-')) and not re.match(r'^-{3,}$', l):
                 out.append(l)
             if len(out) >= max_p:
                 break
