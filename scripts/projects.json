@@ -2,8 +2,7 @@
   "excluded": [
     "MyNote",
     "SharePaper",
-    "VirtualityForSafety",
-    "kimmydkemf.github.io"
+    "VirtualityForSafety"
   ],
   "skip_repos": [
     "MeetingGround"
