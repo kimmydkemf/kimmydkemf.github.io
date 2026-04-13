@@ -358,7 +358,7 @@ details[open] .arrow { transform: rotate(90deg); }
   padding: 0 14px;
 }
 .float-badge.expanded .float-badge-body {
-  max-height: 80px;
+  max-height: 120px;
   padding: 0 14px 12px;
 }
 
