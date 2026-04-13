@@ -1,7 +1,9 @@
 {
   "excluded": [
     "kimmydkemf.github.io",
-    "MyNote"
+    "MyNote",
+    "SharePaper",
+    "VirtualityForSafety"
   ],
   "repos": {}
 }

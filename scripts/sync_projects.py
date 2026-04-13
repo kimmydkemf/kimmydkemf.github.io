@@ -29,6 +29,7 @@ GITHUB_USER  = "kimmydkemf"
 ROOT         = Path(__file__).parent.parent
 INDEX_HTML   = ROOT / "index.html"
 CONFIG_FILE  = Path(__file__).parent / "projects.json"
+AUTO_START   = "<!-- AUTO:START"
 AUTO_END     = "<!-- AUTO:END -->"
 
 LANG_TAG = {
@@ -352,17 +353,48 @@ def insert_card(html: str, card: str) -> str:
 def update_card(html: str, name: str, card: str) -> str:
     """기존 AUTO:{name} … /AUTO:{name} 블록을 교체"""
     pattern = re.compile(
-        rf'\n\s*<!-- AUTO:{re.escape(name)} -->.*?<!-- /AUTO:{re.escape(name)} -->',
+        rf'\n?\s*<!-- AUTO:{re.escape(name)} -->.*?<!-- /AUTO:{re.escape(name)} -->',
         re.DOTALL
     )
     if pattern.search(html):
         return pattern.sub(card, html)
-    # 마커가 없으면 신규 삽입
     return insert_card(html, card)
 
 
 def card_exists(html: str, name: str) -> bool:
     return f"<!-- AUTO:{name} -->" in html
+
+
+def reorder_auto_section(html: str, repo_cfg: dict) -> str:
+    """AUTO:START ~ AUTO:END 사이 카드를 시작일 내림차순으로 재정렬"""
+    start_idx = html.find(AUTO_START)
+    end_idx   = html.find(AUTO_END)
+    if start_idx == -1 or end_idx == -1:
+        return html
+
+    # AUTO:START 줄 끝 찾기
+    start_line_end = html.index('\n', start_idx) + 1
+    between = html[start_line_end:end_idx]
+
+    card_pattern = re.compile(
+        r'(\s*<!-- AUTO:([A-Za-z0-9_\-\.]+) -->.*?<!-- /AUTO:\2 -->)',
+        re.DOTALL
+    )
+    cards = card_pattern.findall(between)
+    if len(cards) <= 1:
+        return html
+
+    def sort_key(card_tuple):
+        name  = card_tuple[1]
+        start = repo_cfg.get(name, {}).get("start", "0000.00")
+        return start
+
+    sorted_cards = sorted(cards, key=sort_key, reverse=True)
+    if cards == sorted_cards:
+        return html
+
+    sorted_content = ''.join(c[0] for c in sorted_cards) + '\n      '
+    return html[:start_line_end] + sorted_content + html[end_idx:]
 
 
 # ── 메인 ──────────────────────────────────────────────────────────────
@@ -429,7 +461,7 @@ def main():
             # Obsidian md
             if args.obsidian:
                 vault = Path(args.obsidian).expanduser()
-                md_dir = vault / "20-projects" / name
+                md_dir = vault / "개발" / name
                 md_dir.mkdir(parents=True, exist_ok=True)
                 md_path = md_dir / f"{name}.md"
                 md_path.write_text(render_md(name, repo, parsed, start, end),
@@ -444,6 +476,14 @@ def main():
             print(f"    [dry-run] 카드 생성 예정 (기간: {start} – {end})")
             print(f"    기술: {parsed['tech_items']}")
             print(f"    기능: {parsed['feature_items'][:3]}")
+
+    # 정렬 (변경 여부 무관하게 항상 실행)
+    if not args.dry_run:
+        html_sorted = reorder_auto_section(html, repo_cfg)
+        if html_sorted != html:
+            html = html_sorted
+            changed = True
+            print("\n  AUTO 섹션 날짜순 재정렬 완료.")
 
     if changed and not args.dry_run:
         INDEX_HTML.write_text(html, encoding="utf-8")
