@@ -569,9 +569,14 @@ def main():
         is_new     = name not in repo_cfg
         sha_changed = readme_sha != saved_sha
 
-        if not is_new and not sha_changed and not args.force:
+        # 플레이스홀더 내용 감지 (카드가 비어있으면 강제 재생성)
+        has_placeholder = card_exists(html, name) and "내용을 입력하세요." in html
+
+        if not is_new and not sha_changed and not args.force and not has_placeholder:
             print(f"  [{name}] 변경 없음 — 스킵")
             continue
+        if has_placeholder:
+            print(f"  [{name}] 빈 카드 감지 — 내용 재생성")
 
         action = "신규" if is_new else "업데이트"
         print(f"  [{name}] {action} 처리 중…")
