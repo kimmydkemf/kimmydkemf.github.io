@@ -337,7 +337,7 @@ details[open] .arrow { transform: rotate(90deg); }
   background: var(--bg2);
   border: 1px solid rgba(56,189,248,0.35);
   border-radius: 14px;
-  width: 220px;
+  width: 260px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.4);
   overflow: hidden;
   transition: box-shadow 0.2s;
@@ -421,10 +421,10 @@ footer {
   .member-name { font-size: 0.82rem; }
   .member-role { font-size: 0.74rem; }
 
-  /* float badge: 모바일에서 작고 하단 중앙 */
+  /* float badge: 모바일에서 하단 중앙 */
   .float-badge {
-    width: calc(100% - 32px);
-    right: 16px; left: 16px; bottom: 16px;
+    width: calc(100% - 48px);
+    right: 24px; left: 24px; bottom: 16px;
   }
 
   /* contact */
