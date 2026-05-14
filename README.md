@@ -8,7 +8,8 @@ GitHub 레포지토리의 README를 자동으로 읽어 프로젝트 카드를 �
 
 ## 기능
 
-- **다크 / 라이트 테마 전환** — nav 우측 버튼으로 전환, 선택값 localStorage 저장
+- **Apple 스타일 디자인** — 다크/라이트 모두 깔끔하고 임팩트 있는 비주얼 (라이트 배경 `#f5f5f7`, SF Pro 폴백 폰트, 부드러운 그림자·진입 페이드 애니메이션, 호버 lift)
+- **다크 / 라이트 테마 전환** — nav 우측 버튼으로 전환, 선택값 localStorage 저장, 시스템 `prefers-color-scheme` 자동 감지
 - **GitHub 자동 동기화** — README가 있는 레포를 감지해 포트폴리오 카드 자동 생성
 - **Claude AI 카드 생성** — `ANTHROPIC_API_KEY` 설정 시 Claude가 README를 분석해 소개 문장을 다듬어 줌
 - **최신순 자동 정렬** — 시작일 기준 내림차순 정렬
@@ -132,6 +133,15 @@ git push
 
 ## 기술 스택
 
-- **Frontend**: HTML · CSS (CSS Variables 기반 다크/라이트 테마) · Vanilla JS
+- **Frontend**: HTML · CSS (CSS Variables 기반 다크/라이트 테마, Apple-inspired) · Vanilla JS
 - **Sync**: Python 3 · GitHub REST API · Anthropic Claude API
 - **Hosting**: GitHub Pages
+
+---
+
+## 디자인 노트
+
+- **라이트 모드**: Apple Newsroom 스타일 — `#f5f5f7` 시스템 그레이 배경 + 흰 카드 + 부드러운 그림자
+- **다크 모드**: 거의 검정 (`#07090f`) 배경에 네온 블루·퍼플 그라데이션 hero
+- **공통**: hero 진입 페이드업 애니메이션, 카드 호버 lift, sticky nav backdrop blur, `prefers-reduced-motion` 대응
+- 모든 색상은 CSS Variables 로 분리 → 두 테마에서 동일 룩 유지
