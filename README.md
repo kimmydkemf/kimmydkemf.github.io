@@ -141,7 +141,8 @@ git push
 
 ## 디자인 노트
 
-- **라이트 모드**: Apple Newsroom 스타일 — `#f5f5f7` 시스템 그레이 배경 + 흰 카드 + 부드러운 그림자
-- **다크 모드**: 거의 검정 (`#07090f`) 배경에 네온 블루·퍼플 그라데이션 hero
-- **공통**: hero 진입 페이드업 애니메이션, 카드 호버 lift, sticky nav backdrop blur, `prefers-reduced-motion` 대응
-- 모든 색상은 CSS Variables 로 분리 → 두 테마에서 동일 룩 유지
+- **라이트 모드** — Anthropic / Substack 스타일 따뜻한 크림 톤 (`#faf6ed` 배경 + 오프화이트 카드 + 깊은 블루 액센트). 종이 매거진 같은 인상.
+- **다크 모드** — 거의 검정 (`#07090f`) 배경에 네온 블루·퍼플 그라데이션 hero. 심플한 톤 유지.
+- **라이트 전용 임팩트 레이어** — 큰 섹션 번호 인디케이터 (`01·02·03·04`, CSS counter), Hero 그라데이션 블롭 + 28초 드리프트 애니메이션, About/Project 카드 상단 stripe 슬라이드.
+- **공통** — hero 진입 fadeUp stagger, 카드 호버 lift, sticky nav backdrop blur, `prefers-reduced-motion` 대응.
+- 모든 색상은 CSS Variables 로 분리 → 두 테마에서 동일 룩 유지.

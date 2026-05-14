@@ -45,37 +45,38 @@
   --tag-award-fg:   #f472b6;
 }
 
-/* ── LIGHT — Apple-inspired ──────────────────────────────────────────────── */
+/* ── LIGHT — Warm cream (Anthropic/Substack-inspired) ────────────────────── */
 [data-theme="light"] {
-  --bg:        #f5f5f7;      /* Apple system gray */
-  --bg2:       #ffffff;
-  --bg3:       #fafafc;
-  --border:    #e5e5ea;
-  --border-strong: #d2d2d7;
-  --text:      #1d1d1f;      /* Apple ink */
-  --text2:     #2c2c2e;
-  --muted:     #6e6e73;
-  --accent:    #0071e3;      /* Apple blue */
-  --accent2:   #0058b8;
-  --green:     #16a34a;
-  --orange:    #ea580c;
-  --purple:    #9333ea;
-  --pink:      #db2777;
+  --bg:        #faf6ed;       /* warm cream */
+  --bg2:       #fffdf7;       /* off-white card (slightly warm) */
+  --bg3:       #f3ecd9;       /* deeper cream — chips/dividers */
+  --border:    #e7dfc9;       /* warm tan border */
+  --border-strong: #d4c8a8;
+  --text:      #1c1917;       /* warm near-black (stone-900) */
+  --text2:     #292524;
+  --muted:     #78716c;       /* stone-500 */
+  --accent:    #0058b8;       /* deeper blue — sits better on cream */
+  --accent2:   #003e85;
+  --green:     #15803d;
+  --orange:    #c2410c;       /* warm orange */
+  --purple:    #7e22ce;
+  --pink:      #be185d;
 
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
-  --shadow:    0 6px 24px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04);
-  --shadow-lg: 0 24px 64px rgba(0,0,0,0.10), 0 8px 20px rgba(0,0,0,0.05);
+  /* warm-tinted shadows for cohesion with cream */
+  --shadow-sm: 0 1px 4px rgba(70,55,20,0.05), 0 1px 2px rgba(70,55,20,0.04);
+  --shadow:    0 6px 24px rgba(70,55,20,0.08), 0 2px 6px rgba(70,55,20,0.05);
+  --shadow-lg: 0 24px 64px rgba(70,55,20,0.12), 0 8px 20px rgba(70,55,20,0.06);
 
-  --tag-infra-bg:   #dcfce7;
-  --tag-infra-bd:   #86efac;
-  --tag-infra-fg:   #15803d;
+  --tag-infra-bg:   #d1fae5;
+  --tag-infra-bd:   #6ee7b7;
+  --tag-infra-fg:   #047857;
   --tag-dev-bg:     #dbeafe;
   --tag-dev-bd:     #93c5fd;
-  --tag-dev-fg:     #1d4ed8;
-  --tag-mobile-bg:  #f3e8ff;
-  --tag-mobile-bd:  #d8b4fe;
+  --tag-dev-fg:     #1e40af;
+  --tag-mobile-bg:  #e9d5ff;
+  --tag-mobile-bd:  #c4b5fd;
   --tag-mobile-fg:  #6b21a8;
-  --tag-ai-bg:      #ffedd5;
+  --tag-ai-bg:      #fed7aa;
   --tag-ai-bd:      #fdba74;
   --tag-ai-fg:      #9a3412;
   --tag-award-bg:   #fce7f3;
@@ -121,7 +122,7 @@ nav {
   padding: 12px 0;
   transition: background 0.4s ease, border-color 0.4s ease;
 }
-[data-theme="light"] nav { background: rgba(255,255,255,0.78); }
+[data-theme="light"] nav { background: rgba(250,246,237,0.82); }
 
 nav .inner {
   max-width: 1040px; margin: 0 auto; padding: 0 32px;
@@ -176,9 +177,9 @@ header::before {
 }
 [data-theme="light"] header::before {
   background:
-    radial-gradient(ellipse 70% 50% at 50% 0%,  rgba(0,113,227,0.10) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 45% at 85% 80%, rgba(147,51,234,0.07) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 35% at 10% 60%, rgba(219,39,119,0.05) 0%, transparent 60%);
+    radial-gradient(ellipse 70% 50% at 50% 0%,  rgba(0,88,184,0.10) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 45% at 85% 80%, rgba(126,34,206,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 35% at 10% 60%, rgba(190,24,93,0.05) 0%, transparent 60%);
 }
 
 .hero-label {
@@ -206,10 +207,10 @@ header::before {
   animation: fadeUp 0.7s ease-out 0.15s both;
 }
 [data-theme="light"] .hero-name {
-  background: linear-gradient(135deg, #1d1d1f 0%, var(--accent) 55%, var(--purple) 100%);
+  background: linear-gradient(135deg, var(--text) 0%, var(--accent) 55%, var(--purple) 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 20px rgba(0,113,227,0.15));
+  filter: drop-shadow(0 4px 20px rgba(0,88,184,0.15));
 }
 
 .hero-meaning {
@@ -604,9 +605,9 @@ section { counter-increment: section-num; }
 }
 [data-theme="light"] header::before {
   background:
-    radial-gradient(circle 800px at 50% -8%,  rgba(0,113,227,0.22)  0%, transparent 55%),
-    radial-gradient(circle 700px at 88% 70%,  rgba(147,51,234,0.18) 0%, transparent 55%),
-    radial-gradient(circle 520px at 8% 65%,   rgba(219,39,119,0.14) 0%, transparent 55%);
+    radial-gradient(circle 800px at 50% -8%,  rgba(0,88,184,0.16)   0%, transparent 55%),
+    radial-gradient(circle 700px at 88% 70%,  rgba(126,34,206,0.14) 0%, transparent 55%),
+    radial-gradient(circle 520px at 8% 65%,   rgba(194,65,12,0.10)  0%, transparent 55%);
   animation: drift 28s ease-in-out infinite alternate;
   will-change: transform;
 }
@@ -617,26 +618,26 @@ section { counter-increment: section-num; }
 
 /* hero label — 그라데이션 배경 + 컬러 shadow */
 [data-theme="light"] .hero-label {
-  background: linear-gradient(135deg, rgba(0,113,227,0.10), rgba(147,51,234,0.10));
-  border: 1px solid rgba(0,113,227,0.28);
-  color: #0058b8;
+  background: linear-gradient(135deg, rgba(0,88,184,0.10), rgba(126,34,206,0.10));
+  border: 1px solid rgba(0,88,184,0.28);
+  color: var(--accent);
   box-shadow:
-    0 6px 20px rgba(0,113,227,0.12),
-    0 2px 6px  rgba(147,51,234,0.06);
+    0 6px 20px rgba(0,88,184,0.12),
+    0 2px 6px  rgba(126,34,206,0.06);
   font-weight: 700;
 }
 
 /* hero name — 더 강한 drop-shadow */
 [data-theme="light"] .hero-name {
-  filter: drop-shadow(0 6px 28px rgba(0,113,227,0.20))
-          drop-shadow(0 12px 40px rgba(147,51,234,0.08));
+  filter: drop-shadow(0 6px 28px rgba(0,88,184,0.20))
+          drop-shadow(0 12px 40px rgba(126,34,206,0.08));
 }
 
 /* hero role — 그라데이션 좌측 액센트 바 */
 [data-theme="light"] .hero-role {
   position: relative;
   padding-left: 26px;
-  box-shadow: 0 8px 28px rgba(0,113,227,0.10), 0 2px 6px rgba(0,0,0,0.04);
+  box-shadow: 0 8px 28px rgba(0,88,184,0.10), 0 2px 6px rgba(70,55,20,0.05);
 }
 [data-theme="light"] .hero-role::before {
   content: '';
@@ -657,10 +658,10 @@ section { counter-increment: section-num; }
   font-weight: 800;
   letter-spacing: -3px;
   line-height: 0.9;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 55%, var(--pink) 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 55%, var(--orange) 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 16px rgba(0,113,227,0.18));
+  filter: drop-shadow(0 4px 16px rgba(0,88,184,0.18));
 }
 [data-theme="light"] .section-header h2 {
   font-size: 1.05rem;
@@ -677,13 +678,13 @@ section { counter-increment: section-num; }
 /* === 3. About cards — 상단 그라데이션 stripe (호버 시 등장) =========== */
 [data-theme="light"] .about-card {
   position: relative;
-  background: linear-gradient(180deg, #ffffff 0%, #fafbfd 100%);
+  background: linear-gradient(180deg, var(--bg2) 0%, #fbf5e6 100%);
   overflow: hidden;
 }
 [data-theme="light"] .about-card::before {
   content: '';
   position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--accent), var(--purple), var(--pink));
+  background: linear-gradient(90deg, var(--accent), var(--purple), var(--orange));
   opacity: 0;
   transform: translateX(-100%);
   transition: opacity 0.4s ease, transform 0.5s cubic-bezier(.2,.7,.3,1);
@@ -694,8 +695,9 @@ section { counter-increment: section-num; }
 }
 [data-theme="light"] .about-card:hover {
   box-shadow:
-    0 12px 40px rgba(0,113,227,0.10),
-    0 4px 12px rgba(147,51,234,0.06);
+    0 12px 40px rgba(0,88,184,0.10),
+    0 4px 12px rgba(126,34,206,0.06),
+    0 2px 6px rgba(70,55,20,0.04);
 }
 
 /* about 카드 h3 — 더 강조 */
@@ -713,7 +715,7 @@ section { counter-increment: section-num; }
 [data-theme="light"] details::before {
   content: '';
   position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--accent), var(--purple), var(--pink));
+  background: linear-gradient(90deg, var(--accent), var(--purple), var(--orange));
   opacity: 0;
   transform: translateX(-100%);
   transition: opacity 0.4s ease, transform 0.5s cubic-bezier(.2,.7,.3,1);
@@ -726,13 +728,15 @@ section { counter-increment: section-num; }
 }
 [data-theme="light"] details:hover {
   box-shadow:
-    0 12px 40px rgba(0,113,227,0.10),
-    0 4px 12px rgba(147,51,234,0.06);
+    0 12px 40px rgba(0,88,184,0.10),
+    0 4px 12px rgba(126,34,206,0.06),
+    0 2px 6px rgba(70,55,20,0.04);
 }
 [data-theme="light"] details[open] {
   box-shadow:
-    0 20px 60px rgba(0,113,227,0.12),
-    0 8px 24px rgba(147,51,234,0.08);
+    0 20px 60px rgba(0,88,184,0.12),
+    0 8px 24px rgba(126,34,206,0.08),
+    0 4px 12px rgba(70,55,20,0.05);
 }
 
 /* project title hover — accent로 변색 */
@@ -749,27 +753,27 @@ section { counter-increment: section-num; }
   content: '';
   width: 7px; height: 7px; border-radius: 50%;
   background: linear-gradient(135deg, var(--accent), var(--purple));
-  box-shadow: 0 0 8px rgba(0,113,227,0.4);
+  box-shadow: 0 0 8px rgba(0,88,184,0.4);
 }
 
 /* === 6. Theme toggle — 더 미려한 라이트 모드 버튼 =================== */
 [data-theme="light"] .theme-toggle {
-  background: linear-gradient(135deg, #ffffff, #f0f4f8);
+  background: linear-gradient(135deg, var(--bg2), #f3ecd9);
   box-shadow: var(--shadow-sm);
 }
 [data-theme="light"] .theme-toggle:hover {
-  background: linear-gradient(135deg, rgba(0,113,227,0.06), rgba(147,51,234,0.06));
-  box-shadow: 0 4px 12px rgba(0,113,227,0.10);
+  background: linear-gradient(135deg, rgba(0,88,184,0.06), rgba(126,34,206,0.06));
+  box-shadow: 0 4px 12px rgba(0,88,184,0.10);
 }
 
 /* === 7. Contact 버튼 — 라이트에서 그라데이션 호버 ==================== */
 [data-theme="light"] .contact-btn:hover {
-  background: linear-gradient(135deg, rgba(0,113,227,0.06), rgba(147,51,234,0.06));
+  background: linear-gradient(135deg, rgba(0,88,184,0.06), rgba(126,34,206,0.06));
 }
 
 /* === 8. Floating badge — 라이트에서 그라데이션 보더 ================== */
 [data-theme="light"] .float-badge {
-  background: linear-gradient(180deg, #ffffff, #fafbfd);
+  background: linear-gradient(180deg, var(--bg2), #fbf5e6);
   position: relative;
 }
 [data-theme="light"] .float-badge::before {
@@ -777,7 +781,7 @@ section { counter-increment: section-num; }
   position: absolute; inset: 0;
   border-radius: inherit;
   padding: 1.5px;
-  background: linear-gradient(135deg, var(--accent), var(--purple), var(--pink));
+  background: linear-gradient(135deg, var(--accent), var(--purple), var(--orange));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
           mask-composite: exclude;
