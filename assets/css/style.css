@@ -599,6 +599,20 @@ footer {
 body  { counter-reset: section-num 0; }
 section { counter-increment: section-num; }
 
+/* === 0. 전체 페이지 ambient 파스텔 (라이트 전용) ====================== */
+/* body 자체 배경에 다단 radial-gradient + attachment fixed로 스크롤해도
+   ambient 톤이 유지됨. 카드 안쪽은 솔리드 var(--bg2)라 가독성 유지. */
+[data-theme="light"] body {
+  background:
+    radial-gradient(ellipse 70% 50% at 12% 8%,   rgba(0,88,184,0.10)   0%, transparent 60%),
+    radial-gradient(ellipse 60% 45% at 92% 28%,  rgba(126,34,206,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 55% at 18% 55%,  rgba(194,65,12,0.07)  0%, transparent 60%),
+    radial-gradient(ellipse 55% 45% at 88% 75%,  rgba(0,88,184,0.07)   0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 20% 95%,  rgba(126,34,206,0.06) 0%, transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
 /* === 1. Hero — 더 큰·진한 그라데이션 블롭 + 느린 드리프트 ============== */
 [data-theme="light"] header {
   padding: 160px 0 130px;
