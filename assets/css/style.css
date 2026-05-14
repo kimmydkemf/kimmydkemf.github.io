@@ -600,15 +600,17 @@ body  { counter-reset: section-num 0; }
 section { counter-increment: section-num; }
 
 /* === 0. 전체 페이지 ambient 파스텔 (라이트 전용) ====================== */
-/* body 자체 배경에 다단 radial-gradient + attachment fixed로 스크롤해도
-   ambient 톤이 유지됨. 카드 안쪽은 솔리드 var(--bg2)라 가독성 유지. */
+/* hero 수준의 진한 ambient를 전체 viewport에 깔아 hero와 below 사이
+   이질감 제거. background-attachment: fixed로 스크롤해도 ambient 유지.
+   카드는 솔리드 var(--bg2) 라 가독성 영향 없음. */
 [data-theme="light"] body {
   background:
-    radial-gradient(ellipse 70% 50% at 12% 8%,   rgba(0,88,184,0.10)   0%, transparent 60%),
-    radial-gradient(ellipse 60% 45% at 92% 28%,  rgba(126,34,206,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 65% 55% at 18% 55%,  rgba(194,65,12,0.07)  0%, transparent 60%),
-    radial-gradient(ellipse 55% 45% at 88% 75%,  rgba(0,88,184,0.07)   0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 20% 95%,  rgba(126,34,206,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 45% at 10% 8%,   rgba(0,88,184,0.18)   0%, transparent 58%),
+    radial-gradient(ellipse 60% 45% at 92% 22%,  rgba(126,34,206,0.16) 0%, transparent 58%),
+    radial-gradient(ellipse 55% 40% at 18% 48%,  rgba(194,65,12,0.13)  0%, transparent 58%),
+    radial-gradient(ellipse 50% 40% at 88% 60%,  rgba(0,88,184,0.14)   0%, transparent 58%),
+    radial-gradient(ellipse 55% 45% at 25% 82%,  rgba(126,34,206,0.13) 0%, transparent 58%),
+    radial-gradient(ellipse 50% 40% at 85% 95%,  rgba(194,65,12,0.11)  0%, transparent 58%),
     var(--bg);
   background-attachment: fixed;
 }
@@ -619,9 +621,9 @@ section { counter-increment: section-num; }
 }
 [data-theme="light"] header::before {
   background:
-    radial-gradient(circle 800px at 50% -8%,  rgba(0,88,184,0.16)   0%, transparent 55%),
-    radial-gradient(circle 700px at 88% 70%,  rgba(126,34,206,0.14) 0%, transparent 55%),
-    radial-gradient(circle 520px at 8% 65%,   rgba(194,65,12,0.10)  0%, transparent 55%);
+    radial-gradient(circle 800px at 50% -8%,  rgba(0,88,184,0.10)   0%, transparent 55%),
+    radial-gradient(circle 700px at 88% 70%,  rgba(126,34,206,0.09) 0%, transparent 55%),
+    radial-gradient(circle 520px at 8% 65%,   rgba(194,65,12,0.07)  0%, transparent 55%);
   animation: drift 28s ease-in-out infinite alternate;
   will-change: transform;
 }
@@ -770,6 +772,14 @@ section { counter-increment: section-num; }
   box-shadow: 0 0 8px rgba(0,88,184,0.4);
 }
 
+/* === 5.5. Nav underline — 라이트 모드 그라데이션 (블루→퍼플→오렌지) === */
+[data-theme="light"] .nav-links a::after {
+  height: 2px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, var(--accent), var(--purple), var(--orange));
+}
+[data-theme="light"] .nav-links a:hover { color: var(--accent); }
+
 /* === 6. Theme toggle — 더 미려한 라이트 모드 버튼 =================== */
 [data-theme="light"] .theme-toggle {
   background: linear-gradient(135deg, var(--bg2), #f3ecd9);
@@ -786,9 +796,10 @@ section { counter-increment: section-num; }
 }
 
 /* === 8. Floating badge — 라이트에서 그라데이션 보더 ================== */
+/* NOTE: position: fixed는 base 규칙에서 적용됨. 여기서 재선언 X (이전에
+   position: relative로 덮어서 라이트에서 fixed 깨졌던 버그 수정). */
 [data-theme="light"] .float-badge {
   background: linear-gradient(180deg, var(--bg2), #fbf5e6);
-  position: relative;
 }
 [data-theme="light"] .float-badge::before {
   content: '';
