@@ -1,6 +1,6 @@
 # Dounselor Portfolio
 
-**kimmydkemf.github.io** — GitHub Pages 기반 개인 포트폴리오 사이트.
+**[dounselor.com](https://dounselor.com)** (GitHub Pages 호스팅, `kimmydkemf.github.io` → 커스텀 도메인 CNAME) — 개인 포트폴리오 사이트.
 
 GitHub 레포지토리의 README를 자동으로 읽어 프로젝트 카드를 생성·업데이트하는 동기화 기능을 포함합니다.
 
@@ -136,6 +136,32 @@ git push
 - **Frontend**: HTML · CSS (CSS Variables 기반 다크/라이트 테마, Apple-inspired) · Vanilla JS
 - **Sync**: Python 3 · GitHub REST API · Anthropic Claude API
 - **Hosting**: GitHub Pages
+
+---
+
+## 도메인 / 인프라
+
+- **메인 도메인**: `dounselor.com` (apex)
+- **GitHub Pages**: 정적 호스팅 — `kimmydkemf.github.io`, CNAME 파일로 커스텀 도메인 연결
+- **DNS / SSL**: Cloudflare (free 플랜)
+- **관련 서브도메인**:
+  - `pacer.dounselor.com` — Pacer (개인 PWA, 자체 호스트)
+  - `life.dounselor.com` — Life Manager (개인 PWA, 자체 호스트)
+
+### GitHub Pages 커스텀 도메인 설정
+
+1. 레포 Settings → Pages → **Custom domain** 에 `dounselor.com` 입력
+2. Enforce HTTPS 체크
+3. Cloudflare DNS:
+   - **A 레코드** `@` → GitHub Pages IP 4개:
+     ```
+     185.199.108.153
+     185.199.109.153
+     185.199.110.153
+     185.199.111.153
+     ```
+   - **CNAME** `www` → `kimmydkemf.github.io`
+4. Cloudflare proxied → DNS only 로 설정 (GitHub Pages 자체 SSL 사용 위해)
 
 ---
 
