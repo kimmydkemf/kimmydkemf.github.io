@@ -18,6 +18,7 @@ sync_projects.py — GitHub 레포 → GitHub Pages 포트폴리오 자동 동�
 
 import argparse
 import base64
+import io
 import json
 import os
 import re
@@ -26,6 +27,14 @@ import urllib.request
 import urllib.error
 from datetime import datetime
 from pathlib import Path
+
+# Windows 한국어 환경 (cp949) 에서 em-dash, 한글, 이모지 등 출력 시
+# UnicodeEncodeError 로 스크립트가 죽는 문제 방지.
+try:
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+except Exception:
+    pass
 
 # ── 설정 ──────────────────────────────────────────────────────────────────────
 GITHUB_USER = "kimmydkemf"
@@ -515,7 +524,7 @@ def main():
     print(f"모드: {mode_str}")
     print(f"GitHub repos 조회 중 ({GITHUB_USER})…\n")
 
-    cfg      = json.loads(CONFIG_FILE.read_text()) if CONFIG_FILE.exists() else {}
+    cfg      = json.loads(CONFIG_FILE.read_text(encoding="utf-8")) if CONFIG_FILE.exists() else {}
     excluded = set(cfg.get("excluded", []))
     skip     = set(cfg.get("skip_repos", []))
     repo_cfg = cfg.get("repos", {})
@@ -548,8 +557,9 @@ def main():
                          not re.search(rf'<!-- AUTO:[^>]+ -->[^<]*{re.escape(t)}', html)}
 
         # proj-title 기준 중복 체크 (AUTO 블록 내의 카드는 제외)
+        # \w+ 가 하이픈/점 매칭 안 함 → repo 이름 dounselor-blog 같은 게 매칭 안 됨 → fix
         auto_titles = set(re.findall(
-            r'<!-- AUTO:\w+ -->.*?class="proj-title">([^<]+)<',
+            r'<!-- AUTO:[\w\-\.]+ -->.*?class="proj-title">([^<]+)<',
             html, re.DOTALL
         ))
         manual_only_titles = existing_titles - auto_titles
@@ -627,7 +637,7 @@ def main():
         cfg["repos"]      = repo_cfg
         cfg["excluded"]   = sorted(excluded)
         cfg["skip_repos"] = sorted(skip)
-        CONFIG_FILE.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
+        CONFIG_FILE.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         print("index.html 및 projects.json 저장 완료.")
         print("git add index.html scripts/projects.json && git commit -m 'sync projects' && git push")
 

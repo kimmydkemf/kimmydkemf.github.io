@@ -11,6 +11,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# Windows cp949 회피 — Python 출력 utf-8 강제 (sync_projects.py 의 stdout reconfigure 와 이중 안전)
+export PYTHONIOENCODING=utf-8
+
 # GitHub Token 로드
 if [ -z "$GITHUB_TOKEN" ]; then
   if [ -f ".env" ]; then
