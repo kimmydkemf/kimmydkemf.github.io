@@ -9,16 +9,34 @@
   ],
   "repos": {
     "health-tracker": {
-      "sha": "0599a1b32af75f06ade68cc05bad489b4e68b0ce",
-      "start": "2026.04",
-      "end": "2026.04",
+      "sha": "b3da122cb6ba17481c87733988bfb2fde0223710",
+      "start": "2026.05",
+      "end": "2026.05",
       "title": "Pacer"
     },
     "kimmydkemf.github.io": {
-      "sha": "4d618b0256ec6917a7b0c31fffc34679655ad1d6",
-      "start": "2026.04",
-      "end": "2026.04",
+      "sha": "1676ce2244c5952588569ed720aa19264eb120ea",
+      "start": "2026.05",
+      "end": "2026.05",
       "title": "Dounselor Portfolio"
+    },
+    "dounselor-blog": {
+      "sha": "df2940ced1c06a6bf775d2e2cad717d7e0d95a93",
+      "start": "2026.05",
+      "end": "2026.05",
+      "title": "Dounselor Blog"
+    },
+    "life-manager": {
+      "sha": "3b9276480e3f800954a739d649941e8619ea430d",
+      "start": "2026.05",
+      "end": "2026.05",
+      "title": "Life Manager"
+    },
+    "bcplus_legacy": {
+      "sha": "99c10a955b812dcadf1e3f125bc46f2c160e6af0",
+      "start": "2021.08",
+      "end": "2021.08",
+      "title": "Business Calendar Plus"
     }
   }
 }

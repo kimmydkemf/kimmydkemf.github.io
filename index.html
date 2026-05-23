@@ -123,17 +123,18 @@
       <!-- AUTO:health-tracker -->
       <details>
         <summary>
-          <span class="proj-period">2026.04 –</span>
+          <span class="proj-period">2026.05 –</span>
           <div class="proj-main">
             <div class="proj-title">Pacer</div>
             <div class="proj-sub">건강, 술, 운동 나를 기록하다.</div>
             <div class="proj-chips">
               <span class="chip dev">React 18</span>
               <span class="chip dev">Vite</span>
+              <span class="chip dev">React Router v6</span>
               <span class="chip dev">FastAPI</span>
+              <span class="chip dev">SQLAlchemy</span>
               <span class="chip dev">SQLite (WAL)</span>
-              <span class="chip ai">Google Gemini 2.5 Flash</span>
-              <span class="chip">PWA</span>
+              <span class="chip dev">Google Gemini 2.5 Flash (비전)</span>
             </div>
           </div>
           <span class="arrow">▶</span>
@@ -141,19 +142,8 @@
         <div class="detail">
           <div class="dl-section">
             <h4>프로젝트 소개</h4>
-            <p>개인 건강 관리를 위한 PWA(Progressive Web App). 식사, 운동, 음주를 기록하고 AI 기반 음식 사진 분석까지 지원합니다.<br>
-              식단 사진을 찍으면 Google Gemini가 칼로리를 자동 분석하고, MET 기반 운동 소모량과 합산해 하루 칼로리를 한눈에 파악할 수 있습니다.</p>
-          </div>
-          <div class="dl-section">
-            <h4>주요 기능</h4>
-            <ul>
-              <li>식단 사진 업로드 → Gemini AI 자동 음식 인식 + 칼로리 추정</li>
-              <li>운동 기록 (MET 기반 칼로리 소모량 계산, 주간 요약)</li>
-              <li>음료 컬렉션 — AI 술 사진 인식, CocktailDB 연동, 시음 기록</li>
-              <li>대시보드 — 섭취/소모/순칼로리 그라데이션 카드</li>
-              <li>Telegram 봇 연동 (Claude Code CLI와 연동)</li>
-              <li>모바일 PWA — ngrok 터널로 외부 접속 지원</li>
-            </ul>
+            <p>pacer.dounselor.com — 개인 건강 관리를 위한 PWA(Progressive Web App).<br>
+              식사, 운동, 음주를 기록하고 AI 기반 음식 사진 분석까지 지원합니다.</p>
           </div>
           <div class="dl-section">
             <h4>Repository</h4>
@@ -162,16 +152,15 @@
         </div>
       </details>
       <!-- /AUTO:health-tracker -->
-      
       <!-- AUTO:kimmydkemf.github.io -->
       <details>
         <summary>
-          <span class="proj-period">2026.04 –</span>
+          <span class="proj-period">2026.05 –</span>
           <div class="proj-main">
             <div class="proj-title">Dounselor Portfolio</div>
-            <div class="proj-sub">kimmydkemf.github.io — GitHub Pages 기반 개인 포트폴리오 사이트.</div>
+            <div class="proj-sub">dounselor.com (GitHub Pages 호스팅, kimmydkemf.github.io → 커스텀 </div>
             <div class="proj-chips">
-              <span class="chip dev">Frontend: HTML · CSS (CSS Variables 기반 다크/라이트 테마) · Vanilla JS</span>
+              <span class="chip dev">Frontend: HTML · CSS (CSS Variables 기반 다크/라이트 테마, Apple-inspired) · Vanilla JS</span>
               <span class="chip dev">Sync: Python 3 · GitHub REST API · Anthropic Claude API</span>
               <span class="chip dev">Hosting: GitHub Pages</span>
             </div>
@@ -181,17 +170,17 @@
         <div class="detail">
           <div class="dl-section">
             <h4>프로젝트 소개</h4>
-            <p>kimmydkemf.github.io — GitHub Pages 기반 개인 포트폴리오 사이트.<br>
+            <p>dounselor.com (GitHub Pages 호스팅, kimmydkemf.github.io → 커스텀 도메인 CNAME) — 개인 포트폴리오 사이트.<br>
               GitHub 레포지토리의 README를 자동으로 읽어 프로젝트 카드를 생성·업데이트하는 동기화 기능을 포함합니다.</p>
           </div>
           <div class="dl-section">
             <h4>주요 기능</h4>
             <ul>
-              <li>다크 / 라이트 테마 전환 — nav 우측 버튼으로 전환, 선택값 localStorage 저장</li>
+              <li>Apple 스타일 디자인 — 다크/라이트 모두 깔끔하고 임팩트 있는 비주얼 (라이트 배경 #f5f5f7, SF Pro 폴백 폰트, 부드러운 그림자·진입 페이드 애니메이션, 호버 lift)</li>
+              <li>다크 / 라이트 테마 전환 — nav 우측 버튼으로 전환, 선택값 localStorage 저장, 시스템 prefers-color-scheme 자동 감지</li>
               <li>GitHub 자동 동기화 — README가 있는 레포를 감지해 포트폴리오 카드 자동 생성</li>
               <li>Claude AI 카드 생성 — ANTHROPIC_API_KEY 설정 시 Claude가 README를 분석해 소개 문장을 다듬어 줌</li>
               <li>최신순 자동 정렬 — 시작일 기준 내림차순 정렬</li>
-              <li>Obsidian 연동 — 동기화 시 Obsidian vault에 프로젝트 md 자동 생성</li>
             </ul>
           </div>
           <div class="dl-section">
@@ -201,6 +190,107 @@
         </div>
       </details>
       <!-- /AUTO:kimmydkemf.github.io -->
+      
+      <!-- AUTO:dounselor-blog -->
+      <details>
+        <summary>
+          <span class="proj-period">2026.05 –</span>
+          <div class="proj-main">
+            <div class="proj-title">Dounselor Blog</div>
+            <div class="proj-sub">blog.dounselor.com — 개인 기록 + 협업이 한 곳에 있는 통합 사이트. PWA 로 폰에서도 </div>
+            <div class="proj-chips">
+              <span class="chip dev">Frontend: Next.js 14 (App Router) · React 18 · Tailwind CSS · next-pwa</span>
+              <span class="chip dev">Backend: Next.js API Routes · better-sqlite3 · jose (JWT) · sharp (이미지)</span>
+              <span class="chip dev">AI: 로컬 Ollama (qwen2.5:7b 권장, 키·비용 0)</span>
+              <span class="chip dev">Auth: 자체 JWT (소유자) + Kakao OAuth (게스트)</span>
+              <span class="chip dev">Realtime: SSE (Server-Sent Events) + in-memory pub/sub</span>
+              <span class="chip dev">Hosting: PC 로컬 + Cloudflare Named Tunnel</span>
+            </div>
+          </div>
+          <span class="arrow">▶</span>
+        </summary>
+        <div class="detail">
+          <div class="dl-section">
+            <h4>프로젝트 소개</h4>
+            <p>blog.dounselor.com — 개인 기록 + 협업이 한 곳에 있는 통합 사이트. PWA 로 폰에서도 앱처럼 사용 가능.</p>
+          </div>
+          <div class="dl-section">
+            <h4>Repository</h4>
+            <p><a href="https://github.com/kimmydkemf/dounselor-blog" target="_blank">https://github.com/kimmydkemf/dounselor-blog</a></p>
+          </div>
+        </div>
+      </details>
+      <!-- /AUTO:dounselor-blog -->
+      
+      <!-- AUTO:life-manager -->
+      <details>
+        <summary>
+          <span class="proj-period">2026.05 –</span>
+          <div class="proj-main">
+            <div class="proj-title">Life Manager</div>
+            <div class="proj-sub">life.dounselor.com — 개인 일정·가계부·습관 관리 PWA (Next.js).</div>
+            <div class="proj-chips">
+              <span class="chip dev">Frontend: Next.js 14 (App Router) · React 18 · Tailwind CSS · next-pwa</span>
+              <span class="chip dev">Backend: Next.js API Routes · better-sqlite3</span>
+              <span class="chip dev">Auth: JWT (jose, jsonwebtoken)</span>
+              <span class="chip dev">Bot: node-telegram-bot-api (polling)</span>
+              <span class="chip dev">Scheduler: node-cron</span>
+              <span class="chip dev">Tunnel: cloudflared (named tunnel)</span>
+            </div>
+          </div>
+          <span class="arrow">▶</span>
+        </summary>
+        <div class="detail">
+          <div class="dl-section">
+            <h4>프로젝트 소개</h4>
+            <p>life.dounselor.com — 개인 일정·가계부·습관 관리 PWA (Next.js).<br>
+              가계부 자동 등록 (카드/은행 알림 → 텔레그램 봇 또는 MacroDroid POST), 일정 자연어 입력, 월간 요약, 텔레그램 봇 명령어 지원.</p>
+          </div>
+          <div class="dl-section">
+            <h4>주요 기능</h4>
+            <ul>
+              <li>2단계 인증 (텔레그램 OTP) — 비밀번호 검증 후 텔레그램 봇으로 6자리 코드 발송, 코드 입력해야만 로그인 완료</li>
+              <li>자연어 일정 입력 — "내일 오후 2시 팀 회의 #work 긴급" 같은 자유 입력</li>
+              <li>가계부 — 수입/지출 카테고리 분류, 월간 요약, 일별 그래프</li>
+              <li>습관 트래커 — 일일 카운트, 캘린더, 완료율 추적</li>
+              <li>카드/은행 알림 자동 등록 (확인/즉시 모드) — lib/cardParser.js 기반, 가맹점→카테고리 자동 매핑, 5분 중복 방지. 기본 동작은 텔레그램 인라인 버튼으로 등록 여부 확인 후 처리. 대시보드에서 즉시 등록 모드로 전환 가능</li>
+            </ul>
+          </div>
+          <div class="dl-section">
+            <h4>Repository</h4>
+            <p><a href="https://github.com/kimmydkemf/life-manager" target="_blank">https://github.com/kimmydkemf/life-manager</a></p>
+          </div>
+        </div>
+      </details>
+      <!-- /AUTO:life-manager -->
+      
+      <!-- AUTO:bcplus_legacy -->
+      <details>
+        <summary>
+          <span class="proj-period">2021.08 – 2021.08</span>
+          <div class="proj-main">
+            <div class="proj-title">Business Calendar Plus</div>
+            <div class="proj-sub">BC+ is a business Calendar. You can use this calendar if you</div>
+            <div class="proj-chips">
+              <span class="chip dev">Python</span>
+            </div>
+          </div>
+          <span class="arrow">▶</span>
+        </summary>
+        <div class="detail">
+          <div class="dl-section">
+            <h4>프로젝트 소개</h4>
+            <p>BC+ is a business Calendar. You can use this calendar if you connect internet.<br>
+              This calendar make you to manage your private calendar and group calendar.<br>
+              And also this calendar help you to collaborate with your team mate more easily.</p>
+          </div>
+          <div class="dl-section">
+            <h4>Repository</h4>
+            <p><a href="https://github.com/ghals5737/bcplus_legacy" target="_blank">https://github.com/ghals5737/bcplus_legacy</a></p>
+          </div>
+        </div>
+      </details>
+      <!-- /AUTO:bcplus_legacy -->
       <!-- AUTO:END -->
 
       <!-- P.S - Private Secretary -->
