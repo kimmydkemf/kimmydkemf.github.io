@@ -5,7 +5,9 @@
     "VirtualityForSafety"
   ],
   "skip_repos": [
-    "MeetingGround"
+    "MeetingGround",
+    "dounselor-blog",
+    "life-manager"
   ],
   "repos": {
     "health-tracker": {
