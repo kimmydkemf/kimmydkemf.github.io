@@ -1,0 +1,5 @@
+# title 누락, status 오타, started 형식 오류, live_url 형식 오류 → 경고 4개 이상
+status: retired
+started: 어느날
+live_url: tracker.example.com
+summary: 잘못된 메타데이터로 Validation 경고를 확인하는 샘플.

@@ -1,0 +1,46 @@
+title: Sample Tracker
+slug: sample-tracker
+
+subtitle: 습관 & 컨디션을 기록하는 샘플 앱
+
+status: active
+
+started: 2026-03
+ended:
+
+category:
+  - Personal
+  - Web
+
+featured: true
+
+live_url: https://tracker.example.com
+repository_url:
+
+summary: >
+  일상 습관과 컨디션을 기록하고 주간 추세를 보여주는
+  샘플 프로젝트. <fixture> 데이터로만 구성.
+
+tech:
+  - React
+  - FastAPI
+  - SQLite
+
+highlights:
+  - 일일 습관 체크
+  - 주간 추세 그래프
+  - PWA 설치 지원
+
+role:
+  - Planning
+  - Frontend
+  - Backend
+
+team:
+  - "샘플 사용자 — 기획 · 개발"
+
+cover:
+  image: docs/cover.png
+
+screenshot_refresh: false
+indexable: true

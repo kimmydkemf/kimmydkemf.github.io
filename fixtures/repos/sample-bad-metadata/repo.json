@@ -1,0 +1,8 @@
+{
+  "name": "sample-bad-metadata",
+  "full_name": "sample-user/sample-bad-metadata",
+  "html_url": "https://github.com/sample-user/sample-bad-metadata",
+  "language": "Go",
+  "description": "Sample with invalid metadata (fixture)",
+  "updated_at": "2026-06-01T10:00:00Z"
+}

@@ -1,0 +1,19 @@
+title: Sample Legacy Blog
+status: unused
+
+started: 2026-01
+ended: 2026-08
+
+featured: false
+live_url: https://blog.example.com   # unused 이므로 Live Demo 는 표시되지 않아야 함
+
+tech: [Next.js, SQLite]           # unused 카드에서는 표시되지 않아야 함
+highlights: [글 작성, 댓글]        # unused 카드에서는 표시되지 않아야 함
+
+unused_reason: >
+  기존 독립형 블로그 대신 Sample Archive 내부의 Journal 기능으로
+  기록 시스템을 통합하기로 결정하여 운영을 종료함.
+
+replaced_by:
+  title: Sample Archive
+  url: https://archive.example.com
