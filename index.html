@@ -121,8 +121,11 @@
     <div class="project-list">
 
       <!-- AUTO:START — 아래 카드는 sync_projects.py 가 data/projects.generated.json 에서 자동 생성합니다. 직접 편집하지 마세요 -->
+      <div class="proj-group" data-group="current">
+        <h3 class="proj-group-title">진행 중<span class="proj-group-en">Current</span><span class="proj-group-count">5</span></h3>
+        <div class="proj-group-list">
       <!-- AUTO:health-tracker -->
-      <details data-slug="health-tracker" data-source="github">
+      <details id="proj-health-tracker" data-slug="health-tracker" data-source="github" data-display-status="active">
         <summary>
           <span class="proj-period">2026.05 – Present</span>
           <div class="proj-main">
@@ -156,7 +159,7 @@
       </details>
       <!-- /AUTO:health-tracker -->
       <!-- AUTO:kimmydkemf.github.io -->
-      <details data-slug="kimmydkemf-github-io" data-source="github">
+      <details id="proj-kimmydkemf-github-io" data-slug="kimmydkemf-github-io" data-source="github" data-display-status="active">
         <summary>
           <span class="proj-period">2026.05 – Present</span>
           <div class="proj-main">
@@ -196,7 +199,7 @@
       </details>
       <!-- /AUTO:kimmydkemf.github.io -->
       <!-- AUTO:dounselor-blog -->
-      <details data-slug="dounselor-blog" data-source="github">
+      <details id="proj-dounselor-blog" data-slug="dounselor-blog" data-source="github" data-display-status="active">
         <summary>
           <span class="proj-period">2026.05 – Present</span>
           <div class="proj-main">
@@ -228,7 +231,7 @@
       </details>
       <!-- /AUTO:dounselor-blog -->
       <!-- AUTO:life-manager -->
-      <details data-slug="life-manager" data-source="github">
+      <details id="proj-life-manager" data-slug="life-manager" data-source="github" data-display-status="active">
         <summary>
           <span class="proj-period">2026.05 – Present</span>
           <div class="proj-main">
@@ -271,7 +274,7 @@
       </details>
       <!-- /AUTO:life-manager -->
       <!-- AUTO:MyNote -->
-      <details data-slug="mynote" data-source="github">
+      <details id="proj-mynote" data-slug="mynote" data-source="github" data-display-status="active">
         <summary>
           <span class="proj-period">2026.05 – Present</span>
           <div class="proj-main">
@@ -298,8 +301,13 @@
         </div>
       </details>
       <!-- /AUTO:MyNote -->
+        </div>
+      </div>
+      <div class="proj-group" data-group="completed">
+        <h3 class="proj-group-title">완료<span class="proj-group-en">Completed</span><span class="proj-group-count">1</span></h3>
+        <div class="proj-group-list">
       <!-- AUTO:bcplus_legacy -->
-      <details data-slug="bcplus-legacy" data-source="github">
+      <details id="proj-bcplus-legacy" data-slug="bcplus-legacy" data-source="github" data-display-status="completed">
         <summary>
           <span class="proj-period">2021.08</span>
           <div class="proj-main">
@@ -327,8 +335,13 @@
         </div>
       </details>
       <!-- /AUTO:bcplus_legacy -->
+        </div>
+      </div>
+      <div class="proj-group" data-group="archive">
+        <h3 class="proj-group-title">미사용 · 아카이브<span class="proj-group-en">Unused · Archived</span><span class="proj-group-count">6</span></h3>
+        <div class="proj-group-list">
       <!-- AUTO:p-s-private-secretary -->
-      <details data-slug="p-s-private-secretary" data-source="manual" data-status="archived">
+      <details id="proj-p-s-private-secretary" data-slug="p-s-private-secretary" data-source="manual" data-status="archived" data-display-status="archived">
         <summary>
           <span class="proj-period">2020.10 – 2020.11</span>
           <div class="proj-main">
@@ -402,7 +415,7 @@
       </details>
       <!-- /AUTO:p-s-private-secretary -->
       <!-- AUTO:meetingground -->
-      <details data-slug="meetingground" data-source="manual" data-status="archived">
+      <details id="proj-meetingground" data-slug="meetingground" data-source="manual" data-status="archived" data-display-status="archived">
         <summary>
           <span class="proj-period">2020.08 – 2020.10</span>
           <div class="proj-main">
@@ -454,7 +467,7 @@
       </details>
       <!-- /AUTO:meetingground -->
       <!-- AUTO:bc -->
-      <details data-slug="bc" data-source="manual" data-status="archived">
+      <details id="proj-bc" data-slug="bc" data-source="manual" data-status="archived" data-display-status="archived">
         <summary>
           <span class="proj-period">2020.07 – 2020.08</span>
           <div class="proj-main">
@@ -506,7 +519,7 @@
       </details>
       <!-- /AUTO:bc -->
       <!-- AUTO:butterfly -->
-      <details data-slug="butterfly" data-source="manual" data-status="archived">
+      <details id="proj-butterfly" data-slug="butterfly" data-source="manual" data-status="archived" data-display-status="archived">
         <summary>
           <span class="proj-period">2019.11 – 2019.12</span>
           <div class="proj-main">
@@ -549,7 +562,7 @@
       </details>
       <!-- /AUTO:butterfly -->
       <!-- AUTO:천로역정 -->
-      <details data-slug="천로역정" data-source="manual" data-status="archived">
+      <details id="proj-천로역정" data-slug="천로역정" data-source="manual" data-status="archived" data-display-status="archived">
         <summary>
           <span class="proj-period">2019.03 – 2019.07</span>
           <div class="proj-main">
@@ -621,7 +634,7 @@
       </details>
       <!-- /AUTO:천로역정 -->
       <!-- AUTO:mixedreality-졸업작품 -->
-      <details data-slug="mixedreality-졸업작품" data-source="manual" data-status="archived">
+      <details id="proj-mixedreality-졸업작품" data-slug="mixedreality-졸업작품" data-source="manual" data-status="archived" data-display-status="archived">
         <summary>
           <span class="proj-period">2017.07 – 2018.05</span>
           <div class="proj-main">
@@ -682,6 +695,8 @@
         </div>
       </details>
       <!-- /AUTO:mixedreality-졸업작품 -->
+        </div>
+      </div>
       <!-- AUTO:END -->
 
     </div><!-- .project-list -->

@@ -371,12 +371,72 @@ class TestRender(unittest.TestCase):
             rc.render_auto_section("no markers", [])
 
 
+class TestSections(unittest.TestCase):
+    def test_display_status(self):
+        self.assertEqual(rc.display_status({"status": "paused"}), "paused")
+        self.assertEqual(rc.display_status({"status": None, "ongoing": True}), "active")
+        self.assertEqual(rc.display_status({"status": None, "ongoing": False}), "completed")
+        self.assertEqual(rc.display_status({"status": "weird", "ongoing": True}), "active")
+
+    def test_groups_and_featured(self):
+        ps = [
+            entry({"title": "A", "status": "active", "started": "2026-05", "featured": True,
+                   "live_url": "https://a.example", "tech": ["1", "2", "3", "4", "5"]}, slug="a"),
+            entry(None, {"proj_title": "N"}, commit=("2026.04", "2026.09"), slug="n"),        # status 없음 + 최근 커밋
+            entry({"title": "P", "status": "paused", "started": "2026-01"}, slug="p"),
+            entry({"title": "C", "status": "completed", "started": "2025-01", "ended": "2025-03"}, slug="c"),
+            entry(None, {"proj_title": "O"}, commit=("2021.08", "2021.08"), slug="o"),        # status 없음 + 오래됨
+            entry({"title": "U", "status": "unused", "started": "2024-01", "featured": True}, slug="u"),
+            entry({"title": "R", "status": "archived", "started": "2019-01"}, slug="r"),
+        ]
+        html = rc.render_sections(ps)
+        groups = re.findall(r'data-group="(\w+)"', html)
+        self.assertEqual(groups, ["current", "paused", "completed", "archive"])
+        def members(key):
+            block = html.split(f'data-group="{key}"')[1].split('data-group=')[0]
+            return re.findall(r'<details[^>]* data-slug="(\w+)"', block)
+        self.assertEqual(members("current"), ["a", "n"])
+        self.assertEqual(members("paused"), ["p"])
+        self.assertEqual(members("completed"), ["c", "o"])
+        self.assertEqual(members("archive"), ["u", "r"])
+        self.assertIn('<span class="proj-group-count">2</span>', html)
+        # Featured: unused 는 제외, 최대 4 chips, 링크 3개
+        feat = html.split('class="proj-featured"')[1].split('class="proj-group"')[0]
+        self.assertEqual(re.findall(r'feat-card" data-slug="(\w+)"', feat), ["a"])
+        self.assertEqual(feat.count('class="chip dev"'), 4)
+        self.assertIn('class="proj-link live" href="https://a.example"', feat)
+        self.assertIn('href="#proj-a">자세히</a>', feat)
+        self.assertIn('feat-cover-empty', feat)
+        # 배지는 명시적 status 만, 필터용 data-display-status 는 모두
+        n_card = html.split('data-slug="n"')[1].split("</summary>")[0]
+        self.assertNotIn("status-badge", n_card)
+        self.assertIn('id="proj-n" data-slug="n"', html)
+        self.assertIn('data-slug="n" data-source="github" data-display-status="active"', html)
+        # 접힌 카드의 Live 링크
+        self.assertIn('<a class="proj-live" href="https://a.example"', html)
+        self.assertNotIn("proj-live", html.split('data-slug="u"')[1].split("</summary>")[0])
+
+    def test_featured_limit_and_cover(self):
+        ps = [entry({"title": f"F{i}", "status": "active", "started": "2026-01", "featured": True}, slug=f"f{i}")
+              for i in range(7)]
+        ps[0]["coverImage"] = "assets/projects/f0/desktop.webp"
+        ps[1]["coverImage"] = "docs/cover.png"             # 레포 내부 경로 → 사용 안 함
+        html = rc.render_sections(ps)
+        self.assertEqual(html.count('class="feat-card"'), rc.FEATURED_MAX)
+        self.assertIn('<img src="assets/projects/f0/desktop.webp" alt="F0 미리보기" loading="lazy">', html)
+        self.assertNotIn("docs/cover.png", html)
+
+    def test_no_featured_section_when_none(self):
+        html = rc.render_sections([entry({"title": "A", "status": "active", "started": "2026-01"})])
+        self.assertNotIn("proj-featured", html)
+
+
 # ── Python ↔ JS 렌더러 parity ─────────────────────────────────────────────────
 @unittest.skipIf(NODE is None, "node 없음")
 class TestJsParity(unittest.TestCase):
-    def render_js(self, projects):
+    def render_js(self, projects, fn="renderProjectList"):
         script = ("const R=require(process.argv[1]);const fs=require('fs');"
-                  "const d=JSON.parse(fs.readFileSync(0,'utf8'));process.stdout.write(R.renderProjectList(d));")
+                  "const d=JSON.parse(fs.readFileSync(0,'utf8'));process.stdout.write(R." + fn + "(d));")
         r = subprocess.run([NODE, "-e", script, str(JS_RENDERER)], input=json.dumps(projects),
                            capture_output=True, text=True)
         self.assertEqual(r.returncode, 0, r.stderr)
@@ -386,6 +446,9 @@ class TestJsParity(unittest.TestCase):
         py = rc.normalize_html(rc.render_project_list(projects))
         js = rc.normalize_html(self.render_js(projects))
         self.assertEqual(py, js)
+        py_s = rc.normalize_html(rc.render_sections(projects))
+        js_s = rc.normalize_html(self.render_js(projects, "renderSections"))
+        self.assertEqual(py_s, js_s)
 
     def test_generated_json_parity(self):
         data = json.loads((ROOT / "data" / "projects.generated.json").read_text(encoding="utf-8"))
@@ -404,6 +467,10 @@ class TestJsParity(unittest.TestCase):
             entry({"title": "P", "status": "paused", "started": "2026-01", "pause_reason": "why"}),
             entry(None, {"proj_title": "R"}, commit=("2025.09", "2025.11")),
             entry(None, {}, repo={"name": "z", "html_url": "", "language": "", "updated_at": "2026-02-03T00:00:00Z"}),
+            entry({"title": "Feat", "status": "completed", "started": "2025-01", "ended": "2025-06", "featured": True,
+                   "tech": ["A", "B", "C", "D", "E"]}, coverImage="assets/projects/feat/desktop.webp", slug="feat"),
+            entry({"title": "😀 Emoji", "status": "archived", "started": "2019-01", "featured": True}, slug="emoji"),
+            entry({"title": "Hidden", "status": "unused", "started": "2019-01", "featured": True}, slug="hidden"),
         ]
         self.assert_parity(cases)
 
@@ -473,7 +540,8 @@ class TestMigration(unittest.TestCase):
         current = (ROOT / "index.html").read_text(encoding="utf-8")
         cur_github, cur_manual = mig.parse_index(current, cfg.get("repos", {}))
         self.assertEqual(cur_manual, [])
-        self.assertEqual([_display(p) for p in cur_github], [_display(p) for p in saved_gen])
+        self.assertEqual({p["title"]: _display(p) for p in cur_github}, gen_by_title)
+        self.assertEqual(len(cur_github), len(saved_gen))
 
 
 # ── 통합: fixtures 로 실제 파이프라인 실행 ────────────────────────────────────
@@ -565,7 +633,15 @@ class TestEndToEnd(unittest.TestCase):
         self.assertEqual(html.count("<details"), 16)
         self.assertEqual(html.count("<details"), html.count("</details>"))
         order_in_html = [m for m in re.findall(r"<!-- AUTO:([\w\-\.가-힣]+) -->", html) if m != "END"]
-        self.assertEqual(order_in_html, [p.get("repo") or p["slug"] for p in projects])
+        expected_order = [p.get("repo") or p["slug"]
+                          for key, _, _ in rc.GROUPS for p in projects
+                          if rc.GROUP_OF[rc.display_status(p)] == key]
+        self.assertEqual(order_in_html, expected_order)
+        # Featured: sample-tracker (featured, active)
+        self.assertIn('<article class="feat-card" data-slug="sample-tracker"', html)
+        self.assertIn('href="#proj-sample-tracker">자세히</a>', html)
+        self.assertIn('id="proj-sample-tracker"', html)
+        self.assertIn('<a class="proj-live" href="https://tracker.example.com"', html)
         self.assertIn("&lt;fixture&gt;", html)
         self.assertIn('class="proj-unused"', html)
         self.assertNotIn('href="https://blog.example.com"', html)

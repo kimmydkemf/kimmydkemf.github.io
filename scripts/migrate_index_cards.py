@@ -117,8 +117,11 @@ def parse_card(block: str) -> dict:
                 me = 'class="me"' in name_html
                 team.append({"name": _text(name_html).replace("me", "").strip() if me else _text(name_html),
                              "role": _text(role_html), "me": me})
-        elif heading in ("Repository", "Links"):
+        elif heading == "Repository":
             repo_url = html_lib.unescape(first_in(part, r'href="([^"]+)"'))
+        elif heading == "Links":
+            # Live Demo(proj-link live) 가 아닌 링크가 저장소 URL
+            repo_url = html_lib.unescape(first_in(part, r'<a class="proj-link" href="([^"]+)"'))
         elif "<ul>" in part:
             highlights = [_text(li) for li in re.findall(r"<li>(.*?)</li>", part, re.DOTALL)]
             if heading != "주요 기능":

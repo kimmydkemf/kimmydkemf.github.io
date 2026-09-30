@@ -70,7 +70,25 @@ data/projects.manual.json (수동) ─┘                                      �
 - `status == "unused"` → 제목·기간·배지·사유·대체 프로젝트·Repository 만. chips/기능/소개/Live Demo 없음.
 - 그 외 → 기간 · 제목 · [배지] · 부제 · chips / 소개 · [기능] · [일시 중단 사유] · [담당 역할] · [시연 영상] · [Links] · [팀 구성].
 - 모든 텍스트는 HTML 이스케이프된다.
-- `<details data-slug data-source [data-status] [data-featured] [class="proj-unused"]>` 속성이 Phase 4 필터의 기반이다.
+- `<details [class="proj-unused"] id="proj-{slug}" data-slug data-source [data-status] data-display-status [data-featured]>`
+- `liveUrl` 이 있으면(unused 제외) 접힌 카드에도 "Live Demo ↗" 링크가 보인다.
+
+### 프로젝트 영역 구조 (Phase 4)
+
+```text
+[필터 바]  전체 · 진행 중 · 완료 · 일시 중단 · 미사용 · 아카이브   ← JS 가 DOM 에서 개수를 세어 붙임 (있는 상태만)
+Featured   featured: true 이고 unused 가 아닌 프로젝트, 최대 5개 (카드 그리드)
+진행 중    Current
+일시 중단  Paused
+완료       Completed
+미사용 · 아카이브
+```
+
+- 그룹과 필터는 `data-display-status` 기준이다. 명시적 `status` 가 있으면 그 값, 없으면 `ongoing` 이면 `active`, 아니면 `completed`.
+- 상태 배지는 명시적 `status` 가 있을 때만 붙는다. status 없는 README 전용 프로젝트는 배지 없이 기간 기준 그룹에만 들어간다.
+- Featured 카드 커버는 `coverImage` 가 `http(s)://` 또는 `assets/` 로 시작할 때만 이미지로 쓴다. 그 외에는 제목 첫 글자 placeholder (Phase 6 Screenshot 이 `assets/projects/{slug}/…` 를 채울 예정).
+- Featured 의 "자세히" 는 `#proj-{slug}` 링크다. JS 가 해시를 보고 해당 카드를 열고, 필터로 숨겨져 있으면 "전체"로 되돌린다.
+- 선택한 필터는 브라우저 localStorage(`projectFilter`) 에 저장된다 (방문자별 편의 기능, 없어도 동작).
 
 ## 수동 프로젝트 추가 예 (`data/projects.manual.json`)
 

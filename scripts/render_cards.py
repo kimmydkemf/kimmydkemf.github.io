@@ -28,6 +28,30 @@ STATUS_LABEL = {
 
 PLACEHOLDER = "내용을 입력하세요."
 
+# 프로젝트 영역 그룹 (표시 순서). status 가 없는 프로젝트는 ongoing 여부로 current / completed 에 배치
+GROUPS = (
+    ("current",   "진행 중",           "Current"),
+    ("paused",    "일시 중단",         "Paused"),
+    ("completed", "완료",              "Completed"),
+    ("archive",   "미사용 · 아카이브", "Unused · Archived"),
+)
+GROUP_OF = {"active": "current", "paused": "paused", "completed": "completed",
+            "unused": "archive", "archived": "archive"}
+FEATURED_MAX = 5
+
+
+def display_status(p: dict) -> str:
+    """필터·그룹용 상태. 명시적 status 가 우선, 없으면 ongoing → active, 아니면 completed.
+    배지는 명시적 status 가 있을 때만 붙는다 (AI/파서가 status 를 정하지 않는다는 원칙 유지)."""
+    st = p.get("status")
+    if st in STATUS_LABEL:
+        return st
+    return "active" if p.get("ongoing") else "completed"
+
+
+def card_id(p: dict) -> str:
+    return "proj-" + str(p.get("slug") or "")
+
 
 def E(s) -> str:
     return html_escape("" if s is None else str(s))
@@ -128,12 +152,23 @@ def _attrs(p: dict) -> str:
     attrs = ""
     if p.get("status") == "unused":
         attrs += ' class="proj-unused"'
+    attrs += f' id="{E(card_id(p))}"'
     attrs += f' data-slug="{E(p.get("slug"))}" data-source="{E(p.get("source") or "github")}"'
     if p.get("status"):
         attrs += f' data-status="{E(p["status"])}"'
+    attrs += f' data-display-status="{display_status(p)}"'
     if p.get("featured"):
         attrs += ' data-featured="true"'
     return attrs
+
+
+def _live_pill(p: dict) -> str:
+    """접힌 카드에서도 보이는 Live Demo 링크 (unused 제외)"""
+    live = p.get("liveUrl") or ""
+    if not live or p.get("status") == "unused":
+        return ""
+    return (f'\n            <a class="proj-live" href="{E(live)}" target="_blank" rel="noopener">'
+            f'Live Demo ↗</a>')
 
 
 def _period_str(p: dict) -> str:
@@ -201,7 +236,7 @@ def render_card(p: dict) -> str:
         <summary>
           <span class="proj-period">{E(_period_str(p))}</span>
           <div class="proj-main">
-            <div class="proj-title">{E(p.get("title"))}</div>{_badge(p.get("status"))}
+            <div class="proj-title">{E(p.get("title"))}</div>{_badge(p.get("status"))}{_live_pill(p)}
             <div class="proj-sub">{E(p.get("subtitle"))}</div>
             <div class="proj-chips">{_chips(p)}
             </div>
@@ -223,6 +258,83 @@ def render_project_list(projects: list[dict]) -> str:
     return "".join(render_card_block(p) for p in projects)
 
 
+# ── Featured / 그룹 섹션 ──────────────────────────────────────────────────────
+def _cover_src(p: dict) -> str:
+    """사이트에서 바로 쓸 수 있는 이미지 경로만 사용 (http(s) 또는 assets/). 레포 내부 경로는 Phase 6 에서 처리"""
+    src = p.get("coverImage") or ""
+    if src.startswith(("https://", "http://", "assets/")):
+        return src
+    return ""
+
+
+def render_featured_card(p: dict) -> str:
+    title = p.get("title") or ""
+    cover = _cover_src(p)
+    if cover:
+        cover_html = (f'\n          <div class="feat-cover"><img src="{E(cover)}" alt="{E(title)} 미리보기"'
+                      f' loading="lazy"></div>')
+    else:
+        initial = title[0] if title else "?"
+        cover_html = f'\n          <div class="feat-cover feat-cover-empty" aria-hidden="true"><span>{E(initial)}</span></div>'
+
+    cls = ("chip " + p["tagClass"]).strip() if p.get("tagClass") else "chip"
+    chips = "".join(f'\n              <span class="{cls}">{E(t)}</span>' for t in (p.get("tech") or [])[:4])
+
+    links = ""
+    if p.get("liveUrl") and p.get("status") != "unused":
+        links += (f'\n              <a class="proj-link live" href="{E(p["liveUrl"])}"'
+                  f' target="_blank" rel="noopener">Live Demo</a>')
+    if p.get("repositoryUrl"):
+        links += (f'\n              <a class="proj-link" href="{E(p["repositoryUrl"])}"'
+                  f' target="_blank" rel="noopener">GitHub</a>')
+    links += f'\n              <a class="proj-link more" href="#{E(card_id(p))}">자세히</a>'
+
+    return f"""
+        <article class="feat-card" data-slug="{E(p.get("slug"))}" data-display-status="{display_status(p)}">{cover_html}
+          <div class="feat-body">
+            <div class="feat-meta">
+              <span class="proj-period">{E(_period_str(p))}</span>{_badge(p.get("status"))}
+            </div>
+            <h4 class="feat-title">{E(title)}</h4>
+            <p class="feat-sub">{E(p.get("subtitle"))}</p>
+            <div class="proj-chips">{chips}
+            </div>
+            <div class="proj-links">{links}
+            </div>
+          </div>
+        </article>"""
+
+
+def featured_projects(projects: list[dict]) -> list[dict]:
+    return [p for p in projects if p.get("featured") and p.get("status") != "unused"][:FEATURED_MAX]
+
+
+def render_sections(projects: list[dict], with_markers: bool = True) -> str:
+    """Featured + 상태 그룹. with_markers=True 면 카드를 AUTO 마커로 감싼다 (정적 index.html 용)"""
+    out = ""
+    featured = featured_projects(projects)
+    if featured:
+        cards = "".join(render_featured_card(p) for p in featured)
+        out += f"""
+      <div class="proj-featured">
+        <h3 class="proj-group-title">Featured</h3>
+        <div class="feat-grid">{cards}
+        </div>
+      </div>"""
+    for key, ko, en in GROUPS:
+        items = [p for p in projects if GROUP_OF[display_status(p)] == key]
+        if not items:
+            continue
+        cards = "".join((render_card_block(p) if with_markers else render_card(p)) for p in items)
+        out += f"""
+      <div class="proj-group" data-group="{key}">
+        <h3 class="proj-group-title">{ko}<span class="proj-group-en">{en}</span><span class="proj-group-count">{len(items)}</span></h3>
+        <div class="proj-group-list">{cards}
+        </div>
+      </div>"""
+    return out
+
+
 def render_auto_section(html: str, projects: list[dict]) -> str:
     """index.html 의 AUTO:START ~ AUTO:END 구간 전체를 JSON 기반 카드로 교체"""
     start_idx = html.find(AUTO_START)
@@ -234,7 +346,7 @@ def render_auto_section(html: str, projects: list[dict]) -> str:
     line_begin = html.rfind("\n", 0, start_idx) + 1
     indent = html[line_begin:start_idx]
     head = html[:line_begin] + indent + AUTO_START_LINE
-    return head + render_project_list(projects) + "\n      " + html[end_idx:]
+    return head + render_sections(projects) + "\n      " + html[end_idx:]
 
 
 def normalize_html(s: str) -> str:

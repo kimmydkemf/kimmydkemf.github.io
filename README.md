@@ -228,6 +228,9 @@ data/projects.manual.json ───────┘                          ├�
 ```
 
 - `index.html` 의 `<!-- AUTO:START -->` ~ `<!-- AUTO:END -->` 구간은 **모든 카드**를 sync 가 생성합니다. 직접 편집하지 마세요.
+- 프로젝트 영역은 **Featured → 진행 중 → 일시 중단 → 완료 → 미사용·아카이브** 순서로 나뉘고, 상단에 상태 필터가 붙습니다.
+  Featured 에 올리려면 해당 레포 `portfolio.yml` 에 `featured: true` (또는 manual JSON 의 `"featured": true`). 최대 5개.
+  `live_url` 이 있으면 카드에 **Live Demo** 버튼이 생깁니다. 자세한 규칙은 스키마 문서의 "프로젝트 영역 구조" 참고.
 - **과거 프로젝트(레포 없음)** 는 `data/projects.manual.json` 을 편집한 뒤 `./sync.sh` 를 실행하면 반영됩니다.
 - GitHub 프로젝트의 표시 내용은 해당 레포의 `portfolio.yml` 로 조정합니다.
 - 레포가 삭제되거나 private 으로 바뀌어 목록에서 사라지면 항목은 `syncStatus: "unavailable"` 로 유지됩니다. 지우려면 `scripts/projects.json` 의 `excluded` 에 추가하세요.
