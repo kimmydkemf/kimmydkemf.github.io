@@ -1,0 +1,100 @@
+# 프로젝트 데이터 스키마 (`data/projects.generated.json`)
+
+Phase 3 부터 프로젝트 정보의 원본은 HTML 이 아니라 JSON 이다.
+
+```text
+GitHub (README + portfolio.yml)  ─┐
+                                  ├─ scripts/sync_projects.py ─→ data/projects.generated.json
+data/projects.manual.json (수동) ─┘                                      │
+                                                                         ├─→ scripts/render_cards.py → index.html AUTO 구간 (정적, JS 없이도 표시 / SEO)
+                                                                         └─→ assets/js/projects.js   → 브라우저에서 동일 마크업으로 재렌더 (Phase 4 필터의 기반)
+```
+
+## 파일
+
+| 파일 | 역할 | 편집 |
+|------|------|------|
+| `data/projects.generated.json` | sync 결과. 전체 프로젝트 목록 (github + manual) | **직접 편집하지 않음** (sync 가 덮어씀) |
+| `data/projects.manual.json` | 레포가 없거나 자동화 대상이 아닌 과거 프로젝트 | 사람이 편집 → `./sync.sh` 로 반영 |
+| `scripts/projects.json` | 변경 감지 캐시 (README/portfolio.yml SHA, 커밋 월, 제외 목록) | `excluded` / `skip_repos` 만 편집 |
+
+## 최상위
+
+```json
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-01T15:00:00+09:00",
+  "projects": [ { ... } ]
+}
+```
+
+`projects` 는 `started` 내림차순으로 정렬된다 (같은 달은 github → manual, 입력 순서 유지).
+
+## 프로젝트 항목
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `slug` | string | 안정적인 식별자. portfolio.yml `slug` > repo 이름 기반 생성. DOM `data-slug`, Screenshot 경로(Phase 6)에 사용 |
+| `repo` | string \| null | GitHub repo 이름 (manual 은 null) |
+| `source` | `"github"` \| `"manual"` | 출처 |
+| `title`, `subtitle`, `summary` | string | 표시 텍스트. `summary` 는 줄바꿈(`\n`)이 `<br>` 로 렌더됨 |
+| `status` | `active` \| `completed` \| `paused` \| `unused` \| `archived` \| null | portfolio.yml 에서만 옴. null 이면 배지 없음 (README 전용 프로젝트) |
+| `started`, `ended` | `"YYYY.MM"` \| `""` | 표시용 기간. 진행 중이면 `ended` 는 `""` |
+| `ongoing` | bool | `started – Present` 로 표시할지 |
+| `featured` | bool | Featured 영역 (Phase 4) |
+| `liveUrl` | string | http(s) URL 만. `unused` 는 렌더 시 숨김 |
+| `repositoryUrl` | string | GitHub 링크. 비어 있으면 Links 섹션 없음 |
+| `category`, `role` | string[] | portfolio.yml 값 그대로 |
+| `tech` | string[] | chips (최대 7개 렌더). 비어 있으면 sync 가 언어 라벨 하나를 넣음 |
+| `highlights` | string[] | "주요 기능" 목록 |
+| `highlightsTitle` | string \| null | 목록 제목을 바꿀 때 (예: 과거 카드의 "핵심 구현") |
+| `team` | `[{name, role, me}]` | `me: true` 면 "me" 표시 |
+| `myRole` | string | "담당 역할" 문단 |
+| `unusedReason`, `pauseReason` | string | status 별 사유 |
+| `replacedBy` | `{title, repository, url}` \| null | 대체 프로젝트. `url`/`repository` 없으면 링크 없이 문장만 |
+| `coverImage` | string | portfolio.yml `cover.image` (Phase 6) |
+| `videos` | `[{label, url}]` | YouTube embed URL. `label` 은 선택 |
+| `awards` | string[] | 🏆 chip 으로 렌더 |
+| `language` | string \| null | GitHub 주 언어 |
+| `tagClass` | `"dev"` \| `"infra"` \| `"mobile"` \| `""` | chip 색상 클래스 (언어 기반). manual 은 `""` |
+| `indexable` | bool | SEO 노출 여부 (Phase 4 이후) |
+| `screenshotRefresh` | bool | 다음 sync 에서 Screenshot 재생성 (Phase 6) |
+| `hasPortfolioYml` | bool | portfolio.yml 존재 여부 |
+| `periodFallback` | string | 기간을 알 수 없을 때 표시할 값 (repo `updated_at` 월) |
+| `syncStatus` | `"ok"` \| `"migrated"` \| `"unavailable"` | `unavailable` = 레포 목록에서 사라짐(삭제/비공개). 데이터는 유지되고 표시도 그대로. 관리자가 확인 후 `excluded` 에 넣으면 제거됨 |
+| `lastSynced` | `"YYYY-MM-DD"` \| null | 마지막으로 내용을 다시 만든 날 |
+| `readmeSha`, `portfolioSha` | string | 변경 감지 참고용 (실제 판단은 `scripts/projects.json`) |
+
+## 렌더링 규칙 (Python 과 JS 공통)
+
+- `status == "unused"` → 제목·기간·배지·사유·대체 프로젝트·Repository 만. chips/기능/소개/Live Demo 없음.
+- 그 외 → 기간 · 제목 · [배지] · 부제 · chips / 소개 · [기능] · [일시 중단 사유] · [담당 역할] · [시연 영상] · [Links] · [팀 구성].
+- 모든 텍스트는 HTML 이스케이프된다.
+- `<details data-slug data-source [data-status] [data-featured] [class="proj-unused"]>` 속성이 Phase 4 필터의 기반이다.
+
+## 수동 프로젝트 추가 예 (`data/projects.manual.json`)
+
+```json
+{
+  "projects": [
+    {
+      "slug": "old-project",
+      "source": "manual",
+      "title": "Old Project",
+      "subtitle": "한 줄 설명",
+      "summary": "소개 문장.",
+      "status": "archived",
+      "started": "2019.03",
+      "ended": "2019.07",
+      "tech": ["Unity", "AR"],
+      "awards": ["OO 공모전"],
+      "highlights": ["핵심 구현 1"],
+      "highlightsTitle": "핵심 구현",
+      "videos": [{"label": "", "url": "https://www.youtube.com/embed/xxxx"}],
+      "team": [{"name": "이상호", "role": "Unity", "me": true}]
+    }
+  ]
+}
+```
+
+나머지 필드는 생략 가능하다 (sync 가 기본값을 채우지는 않지만 렌더러는 없는 필드를 빈 값으로 취급한다).

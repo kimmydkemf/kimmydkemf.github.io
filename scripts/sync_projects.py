@@ -10,9 +10,13 @@ sync_projects.py — GitHub 레포 → GitHub Pages 포트폴리오 자동 동�
      (status / started / ended / featured / live_url / unused_reason / replaced_by 는 여기서만)
   5. ANTHROPIC_API_KEY 있으면 Claude가 README 분석 → 포트폴리오 문장 생성
      없으면 README 직접 파싱 (폴백)
-  6. index.html AUTO:START~AUTO:END 구간에 카드 삽입/업데이트
+  6. data/projects.generated.json 생성 (github 프로젝트 + data/projects.manual.json 의 과거 프로젝트)
+  7. 같은 JSON 으로 index.html AUTO:START~AUTO:END 구간의 정적 카드 재생성 (render_cards.py)
+     브라우저에서는 assets/js/projects.js 가 같은 JSON 을 다시 렌더링한다.
 
 우선순위:  portfolio.yml  >  README (Claude / 파서)  >  GitHub repo metadata
+변경 없는 레포는 이전 JSON 항목을 그대로 재사용하고, 목록에서 사라진 레포는
+syncStatus: unavailable 로 표시만 하고 삭제하지 않는다.
 
 사용법:
   GITHUB_TOKEN=ghp_xxx ANTHROPIC_API_KEY=sk-ant-xxx python3 scripts/sync_projects.py
@@ -21,6 +25,8 @@ sync_projects.py — GitHub 레포 → GitHub Pages 포트폴리오 자동 동�
   ... --fixtures DIR       # GitHub 대신 로컬 샘플 데이터 사용 (네트워크 없음, 개발/테스트용)
   ... --index PATH         # 대상 index.html 경로 지정 (기본: 저장소 루트 index.html)
   ... --config PATH        # 대상 projects.json 경로 지정 (기본: scripts/projects.json)
+  ... --generated PATH     # 대상 projects.generated.json 경로 (기본: data/projects.generated.json)
+  ... --manual PATH        # 수동 프로젝트 JSON 경로 (기본: data/projects.manual.json)
 """
 
 import argparse
@@ -33,9 +39,13 @@ import re
 import sys
 import urllib.request
 import urllib.error
-from datetime import date, datetime
-from html import escape as html_escape
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from render_cards import (  # noqa: E402
+    STATUS_LABEL, PLACEHOLDER, format_period, render_auto_section,
+)
 
 # PyYAML 이 있으면 사용, 없으면 내장 subset 파서로 폴백 (의존성 없는 실행 유지)
 try:
@@ -56,18 +66,15 @@ GITHUB_USER = "kimmydkemf"
 ROOT        = Path(__file__).parent.parent
 INDEX_HTML  = ROOT / "index.html"
 CONFIG_FILE = Path(__file__).parent / "projects.json"
-AUTO_START  = "<!-- AUTO:START"
-AUTO_END    = "<!-- AUTO:END -->"
+GENERATED_JSON = ROOT / "data" / "projects.generated.json"
+MANUAL_JSON    = ROOT / "data" / "projects.manual.json"
+SCHEMA_VERSION = 1
+KST = timezone(timedelta(hours=9))
 
 PORTFOLIO_FILE = "portfolio.yml"
 VALID_STATUSES = ("active", "completed", "paused", "unused", "archived")
-STATUS_LABEL = {
-    "active":    "진행 중",
-    "completed": "완료",
-    "paused":    "일시 중단",
-    "unused":    "미사용",
-    "archived":  "아카이브",
-}
+# 팀 구성에서 "me" 표시를 붙일 이름
+OWNER_NAMES = ("이상호",)
 # status 가 없는 README 전용 프로젝트: 마지막 커밋이 이 개월 수 이내면 진행 중으로 표시
 ONGOING_GRACE_MONTHS = 3
 
@@ -761,257 +768,107 @@ def validate_metadata(meta: dict, yml: dict | None, name: str) -> list[str]:
     return warns
 
 
-# ── HTML 카드 렌더링 ───────────────────────────────────────────────────────────
-def _li(items: list[str]) -> str:
-    return "\n".join(f"              <li>{html_escape(i)}</li>" for i in items)
+# ── JSON 데이터 레이어 ────────────────────────────────────────────────────────
+def parse_team_item(item: str) -> dict:
+    """'이름 — 역할' → {name, role, me}"""
+    item = _as_str(item)
+    name, role = item, ""
+    if "—" in item or "-" in item:
+        parts = re.split(r'\s*[—\-]\s*', item, maxsplit=1)
+        name = parts[0].strip()
+        role = parts[1].strip() if len(parts) > 1 else ""
+    return {"name": name, "role": role, "me": any(n in name for n in OWNER_NAMES)}
 
 
-def _links_html(meta: dict) -> str:
-    """Live Demo / GitHub 링크 섹션. unused 는 Live Demo 를 숨긴다."""
-    links = ""
-    live = meta.get("live_url", "")
-    repo_url = meta.get("repository_url", "")
-    if live and meta.get("status") != "unused":
-        links += (f'\n              <a class="proj-link live" href="{html_escape(live, quote=True)}"'
-                  f' target="_blank" rel="noopener">Live Demo</a>')
-    if repo_url:
-        links += (f'\n              <a class="proj-link" href="{html_escape(repo_url, quote=True)}"'
-                  f' target="_blank" rel="noopener">GitHub</a>')
-    if not links:
-        return ""
-    return f"""
-          <div class="dl-section">
-            <h4>Links</h4>
-            <div class="proj-links">{links}
-            </div>
-          </div>"""
-
-
-def _badge_html(status: str | None) -> str:
-    if not status:
-        return ""
-    return (f'\n            <span class="status-badge status-{status}">'
-            f'{STATUS_LABEL[status]}</span>')
-
-
-def _render_unused_card(name: str, meta: dict, period_str: str) -> str:
-    """
-    unused 프로젝트: 제목 · 기간 · 상태 · 미사용 사유 · (선택) 대체 프로젝트 · (선택) Repository 만 표시.
-    기술 스택 / 주요 기능 / 긴 소개 / Live Demo 는 표시하지 않는다.
-    """
-    E = html_escape
-    reason = meta.get("unused_reason") or ""
-    reason_html = "<br>\n              ".join(E(l) for l in reason.splitlines() if l.strip())
-    sub = E(meta.get("subtitle") or (reason.splitlines()[0] if reason.strip() else ""))
-
-    replaced_html = ""
-    rb = meta.get("replaced_by")
-    if rb and rb.get("title"):
-        link = rb.get("url") or rb.get("repository")
-        if link:
-            replaced_html = f"""
-          <div class="dl-section">
-            <h4>대체 프로젝트</h4>
-            <p>이 프로젝트는 {E(rb["title"])}(으)로 통합되었습니다.<br>
-              <a href="{E(link, quote=True)}" target="_blank" rel="noopener">→ {E(rb["title"])} 보기</a></p>
-          </div>"""
-        else:
-            replaced_html = f"""
-          <div class="dl-section">
-            <h4>대체 프로젝트</h4>
-            <p>이 프로젝트는 {E(rb["title"])}(으)로 통합되었습니다.</p>
-          </div>"""
-
-    repo_url = meta.get("repository_url", "")
-    repo_html = ""
-    if repo_url:
-        repo_html = f"""
-          <div class="dl-section">
-            <h4>Repository</h4>
-            <p><a href="{E(repo_url, quote=True)}" target="_blank" rel="noopener">{E(repo_url)}</a></p>
-          </div>"""
-
-    reason_section = ""
-    if reason_html:
-        reason_section = f"""
-          <div class="dl-section">
-            <h4>미사용 사유</h4>
-            <p>{reason_html}</p>
-          </div>"""
-
-    return f"""
-      <!-- AUTO:{name} -->
-      <details class="proj-unused" data-status="unused" data-slug="{E(meta["slug"], quote=True)}">
-        <summary>
-          <span class="proj-period">{E(period_str)}</span>
-          <div class="proj-main">
-            <div class="proj-title">{E(meta["title"])}</div>{_badge_html("unused")}
-            <div class="proj-sub">{sub}</div>
-          </div>
-          <span class="arrow">▶</span>
-        </summary>
-        <div class="detail">{reason_section}{replaced_html}{repo_html}
-        </div>
-      </details>
-      <!-- /AUTO:{name} -->"""
-
-
-def render_card(name: str, repo: dict, meta: dict) -> str:
-    """정규화된 메타데이터(normalize_metadata 결과) → <details> 카드 HTML. 모든 텍스트는 이스케이프한다."""
-    E = html_escape
+def to_project_entry(meta: dict, repo: dict, readme_sha: str = "", pf_sha: str = "",
+                     sync_status: str = "ok", last_synced: str | None = None) -> dict:
+    """normalize_metadata 결과 → projects.generated.json 의 프로젝트 항목 (camelCase)"""
     lang = repo.get("language") or ""
     tag_cls, tag_lbl = LANG_TAG.get(lang, ("dev", lang or "Code"))
-
-    period_str = format_period(
-        meta["started"], meta["ended"], meta["ongoing"],
-        fallback=(repo.get("updated_at") or "")[:7].replace("-", "."),
-    )
-    status = meta.get("status")
-
-    if status == "unused":
-        return _render_unused_card(name, meta, period_str)
-
-    # 기술 chips
-    chip_html = ""
-    for item in (meta["tech"] or [tag_lbl])[:7]:
-        chip_html += f'\n              <span class="chip {tag_cls}">{E(item)}</span>'
-
-    # 소개 (줄바꿈 → <br>)
-    intro_html = "<br>\n              ".join(
-        E(line) for line in meta["summary"].splitlines() if line.strip()
-    ) or "내용을 입력하세요."
-
-    # 기능 섹션
-    feature_html = ""
-    if meta["highlights"]:
-        feature_html = f"""
-          <div class="dl-section">
-            <h4>주요 기능</h4>
-            <ul>
-{_li(meta["highlights"])}
-            </ul>
-          </div>"""
-
-    # 일시 중단 사유
-    paused_html = ""
-    if status == "paused" and meta.get("pause_reason"):
-        paused_html = f"""
-          <div class="dl-section">
-            <h4>일시 중단 사유</h4>
-            <p>{E(meta["pause_reason"])}</p>
-          </div>"""
-
-    # 팀 섹션
-    team_html = ""
-    if meta["team"]:
-        members = ""
-        for item in meta["team"]:
-            # "이름 — 역할" 형식 파싱
-            if "—" in item or "-" in item:
-                parts = re.split(r'\s*[—\-]\s*', item, maxsplit=1)
-                member_name = parts[0].strip()
-                member_role = parts[1].strip() if len(parts) > 1 else ""
-                me_tag = '<span class="me">me</span>' if "이상호" in member_name else ""
-                members += f"""
-              <div class="member-card">
-                <div class="member-name">{E(member_name)}{me_tag}</div>
-                <div class="member-role">{E(member_role)}</div>
-              </div>"""
-            else:
-                members += f"""
-              <div class="member-card">
-                <div class="member-name">{E(item)}</div>
-              </div>"""
-        team_html = f"""
-          <div class="dl-section">
-            <h4>팀 구성</h4>
-            <div class="member-grid">{members}
-            </div>
-          </div>"""
-
-    # 내 역할 섹션
-    role_html = ""
-    if meta.get("my_role"):
-        role_html = f"""
-          <div class="dl-section">
-            <h4>담당 역할</h4>
-            <p>{E(meta["my_role"])}</p>
-          </div>"""
-
-    data_attrs = f' data-status="{status}"' if status else ""
-    data_attrs += f' data-slug="{E(meta["slug"], quote=True)}"'
-    if meta.get("featured"):
-        data_attrs += ' data-featured="true"'
-
-    return f"""
-      <!-- AUTO:{name} -->
-      <details{data_attrs}>
-        <summary>
-          <span class="proj-period">{E(period_str)}</span>
-          <div class="proj-main">
-            <div class="proj-title">{E(meta["title"])}</div>{_badge_html(status)}
-            <div class="proj-sub">{E(meta["subtitle"])}</div>
-            <div class="proj-chips">{chip_html}
-            </div>
-          </div>
-          <span class="arrow">▶</span>
-        </summary>
-        <div class="detail">
-          <div class="dl-section">
-            <h4>프로젝트 소개</h4>
-            <p>{intro_html}</p>
-          </div>{feature_html}{paused_html}{role_html}{_links_html(meta)}{team_html}
-        </div>
-      </details>
-      <!-- /AUTO:{name} -->"""
+    return {
+        "slug":            meta["slug"],
+        "repo":            meta["repo"],
+        "source":          "github",
+        "title":           meta["title"],
+        "subtitle":        meta["subtitle"],
+        "summary":         meta["summary"],
+        "status":          meta["status"],
+        "started":         meta["started"],
+        "ended":           meta["ended"],
+        "ongoing":         meta["ongoing"],
+        "featured":        meta["featured"],
+        "liveUrl":         meta["live_url"],
+        "repositoryUrl":   meta["repository_url"],
+        "category":        meta["category"],
+        "role":            meta["role"],
+        "tech":            (meta["tech"] or [tag_lbl])[:7],
+        "highlights":      meta["highlights"],
+        "highlightsTitle": None,
+        "team":            [parse_team_item(t) for t in meta["team"]],
+        "myRole":          meta["my_role"],
+        "unusedReason":    meta["unused_reason"],
+        "pauseReason":     meta["pause_reason"],
+        "replacedBy":      meta["replaced_by"],
+        "coverImage":      meta["cover_image"],
+        "videos":          [],
+        "awards":          [],
+        "language":        lang or None,
+        "tagClass":        tag_cls,
+        "indexable":       meta["indexable"],
+        "screenshotRefresh": meta["screenshot_refresh"],
+        "hasPortfolioYml": meta["has_portfolio_yml"],
+        "periodFallback":  (repo.get("updated_at") or "")[:7].replace("-", "."),
+        "syncStatus":      sync_status,
+        "lastSynced":      last_synced,
+        "readmeSha":       readme_sha,
+        "portfolioSha":    pf_sha,
+    }
 
 
-# ── index.html 조작 ────────────────────────────────────────────────────────────
-def insert_card(html: str, card: str) -> str:
-    if AUTO_END not in html:
-        print(f"[ERROR] index.html에 '{AUTO_END}' 마커가 없습니다.", file=sys.stderr)
-        sys.exit(1)
-    return html.replace(AUTO_END, card + "\n      " + AUTO_END)
+def load_generated(path: Path) -> dict:
+    if not path.exists():
+        return {"schemaVersion": SCHEMA_VERSION, "generatedAt": None, "projects": []}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data.setdefault("projects", [])
+    return data
 
 
-def update_card(html: str, name: str, card: str) -> str:
-    pattern = re.compile(
-        rf'\n\s*<!-- AUTO:{re.escape(name)} -->.*?<!-- /AUTO:{re.escape(name)} -->',
-        re.DOTALL,
-    )
-    if pattern.search(html):
-        return pattern.sub(card, html)
-    return insert_card(html, card)
+def load_manual(path: Path) -> list[dict]:
+    """data/projects.manual.json — 사람이 편집하는 과거/레포 없는 프로젝트 목록"""
+    if not path.exists():
+        return []
+    data = json.loads(path.read_text(encoding="utf-8"))
+    projects = data.get("projects", []) if isinstance(data, dict) else data
+    out = []
+    for p in projects:
+        p = dict(p)
+        p.setdefault("source", "manual")
+        p.setdefault("slug", slugify(p.get("title", "project")))
+        p.setdefault("syncStatus", "ok")
+        out.append(p)
+    return out
 
 
-def card_exists(html: str, name: str) -> bool:
-    return f"<!-- AUTO:{name} -->" in html
+def sort_projects(projects: list[dict], prev_projects: list[dict] | None = None) -> list[dict]:
+    """
+    시작월 내림차순. 같은 달끼리는 이전 JSON 의 순서를 유지하고(불필요한 diff 방지),
+    새 항목은 그 뒤에 입력 순서대로 붙는다.
+    """
+    prev_pos = {p.get("slug"): i for i, p in enumerate(prev_projects or [])}
+    base = len(prev_pos)
+    ordered = [t[1] for t in sorted(enumerate(projects),
+                                    key=lambda t: prev_pos.get(t[1].get("slug"), base + t[0]))]
+    return sorted(ordered, key=lambda p: p.get("started") or "0000.00", reverse=True)
 
 
-# ── 자동 카드 정렬 ────────────────────────────────────────────────────────────
-def reorder_auto_section(html: str, repo_cfg: dict) -> str:
-    """AUTO:START ~ AUTO:END 사이 카드를 시작일 내림차순으로 재정렬"""
-    start_idx = html.find(AUTO_START)
-    end_idx   = html.find(AUTO_END)
-    if start_idx == -1 or end_idx == -1:
-        return html
-    start_line_end = html.index('\n', start_idx) + 1
-    between = html[start_line_end:end_idx]
-    card_pattern = re.compile(
-        r'(\s*<!-- AUTO:([A-Za-z0-9_\-\.]+) -->.*?<!-- /AUTO:\2 -->)',
-        re.DOTALL
-    )
-    cards = card_pattern.findall(between)
-    if len(cards) <= 1:
-        return html
-    def sort_key(card_tuple):
-        name  = card_tuple[1]
-        return repo_cfg.get(name, {}).get("start", "0000.00")
-    sorted_cards = sorted(cards, key=sort_key, reverse=True)
-    if cards == sorted_cards:
-        return html
-    sorted_content = ''.join(c[0] for c in sorted_cards) + '\n      '
-    return html[:start_line_end] + sorted_content + html[end_idx:]
+def save_generated(path: Path, projects: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "schemaVersion": SCHEMA_VERSION,
+        "generatedAt":   datetime.now(KST).isoformat(timespec="seconds"),
+        "projects":      projects,
+    }
+    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 # ── Obsidian md 생성 ──────────────────────────────────────────────────────────
@@ -1038,7 +895,7 @@ def _write_obsidian(vault_path: str, repo_cfg: dict):
 
 # ── 메인 ──────────────────────────────────────────────────────────────────────
 def main():
-    global FIXTURE_DIR, INDEX_HTML, CONFIG_FILE
+    global FIXTURE_DIR, INDEX_HTML, CONFIG_FILE, GENERATED_JSON, MANUAL_JSON
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run",  action="store_true", help="파일 수정 없이 탐지만")
@@ -1046,8 +903,10 @@ def main():
     parser.add_argument("--obsidian", metavar="VAULT", help="Obsidian vault 경로 (md 파일 생성)")
     parser.add_argument("--fixtures", metavar="DIR",
                         help="GitHub API 대신 로컬 샘플 디렉터리 사용 (개발/테스트용)")
-    parser.add_argument("--index",    metavar="PATH", help="대상 index.html 경로 (기본: 루트 index.html)")
-    parser.add_argument("--config",   metavar="PATH", help="대상 projects.json 경로 (기본: scripts/projects.json)")
+    parser.add_argument("--index",     metavar="PATH", help="대상 index.html 경로 (기본: 루트 index.html)")
+    parser.add_argument("--config",    metavar="PATH", help="대상 projects.json 경로 (기본: scripts/projects.json)")
+    parser.add_argument("--generated", metavar="PATH", help="대상 projects.generated.json 경로 (기본: data/)")
+    parser.add_argument("--manual",    metavar="PATH", help="수동 프로젝트 JSON 경로 (기본: data/projects.manual.json)")
     args = parser.parse_args()
 
     if args.fixtures:
@@ -1059,14 +918,19 @@ def main():
         INDEX_HTML = Path(args.index).expanduser().resolve()
     if args.config:
         CONFIG_FILE = Path(args.config).expanduser().resolve()
+    if args.generated:
+        GENERATED_JSON = Path(args.generated).expanduser().resolve()
+    if args.manual:
+        MANUAL_JSON = Path(args.manual).expanduser().resolve()
 
     using_claude = bool(os.environ.get("ANTHROPIC_API_KEY", ""))
+    authenticated = bool(FIXTURE_DIR) or bool(os.environ.get("GITHUB_TOKEN", ""))
     mode_str = "Claude AI 분석" if using_claude else "README 직접 파싱 (ANTHROPIC_API_KEY 없음)"
     print(f"모드: {mode_str}")
     if FIXTURE_DIR:
         print(f"소스: 로컬 fixtures ({FIXTURE_DIR})")
     else:
-        print(f"GitHub repos 조회 중 ({GITHUB_USER})…")
+        print(f"GitHub repos 조회 중 ({GITHUB_USER}){'' if authenticated else ' — 토큰 없음, public 레포만'}…")
     print()
 
     cfg      = json.loads(CONFIG_FILE.read_text(encoding="utf-8")) if CONFIG_FILE.exists() else {}
@@ -1074,14 +938,28 @@ def main():
     skip     = set(cfg.get("skip_repos", []))
     repo_cfg = cfg.get("repos", {})
 
+    prev        = load_generated(GENERATED_JSON)
+    prev_github = {p["repo"]: p for p in prev["projects"] if p.get("source") == "github" and p.get("repo")}
+    manual      = load_manual(MANUAL_JSON)
+
     repos = fetch_repos()
+    if not repos and not FIXTURE_DIR:
+        print("[ERROR] 레포 목록을 가져오지 못했습니다 (토큰/권한/rate limit 확인). 아무것도 변경하지 않습니다.",
+              file=sys.stderr)
+        sys.exit(1)
     html  = INDEX_HTML.read_text(encoding="utf-8")
 
-    # 현재 index.html에 이미 존재하는 수동 카드 제목 수집
+    # 현재 index.html에 이미 존재하는 수동 카드 제목 수집 (AUTO 구간 밖에 남아 있는 카드 기준)
     existing_titles = scan_existing_titles(html)
-    print(f"기존 수동 카드 {len(existing_titles)}개 감지: {', '.join(sorted(existing_titles))}\n")
+    auto_titles = set(re.findall(
+        r'<!-- AUTO:[\w\-\.]+ -->.*?class="proj-title">([^<]+)<', html, re.DOTALL
+    ))
+    manual_only_titles = (existing_titles - auto_titles) | {p.get("title", "") for p in manual}
+    print(f"수동 프로젝트 {len(manual)}개 (projects.manual.json), 이전 github 항목 {len(prev_github)}개\n")
 
-    changed = False
+    today_str = date.today().isoformat()
+    new_entries: dict[str, dict] = {}
+    seen: list[str] = []
     stats = {"checked": 0, "updated": 0, "skipped": 0, "failed": 0}
     all_warnings: list[str] = []
     failures: list[str] = []
@@ -1090,11 +968,8 @@ def main():
         name      = repo["name"]
         full_name = repo.get("full_name", f"{GITHUB_USER}/{name}")
 
-        # 제외 목록
         if name in excluded:
             continue
-
-        # 수동 skip 목록
         if name in skip:
             print(f"  [{name}] skip_repos 목록 — 스킵")
             stats["skipped"] += 1
@@ -1102,55 +977,41 @@ def main():
 
         stats["checked"] += 1
 
-        # proj-title 기준 중복 체크 (AUTO 블록 내의 카드는 제외)
-        auto_titles = set(re.findall(
-            r'<!-- AUTO:[\w\-\.]+ -->.*?class="proj-title">([^<]+)<',
-            html, re.DOTALL
-        ))
-        manual_only_titles = existing_titles - auto_titles
-
-        if is_duplicate(name, manual_only_titles):
+        if name not in prev_github and is_duplicate(name, manual_only_titles):
             print(f"  [{name}] 수동 카드 중복 감지 — 스킵 (skip_repos에 추가 권장)")
             skip.add(name)
             stats["skipped"] += 1
             continue
 
+        seen.append(name)
+
         # 레포 하나의 오류가 전체 Sync 를 멈추지 않도록 감싼다
         try:
-            # README + portfolio.yml 조회
             readme_text, readme_sha = fetch_readme(full_name)
             pf_text, pf_sha = fetch_portfolio_yml(full_name)
             if not readme_text and not pf_text:
                 print(f"  [{name}] README / portfolio.yml 없음 — 스킵")
                 stats["skipped"] += 1
+                seen.remove(name)
                 continue
 
-            # 변경 감지 (README SHA 또는 portfolio.yml SHA 중 하나라도 바뀌면 갱신)
             saved       = repo_cfg.get(name, {})
-            is_new      = name not in repo_cfg
+            prev_entry  = prev_github.get(name)
+            is_new      = name not in repo_cfg or prev_entry is None
             sha_changed = (readme_sha != saved.get("sha", "")
                            or pf_sha != saved.get("portfolioSha", ""))
-
-            # 플레이스홀더 내용 감지 (해당 카드가 비어있으면 강제 재생성)
-            has_placeholder = False
-            if card_exists(html, name):
-                m = re.search(
-                    rf'<!-- AUTO:{re.escape(name)} -->.*?<!-- /AUTO:{re.escape(name)} -->',
-                    html, re.DOTALL,
-                )
-                has_placeholder = bool(m and "내용을 입력하세요." in m.group())
+            has_placeholder = prev_entry is not None and not prev_entry.get("summary")
 
             if not is_new and not sha_changed and not args.force and not has_placeholder:
                 print(f"  [{name}] 변경 없음 — 스킵")
                 stats["skipped"] += 1
                 continue
-            if has_placeholder:
-                print(f"  [{name}] 빈 카드 감지 — 내용 재생성")
+            if has_placeholder and not is_new:
+                print(f"  [{name}] 빈 소개 감지 — 내용 재생성")
 
             action = "신규" if is_new else "업데이트"
             print(f"  [{name}] {action} 처리 중…{' (portfolio.yml)' if pf_text else ''}")
 
-            # portfolio.yml 파싱
             yml: dict = {}
             if pf_text:
                 try:
@@ -1160,14 +1021,12 @@ def main():
                     all_warnings.append(f"{name}: portfolio.yml 파싱 실패 ({e})")
                     yml = {}
 
-            # 기간 (커밋 날짜 — portfolio.yml 값이 없을 때의 보조 수단)
             commit_start, commit_end = fetch_period(full_name)
             if not commit_start:
                 commit_start = saved.get("commitStart", saved.get("start", ""))
             if not commit_end:
                 commit_end = saved.get("commitEnd", saved.get("end", ""))
 
-            # README 기반 콘텐츠 (portfolio.yml 이 summary/highlights/tech 를 모두 주면 Claude 호출 생략)
             content = None
             yml_complete = bool(yml.get("summary") and yml.get("highlights") and yml.get("tech"))
             if readme_text and not yml_complete:
@@ -1180,7 +1039,6 @@ def main():
                     print(f"    → README 파싱 (폴백)")
 
             meta = normalize_metadata(name, repo, yml, content, commit_start, commit_end)
-
             for w in validate_metadata(meta, yml, name):
                 print(f"    [WARN] {w}")
                 all_warnings.append(f"{name}: {w}")
@@ -1192,25 +1050,17 @@ def main():
             print(f"    기술: {meta['tech']}")
             print(f"    기능: {meta['highlights'][:3]}")
 
-            if not args.dry_run:
-                card = render_card(name, repo, meta)
-                if card_exists(html, name):
-                    html = update_card(html, name, card)
-                else:
-                    html = insert_card(html, card)
-
-                repo_cfg[name] = {
-                    "sha":          readme_sha,
-                    "portfolioSha": pf_sha,
-                    "start":        meta["started"],
-                    "end":          meta["ended"],
-                    "commitStart":  commit_start,
-                    "commitEnd":    commit_end,
-                    "status":       meta["status"],
-                    "title":        meta["title"],
-                }
-                changed = True
-                print(f"    → 카드 {'삽입' if is_new else '교체'} 완료")
+            new_entries[name] = to_project_entry(meta, repo, readme_sha, pf_sha, "ok", today_str)
+            repo_cfg[name] = {
+                "sha":          readme_sha,
+                "portfolioSha": pf_sha,
+                "start":        meta["started"],
+                "end":          meta["ended"],
+                "commitStart":  commit_start,
+                "commitEnd":    commit_end,
+                "status":       meta["status"],
+                "title":        meta["title"],
+            }
             stats["updated"] += 1
 
         except Exception as e:
@@ -1220,29 +1070,51 @@ def main():
 
         print()
 
+    # ── 프로젝트 목록 조립: 새 항목 + 변경 없는 이전 항목 + 사라진 레포(unavailable) + 수동 ──
+    github_entries: list[dict] = []
+    for name in seen:
+        if name in new_entries:
+            github_entries.append(new_entries[name])
+        elif name in prev_github:
+            entry = dict(prev_github[name])
+            if entry.get("syncStatus") == "unavailable":   # 다시 보이면 복구
+                entry["syncStatus"] = "ok"
+            github_entries.append(entry)
+    for name, entry in prev_github.items():
+        if name in seen or name in excluded or name in skip:
+            continue
+        entry = dict(entry)
+        if authenticated and entry.get("syncStatus") != "unavailable":
+            entry["syncStatus"] = "unavailable"
+            msg = f"{name}: 레포 목록에 없음 (삭제/비공개?) — 기존 데이터 유지, syncStatus=unavailable"
+            print(f"  [WARN] {msg}")
+            all_warnings.append(msg)
+        github_entries.append(entry)
+
+    projects = sort_projects(github_entries + manual, prev["projects"])
+    changed  = projects != prev["projects"] or args.force
+
     if changed and not args.dry_run:
-        html = reorder_auto_section(html, repo_cfg)
-        INDEX_HTML.write_text(html, encoding="utf-8")
+        save_generated(GENERATED_JSON, projects)
+        INDEX_HTML.write_text(render_auto_section(html, projects), encoding="utf-8")
         cfg["repos"]      = repo_cfg
         cfg["excluded"]   = sorted(excluded)
         cfg["skip_repos"] = sorted(skip)
         CONFIG_FILE.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        print("index.html 및 projects.json 저장 완료.")
-        print("git add index.html scripts/projects.json && git commit -m 'sync projects' && git push")
-
-        # Obsidian md 생성
+        print(f"{GENERATED_JSON.name} ({len(projects)}개), index.html, projects.json 저장 완료.")
+        print("git add index.html data/projects.generated.json scripts/projects.json "
+              "&& git commit -m 'sync projects' && git push")
         if args.obsidian:
             _write_obsidian(args.obsidian, repo_cfg)
-
     elif not changed and not args.dry_run:
         print("업데이트할 내용 없음.")
 
-    # 요약
     print()
     print(f"Checked: {stats['checked']}  Updated: {stats['updated']}  "
-          f"Skipped: {stats['skipped']}  Failed: {stats['failed']}  Warnings: {len(all_warnings)}")
+          f"Skipped: {stats['skipped']}  Failed: {stats['failed']}  Warnings: {len(all_warnings)}"
+          f"  Projects: {len(projects)}")
     if args.dry_run:
-        print("Dry run — 파일을 수정하지 않았습니다.")
+        print(f"Dry run — 파일을 수정하지 않았습니다. ({'변경 있음' if changed else '변경 없음'})")
     for w in all_warnings:
         print(f"  [WARN] {w}")
     for f in failures:

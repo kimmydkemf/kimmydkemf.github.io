@@ -34,9 +34,9 @@ python3 scripts/sync_projects.py --obsidian ~/Workspace/MyNotes "$@"
 echo ""
 
 # 변경사항 있으면 자동 커밋/푸시
-if ! git diff --quiet index.html scripts/projects.json 2>/dev/null; then
+if ! git diff --quiet index.html data/projects.generated.json scripts/projects.json 2>/dev/null; then
   echo "🚀  변경 감지 → 자동 커밋 & 푸시..."
-  git add index.html scripts/projects.json
+  git add index.html data/projects.generated.json scripts/projects.json
   git commit -m "sync: update projects $(date '+%Y-%m-%d')"
   git push
   echo "✅  완료! kimmydkemf.github.io 에 반영됩니다."

@@ -22,16 +22,23 @@ fixtures/repos/<repo-name>/
 | `sample-readme-only` | portfolio.yml 없음 — 기존 README 파서 폴백 경로 확인 |
 | `sample-bad-metadata` | 잘못된 status / 누락 필드 — Validation 경고 확인 |
 
+`fixtures/index.legacy.html` 은 Phase 3 마이그레이션 이전의 index.html 스냅샷이다.
+`scripts/test_sync_projects.py` 가 "legacy HTML → JSON → HTML" 왕복에서 정보 손실이 없는지 검증하는 데 쓴다.
+
 ## 사용
 
 ```bash
 # 실제 index.html 을 건드리지 않고 스크래치 복사본에 렌더링
 cp index.html /tmp/preview.html
 cp scripts/projects.json /tmp/preview.json
-python3 scripts/sync_projects.py --fixtures fixtures/repos --index /tmp/preview.html --config /tmp/preview.json
-python3 -m http.server -d /tmp 8000   # http://localhost:8000/preview.html (css 는 저장소 경로 필요)
+python3 scripts/sync_projects.py --fixtures fixtures/repos --index /tmp/preview.html --config /tmp/preview.json \
+        --generated /tmp/preview.generated.json --manual data/projects.manual.json
+# 미리보기는 저장소 루트에서 서버를 띄우고 preview.html 을 루트로 복사해 연다 (css/js/data 상대 경로)
+# fixtures 목록에 없는 실제 레포 항목은 스크래치 JSON 에서 syncStatus=unavailable 로 표시된다 (데이터는 유지)
 
 # 탐지만
 python3 scripts/sync_projects.py --fixtures fixtures/repos --dry-run
 
+# 단위 테스트 (네트워크 없음)
+python3 scripts/test_sync_projects.py
 ```

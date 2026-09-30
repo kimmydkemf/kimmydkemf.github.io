@@ -10,7 +10,7 @@ GitHub 레포지토리의 README를 자동으로 읽어 프로젝트 카드를 �
 
 - **Apple 스타일 디자인** — 다크/라이트 모두 깔끔하고 임팩트 있는 비주얼 (라이트 배경 `#f5f5f7`, SF Pro 폴백 폰트, 부드러운 그림자·진입 페이드 애니메이션, 호버 lift)
 - **다크 / 라이트 테마 전환** — nav 우측 버튼으로 전환, 선택값 localStorage 저장, 시스템 `prefers-color-scheme` 자동 감지
-- **GitHub 자동 동기화** — README가 있는 레포를 감지해 포트폴리오 카드 자동 생성
+- **GitHub 자동 동기화** — README / portfolio.yml 이 있는 레포를 감지해 `data/projects.generated.json` 생성 → 포트폴리오 카드 자동 생성 (정적 HTML + JS 렌더)
 - **Claude AI 카드 생성** — `ANTHROPIC_API_KEY` 설정 시 Claude가 README를 분석해 소개 문장을 다듬어 줌
 - **최신순 자동 정렬** — 시작일 기준 내림차순 정렬
 - **Obsidian 연동** — 동기화 시 Obsidian vault에 프로젝트 md 자동 생성
@@ -21,17 +21,25 @@ GitHub 레포지토리의 README를 자동으로 읽어 프로젝트 카드를 �
 
 ```
 portfolio/
-├── index.html                  # 포트폴리오 메인 페이지
-├── assets/css/style.css        # 스타일 (다크/라이트 테마)
+├── index.html                  # 메인 페이지. 프로젝트 영역(AUTO 구간)은 sync 가 JSON 에서 생성
+├── assets/
+│   ├── css/style.css           # 스타일 (다크/라이트 테마)
+│   └── js/projects.js          # projects.generated.json 을 브라우저에서 렌더 (정적 카드와 동일 마크업)
+├── data/
+│   ├── projects.generated.json # sync 결과 — 전체 프로젝트 데이터 (직접 편집 X)
+│   └── projects.manual.json    # 레포 없는 과거 프로젝트 — 사람이 편집
 ├── sync.sh                     # 포트폴리오 동기화 실행 스크립트
 ├── .env                        # 토큰 저장 (git 제외)
 ├── scripts/
-│   ├── sync_projects.py        # GitHub API → 메타데이터 정규화 → 카드 생성 핵심 로직
-│   ├── test_sync_projects.py   # 단위/통합 테스트 (네트워크 없음)
-│   └── projects.json           # 레포별 README/portfolio.yml SHA·기간·상태 캐시 + 제외 목록
-├── fixtures/repos/             # 개발·테스트용 가상 프로젝트 샘플 (--fixtures)
+│   ├── sync_projects.py        # GitHub API → 메타데이터 정규화 → JSON 생성 → 정적 HTML 재생성
+│   ├── render_cards.py         # JSON → 정적 카드 HTML (projects.js 와 1:1)
+│   ├── migrate_index_cards.py  # (1회성) 예전 index.html 카드 → JSON 마이그레이션
+│   ├── test_sync_projects.py   # 단위/통합/parity 테스트 (네트워크 없음)
+│   └── projects.json           # 변경 감지 캐시 (README/portfolio.yml SHA, 커밋 월) + 제외 목록
+├── fixtures/                   # 개발·테스트용 가상 프로젝트 샘플 (--fixtures), legacy index 스냅샷
 └── docs/
     ├── portfolio.template.yml  # 각 프로젝트 레포에 둘 portfolio.yml 템플릿
+    ├── PROJECT_DATA_SCHEMA.md  # projects.generated.json 스키마
     ├── PROJECT_SPEC.md         # 개선 프로젝트 요구사항
     └── tasks/, analysis/, decisions/
 ```
@@ -74,9 +82,10 @@ cd ~/Workspace/portfolio
 ```
 
 1. GitHub API로 전체 레포 조회
-2. README가 있는 신규/변경 레포만 감지
-3. Claude AI (또는 README 직접 파싱)로 카드 내용 생성
-4. `index.html` 업데이트 → 변경사항 있으면 **자동 커밋 & 푸시**
+2. README / portfolio.yml 이 바뀐 신규/변경 레포만 감지 (나머지는 이전 JSON 항목 재사용)
+3. portfolio.yml 우선, 부족한 내용은 Claude AI (또는 README 직접 파싱)로 보완
+4. `data/projects.generated.json` 생성 (+ `data/projects.manual.json` 의 과거 프로젝트 병합)
+5. 같은 JSON 으로 `index.html` AUTO 구간 정적 카드 재생성 → 변경사항 있으면 **자동 커밋 & 푸시**
 
 GitHub Pages 반영까지 약 1~2분 소요됩니다.
 
@@ -93,7 +102,9 @@ GitHub Pages 반영까지 약 1~2분 소요됩니다.
 ```bash
 python3 scripts/sync_projects.py --fixtures fixtures/repos --dry-run      # 샘플로 탐지만
 python3 scripts/sync_projects.py --fixtures fixtures/repos \
-        --index /tmp/preview.html --config /tmp/preview.json               # 스크래치 복사본에 렌더링
+        --index /tmp/preview.html --config /tmp/preview.json \
+        --generated /tmp/preview.generated.json --manual data/projects.manual.json   # 스크래치 복사본에 렌더링
+python3 scripts/test_sync_projects.py                                      # 테스트 (node 있으면 JS parity 포함)
 ```
 
 ---
@@ -205,23 +216,32 @@ README SHA와 `portfolio.yml` SHA를 `scripts/projects.json`에 저장하고, �
 
 ---
 
-## 카드 직접 수정
+## 프로젝트 데이터 레이어
 
-`index.html`의 `<!-- AUTO:START -->` ~ `<!-- AUTO:END -->` 구간은 sync 스크립트가 자동 관리합니다.  
-그 아래의 수동 카드(P.S, MeetingGround 등)는 직접 편집 후 커밋합니다.
+프로젝트 정보의 원본은 `data/projects.generated.json` 입니다. 스키마는 [`docs/PROJECT_DATA_SCHEMA.md`](docs/PROJECT_DATA_SCHEMA.md) 참고.
+
+```text
+GitHub (README + portfolio.yml) ─┐
+                                 ├─ sync_projects.py ─→ data/projects.generated.json
+data/projects.manual.json ───────┘                          ├─→ render_cards.py → index.html AUTO 구간 (정적, JS 없이도 표시)
+                                                            └─→ assets/js/projects.js → 브라우저 렌더
+```
+
+- `index.html` 의 `<!-- AUTO:START -->` ~ `<!-- AUTO:END -->` 구간은 **모든 카드**를 sync 가 생성합니다. 직접 편집하지 마세요.
+- **과거 프로젝트(레포 없음)** 는 `data/projects.manual.json` 을 편집한 뒤 `./sync.sh` 를 실행하면 반영됩니다.
+- GitHub 프로젝트의 표시 내용은 해당 레포의 `portfolio.yml` 로 조정합니다.
+- 레포가 삭제되거나 private 으로 바뀌어 목록에서 사라지면 항목은 `syncStatus: "unavailable"` 로 유지됩니다. 지우려면 `scripts/projects.json` 의 `excluded` 에 추가하세요.
 
 ```bash
-# 수동 편집 후
-git add index.html
-git commit -m "update: 프로젝트 내용 수정"
-git push
+# projects.manual.json 편집 후
+./sync.sh            # JSON + index.html 재생성 → 변경 있으면 커밋 & 푸시
 ```
 
 ---
 
 ## 기술 스택
 
-- **Frontend**: HTML · CSS (CSS Variables 기반 다크/라이트 테마, Apple-inspired) · Vanilla JS
+- **Frontend**: HTML · CSS (CSS Variables 기반 다크/라이트 테마, Apple-inspired) · Vanilla JS (JSON 렌더러)
 - **Sync**: Python 3 (표준 라이브러리, PyYAML 선택) · GitHub REST API · Anthropic Claude API
 - **Hosting**: GitHub Pages
 

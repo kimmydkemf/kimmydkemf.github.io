@@ -32,7 +32,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html scripts/projects.json
+          git add index.html data/projects.generated.json scripts/projects.json
           if git diff --staged --quiet; then
             echo "변경사항 없음"
           else
