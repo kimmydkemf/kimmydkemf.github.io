@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/secrets/**)",
+      "Read(**/private-data/**)",
+      "Read(**/personal-data/**)",
+      "Read(**/real-media/**)",
+      "Read(/Volumes/ARCHIVE/**)",
+      "Read(~/.ssh/**)"
+    ]
+  }
+}
