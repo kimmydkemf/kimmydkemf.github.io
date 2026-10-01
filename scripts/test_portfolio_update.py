@@ -254,6 +254,23 @@ class TestValidateSite(unittest.TestCase):
         errs = vs.validate(self.tmp, [".env", ".env.local", ".env.example"]).errors
         self.assertEqual(sorted(e.split(" ")[0] for e in errs), [".env", ".env.local"])
 
+    def test_jekyll_exclude_guard(self):
+        shutil.copy(ROOT / "_config.yml", self.tmp / "_config.yml")
+        self.assertEqual([e for e in self.validate().errors if "_config" in e], [])
+        (self.tmp / "_config.yml").write_text("exclude:\n  - data\n  - assets/js\n", encoding="utf-8")
+        errs = [e for e in self.validate().errors if "_config" in e]
+        self.assertTrue(any("data/projects.generated.json" in e for e in errs), errs)
+        self.assertTrue(any("assets/js/projects.js" in e for e in errs), errs)
+
+    def test_repo_config_excludes_internal_files(self):
+        import yaml
+        pats = yaml.safe_load((ROOT / "_config.yml").read_text(encoding="utf-8"))["exclude"]
+        for internal in ("CLAUDE.md", "AGENTS.md", "README.md", "docs/PROJECT_SPEC.md", "scripts/sync_projects.py",
+                         "fixtures/README.md", "data/projects.manual.json", "sync.sh", "Update Portfolio.command"):
+            self.assertTrue(vs._jekyll_excluded(internal, pats), internal)
+        for public in vs.REQUIRED_SITE_PATHS:
+            self.assertFalse(vs._jekyll_excluded(public, pats), public)
+
     def test_secret_patterns(self):
         self.assertEqual(vs.scan_secrets(FAKE_TOKEN), ["GitHub token"])
         self.assertEqual(vs.scan_secrets("github_pat_" + "a" * 50), ["GitHub fine-grained"])

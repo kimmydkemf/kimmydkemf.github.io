@@ -142,6 +142,42 @@ def check_cname(root: Path, r: Report) -> None:
         r.error(f"CNAME 이 '{value}' — '{EXPECTED_CNAME}' 이어야 함")
 
 
+# 사이트 동작에 반드시 배포되어야 하는 경로 (_config.yml exclude 에 걸리면 안 됨)
+REQUIRED_SITE_PATHS = ("index.html", "CNAME", "assets/css/style.css", "assets/js/projects.js",
+                       "data/projects.generated.json", "assets/projects")
+
+
+def _jekyll_excluded(path: str, patterns: list[str]) -> bool:
+    """Jekyll 3 의 exclude 판정과 같은 방식 (glob 또는 경로 접두어)"""
+    import fnmatch
+    for pat in patterns:
+        pat = str(pat).rstrip("/")
+        if fnmatch.fnmatch(path, pat) or path == pat or path.startswith(pat + "/"):
+            return True
+    return False
+
+
+def check_jekyll_config(root: Path, r: Report) -> None:
+    path = root / "_config.yml"
+    if not path.exists():
+        return
+    try:
+        import yaml  # type: ignore
+        cfg = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except ImportError:
+        cfg = {"exclude": [l.strip()[2:].strip().strip('"\'') for l in path.read_text(encoding="utf-8").splitlines()
+                           if l.strip().startswith("- ")]}
+    except Exception as e:
+        r.error(f"_config.yml 파싱 실패: {e}")
+        return
+    patterns = cfg.get("exclude") or []
+    for req in REQUIRED_SITE_PATHS:
+        if _jekyll_excluded(req, patterns):
+            r.error(f"_config.yml exclude 가 사이트 필수 경로를 제외함: {req}")
+    if cfg.get("include"):
+        r.warn("_config.yml 에 include 가 있음 — 점(.)으로 시작하는 파일이 공개될 수 있으니 확인")
+
+
 def check_files(root: Path, files: list[str], r: Report) -> None:
     for f in files:
         path = root / f
@@ -200,6 +236,7 @@ def validate(root: Path, files: list[str]) -> Report:
     projects = check_generated(root, r)
     check_index(root, projects, r)
     check_cname(root, r)
+    check_jekyll_config(root, r)
     check_files(root, files, r)
     return r
 
