@@ -50,6 +50,24 @@
 
   function cardId(p) { return 'proj-' + (p.slug || ''); }
 
+  var HUES = 6;
+  function hueIndex(p) {
+    var s = String(p.slug || p.title || ''), sum = 0;
+    for (var i = 0; i < s.length; i++) sum += s.charCodeAt(i);
+    return sum % HUES + 1;
+  }
+  function monogram(p) {
+    var s = String(p.title || '');
+    for (var i = 0; i < s.length; i++) {
+      var ch = s[i];
+      if (/[0-9A-Za-z\u3131-\uD79D]/.test(ch)) return ch.toUpperCase();
+    }
+    return '·';
+  }
+  function mark(p) {
+    return '\n<span class="mark hue-' + hueIndex(p) + '" aria-hidden="true">' + E(monogram(p)) + '</span>';
+  }
+
   function formatPeriod(started, ended, ongoing, fallback) {
     if (!started) return fallback || '?';
     if (ongoing) return started + ' – Present';
@@ -208,9 +226,9 @@
         E(p.repositoryUrl) + '</a></p>');
     }
     return '\n<details' + attrs(p) + '>\n<summary>\n<div class="card-top">' + badge('unused') +
-      '\n<span class="proj-period">' + E(periodStr(p)) + '</span>\n</div>\n<div class="proj-main">\n<div class="proj-title">' +
-      E(p.title) + '</div>\n<div class="proj-sub">' + E(sub) + '</div>\n</div>\n</summary>\n<div class="detail">' +
-      body + '\n</div>\n</details>';
+      '\n<span class="proj-period">' + E(periodStr(p)) + '</span>\n</div>\n<div class="card-head">' + mark(p) +
+      '\n<div class="proj-main">\n<div class="proj-title">' + E(p.title) + '</div>\n<div class="proj-sub">' + E(sub) +
+      '</div>\n</div>\n</div>\n</summary>\n<div class="detail">' + body + '\n</div>\n</details>';
   }
 
   function renderProjectCard(p) {
@@ -230,8 +248,9 @@
     body += team(p);
 
     return '\n<details' + attrs(p) + '>\n<summary>\n<div class="card-top">' + badge(p.status) +
-      '\n<span class="proj-period">' + E(periodStr(p)) + '</span>\n</div>\n<div class="proj-main">\n<div class="proj-title">' +
-      E(p.title) + '</div>\n<div class="proj-sub">' + E(p.subtitle) + '</div>\n</div>\n<div class="card-foot">\n<div class="proj-chips">' +
+      '\n<span class="proj-period">' + E(periodStr(p)) + '</span>\n</div>\n<div class="card-head">' + mark(p) +
+      '\n<div class="proj-main">\n<div class="proj-title">' + E(p.title) + '</div>\n<div class="proj-sub">' + E(p.subtitle) +
+      '</div>\n</div>\n</div>\n<div class="card-foot">\n<div class="proj-chips">' +
       chips(p) + '\n</div>' + cardLinks(p) + '\n</div>\n</summary>\n<div class="detail">' + body + '\n</div>\n</details>';
   }
 
@@ -318,6 +337,23 @@
     return c;
   }
 
+  function yearCounts(projects) {
+    var years = projects.map(function (p) { return (p.started || '').slice(0, 4); }).filter(function (y) { return /^\d{4}$/.test(y); }).map(Number);
+    if (!years.length) return [];
+    var lo = Math.min.apply(null, years), hi = Math.max.apply(null, years), out = [];
+    for (var y = lo; y <= hi; y++) out.push([String(y), years.filter(function (v) { return v === y; }).length]);
+    return out;
+  }
+
+  function renderYearBars(projects) {
+    var rows = yearCounts(projects);
+    if (!rows.length) return '';
+    var peak = Math.max.apply(null, rows.map(function (r) { return r[1]; })) || 1;
+    return '\n<div class="year-bars" aria-label="연도별 시작한 프로젝트 수">' + rows.map(function (r) {
+      return '\n<div class="ybar" style="--v:' + (r[1] / peak).toFixed(2) + '" title="' + r[0] + ' · ' + r[1] + '개"><i></i><b>' + r[0].slice(2) + '</b></div>';
+    }).join('') + '\n</div>';
+  }
+
   function renderStats(projects, generatedAt) {
     var c = projectStats(projects);
     var rows = [
@@ -328,7 +364,7 @@
     ];
     if (c.since) rows.push(['기록 시작', c.since, 'since']);
     if (generatedAt) rows.push(['마지막 동기화', E(String(generatedAt).slice(0, 10).replace(/-/g, '.')), 'synced']);
-    return rows.map(function (r) {
+    return renderYearBars(projects) + rows.map(function (r) {
       return '\n<div class="fact" data-fact="' + r[2] + '"><dt>' + E(r[0]) + '</dt><dd>' + r[1] + '</dd></div>';
     }).join('');
   }

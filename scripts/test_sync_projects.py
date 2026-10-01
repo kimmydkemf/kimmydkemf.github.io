@@ -456,6 +456,18 @@ class TestSections(unittest.TestCase):
         self.assertNotIn("화면", rc.render_card(dict(p, status="unused")))
         self.assertNotIn("<img", rc.render_card(dict(p, screenshots={"desktop": "../x.png"})))
 
+    def test_monogram_and_hue(self):
+        self.assertEqual(rc.monogram({"title": "Pacer"}), "P")
+        self.assertEqual(rc.monogram({"title": "— 천로역정"}), "천")
+        self.assertEqual(rc.monogram({"title": "···"}), "·")
+        self.assertTrue(1 <= rc.hue_index({"slug": "health-tracker"}) <= rc.HUES)
+        html = rc.render_card(entry({"title": "Pacer", "status": "active", "started": "2026-01"}, slug="health-tracker"))
+        self.assertIn(f'<span class="mark hue-{rc.hue_index({"slug": "health-tracker"})}" aria-hidden="true">P</span>', html)
+        bars = rc.render_year_bars([{"started": "2019.03"}, {"started": "2019.11"}, {"started": "2021.08"}])
+        self.assertEqual(bars.count('class="ybar"'), 3)                 # 2019 · 2020(0) · 2021
+        self.assertIn('style="--v:1.00" title="2019 · 2개"', bars)
+        self.assertIn('style="--v:0.00" title="2020 · 0개"', bars)
+
     def test_no_featured_section_when_none(self):
         html = rc.render_sections([entry({"title": "A", "status": "active", "started": "2026-01"})])
         self.assertNotIn("proj-featured", html)
@@ -479,6 +491,12 @@ class TestJsParity(unittest.TestCase):
         py_s = rc.normalize_html(rc.render_sections(projects))
         js_s = rc.normalize_html(self.render_js(projects, "renderSections"))
         self.assertEqual(py_s, js_s)
+        py_st = rc.normalize_html(rc.render_stats(projects, "2026-10-01T00:00:00+09:00"))
+        script = ("const R=require(process.argv[1]);const fs=require('fs');"
+                  "const d=JSON.parse(fs.readFileSync(0,'utf8'));process.stdout.write(R.renderStats(d,'2026-10-01T00:00:00+09:00'));")
+        r = subprocess.run([NODE, "-e", script, str(JS_RENDERER)], input=json.dumps(projects), capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(py_st, rc.normalize_html(r.stdout))
 
     def test_generated_json_parity(self):
         data = json.loads((ROOT / "data" / "projects.generated.json").read_text(encoding="utf-8"))
