@@ -966,11 +966,11 @@ def sort_projects(projects: list[dict], prev_projects: list[dict] | None = None)
     return sorted(ordered, key=lambda p: p.get("started") or "0000.00", reverse=True)
 
 
-def save_generated(path: Path, projects: list[dict]) -> None:
+def save_generated(path: Path, projects: list[dict], generated_at: str | None = None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "schemaVersion": SCHEMA_VERSION,
-        "generatedAt":   datetime.now(KST).isoformat(timespec="seconds"),
+        "generatedAt":   generated_at or datetime.now(KST).isoformat(timespec="seconds"),
         "projects":      projects,
     }
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -1215,8 +1215,9 @@ def main():
     changed  = projects != prev["projects"] or args.force
 
     if changed and not args.dry_run:
-        save_generated(GENERATED_JSON, projects)
-        INDEX_HTML.write_text(render_auto_section(html, projects), encoding="utf-8")
+        generated_at = datetime.now(KST).isoformat(timespec="seconds")
+        save_generated(GENERATED_JSON, projects, generated_at)
+        INDEX_HTML.write_text(render_auto_section(html, projects, generated_at), encoding="utf-8")
         cfg["repos"]      = repo_cfg
         cfg["excluded"]   = sorted(excluded)
         cfg["skip_repos"] = sorted(skip)

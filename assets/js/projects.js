@@ -22,18 +22,18 @@
   var DATA_URL = 'data/projects.generated.json';
   var FILTER_KEY = 'projectFilter';
   var STATUS_LABEL = {
-    active: '진행 중', completed: '완료', paused: '일시 중단', unused: '미사용', archived: '아카이브'
+    active: '진행 중', completed: '완료', paused: '일시 중단', unused: '미사용', archived: '과거'
   };
   var STATUS_ORDER = ['active', 'completed', 'paused', 'unused', 'archived'];
   var GROUPS = [
     ['current', '진행 중', 'Current'],
     ['paused', '일시 중단', 'Paused'],
     ['completed', '완료', 'Completed'],
-    ['archive', '미사용 · 아카이브', 'Unused · Archived']
+    ['archive', '지난 프로젝트', 'Past']
   ];
   var GROUP_OF = { active: 'current', paused: 'paused', completed: 'completed', unused: 'archive', archived: 'archive' };
   var FEATURED_MAX = 5;
-  var CHIP_LIMIT = 5;
+  var CHIP_LIMIT = 4;
   var PLACEHOLDER = '내용을 입력하세요.';
 
   function E(s) {
@@ -73,7 +73,17 @@
 
   function livePill(p) {
     if (!p.liveUrl || p.status === 'unused') return '';
-    return '\n<a class="proj-live" href="' + E(p.liveUrl) + '" target="_blank" rel="noopener">Live Demo ↗</a>';
+    return '\n<a class="proj-live" href="' + E(p.liveUrl) + '" target="_blank" rel="noopener">Live ↗</a>';
+  }
+
+  function repoPill(p) {
+    if (!p.repositoryUrl) return '';
+    return '\n<a class="proj-repo" href="' + E(p.repositoryUrl) + '" target="_blank" rel="noopener">GitHub ↗</a>';
+  }
+
+  function cardLinks(p) {
+    var inner = livePill(p) + repoPill(p);
+    return inner ? '\n<div class="card-links">' + inner + '\n</div>' : '';
   }
 
   function links(p) {
@@ -110,10 +120,11 @@
     if (!list.length) return '';
     var body = '';
     list.forEach(function (v) {
-      if (v.label) body += '\n<p class="video-label">' + E(v.label) + '</p>';
-      body += '\n<div class="video-wrap">\n<iframe src="' + E(v.url) + '" allowfullscreen></iframe>\n</div>';
+      var label = v.label ? '\n<p class="video-label">' + E(v.label) + '</p>' : '';
+      body += '\n<figure class="video">' + label + '\n<div class="video-wrap">\n<iframe src="' + E(v.url) +
+        '" allowfullscreen></iframe>\n</div>\n</figure>';
     });
-    return section('시연 영상', body);
+    return section('시연 영상', '\n<div class="video-row">' + body + '\n</div>');
   }
 
   function team(p) {
@@ -196,9 +207,9 @@
       body += section('Repository', '\n<p><a href="' + E(p.repositoryUrl) + '" target="_blank" rel="noopener">' +
         E(p.repositoryUrl) + '</a></p>');
     }
-    return '\n<details' + attrs(p) + '>\n<summary>\n<span class="proj-period">' + E(periodStr(p)) +
-      '</span>\n<div class="proj-main">\n<div class="proj-title">' + E(p.title) + '</div>' + badge('unused') +
-      '\n<div class="proj-sub">' + E(sub) + '</div>\n</div>\n<span class="arrow">▶</span>\n</summary>\n<div class="detail">' +
+    return '\n<details' + attrs(p) + '>\n<summary>\n<div class="card-top">' + badge('unused') +
+      '\n<span class="proj-period">' + E(periodStr(p)) + '</span>\n</div>\n<div class="proj-main">\n<div class="proj-title">' +
+      E(p.title) + '</div>\n<div class="proj-sub">' + E(sub) + '</div>\n</div>\n</summary>\n<div class="detail">' +
       body + '\n</div>\n</details>';
   }
 
@@ -218,10 +229,10 @@
     body += links(p);
     body += team(p);
 
-    return '\n<details' + attrs(p) + '>\n<summary>\n<span class="proj-period">' + E(periodStr(p)) +
-      '</span>\n<div class="proj-main">\n<div class="proj-title">' + E(p.title) + '</div>' + badge(p.status) + livePill(p) +
-      '\n<div class="proj-sub">' + E(p.subtitle) + '</div>\n<div class="proj-chips">' + chips(p) +
-      '\n</div>\n</div>\n<span class="arrow">▶</span>\n</summary>\n<div class="detail">' + body + '\n</div>\n</details>';
+    return '\n<details' + attrs(p) + '>\n<summary>\n<div class="card-top">' + badge(p.status) +
+      '\n<span class="proj-period">' + E(periodStr(p)) + '</span>\n</div>\n<div class="proj-main">\n<div class="proj-title">' +
+      E(p.title) + '</div>\n<div class="proj-sub">' + E(p.subtitle) + '</div>\n</div>\n<div class="card-foot">\n<div class="proj-chips">' +
+      chips(p) + '\n</div>' + cardLinks(p) + '\n</div>\n</summary>\n<div class="detail">' + body + '\n</div>\n</details>';
   }
 
   function renderProjectList(projects) {
@@ -259,7 +270,7 @@
     return '\n<article class="feat-card" data-slug="' + E(p.slug) + '" data-display-status="' + displayStatus(p) + '">' +
       coverHtml + '\n<div class="feat-body">\n<div class="feat-meta">\n<span class="proj-period">' + E(periodStr(p)) +
       '</span>' + badge(p.status) + '\n</div>\n<h4 class="feat-title">' + E(title) + '</h4>\n<p class="feat-sub">' +
-      E(p.subtitle) + '</p>\n<div class="proj-chips">' + chipHtml + '\n</div>\n<div class="proj-links">' + linkHtml +
+      E(p.subtitle) + '</p>\n<div class="proj-chips">' + chipHtml + '\n</div>\n<div class="card-links">' + linkHtml +
       '\n</div>\n</div>\n</article>';
   }
 
@@ -278,11 +289,48 @@
     GROUPS.forEach(function (g) {
       var items = projects.filter(function (p) { return GROUP_OF[displayStatus(p)] === g[0]; });
       if (!items.length) return;
+      var cards = '', lastYear = null;
+      items.forEach(function (p) {
+        if (g[0] === 'archive') {
+          var year = (p.started || '').slice(0, 4) || '기타';
+          if (year !== lastYear) { cards += '\n<div class="tl-year" aria-hidden="true">' + E(year) + '</div>'; lastYear = year; }
+        }
+        cards += renderProjectCard(p);
+      });
       out += '\n<div class="proj-group" data-group="' + g[0] + '">\n<h3 class="proj-group-title">' + g[1] +
         '<span class="proj-group-en">' + g[2] + '</span><span class="proj-group-count">' + items.length +
-        '</span></h3>\n<div class="proj-group-list">' + items.map(renderProjectCard).join('') + '\n</div>\n</div>';
+        '</span></h3>\n<div class="proj-group-list">' + cards + '\n</div>\n</div>';
     });
     return out;
+  }
+
+  // ── 첫 화면 사실 요약 (STATS 마커 안) ───────────────────────────────────────
+  function projectStats(projects) {
+    var c = { total: projects.length, current: 0, paused: 0, completed: 0, archive: 0, live: 0, since: '' };
+    var years = [];
+    projects.forEach(function (p) {
+      c[GROUP_OF[displayStatus(p)]] += 1;
+      if (p.liveUrl && p.status !== 'unused') c.live += 1;
+      var y = (p.started || '').slice(0, 4);
+      if (/^\d{4}$/.test(y)) years.push(parseInt(y, 10));
+    });
+    if (years.length) c.since = String(Math.min.apply(null, years));
+    return c;
+  }
+
+  function renderStats(projects, generatedAt) {
+    var c = projectStats(projects);
+    var rows = [
+      ['프로젝트', c.total + '<span class="unit">개</span>', 'total'],
+      ['진행 중', String(c.current), 'current'],
+      ['완료', String(c.completed + c.paused), 'done'],
+      ['지난 프로젝트', String(c.archive), 'archive']
+    ];
+    if (c.since) rows.push(['기록 시작', c.since, 'since']);
+    if (generatedAt) rows.push(['마지막 동기화', E(String(generatedAt).slice(0, 10).replace(/-/g, '.')), 'synced']);
+    return rows.map(function (r) {
+      return '\n<div class="fact" data-fact="' + r[2] + '"><dt>' + E(r[0]) + '</dt><dd>' + r[1] + '</dd></div>';
+    }).join('');
   }
 
   // ── 상태 필터 (DOM 기반 — 정적 카드에서도 동작) ─────────────────────────────
@@ -322,7 +370,7 @@
     return bar;
   }
 
-  // ── 그룹 접기: 미사용·아카이브는 기본으로 접어 둔다 (기록 중심 최소 표현) ──────
+  // ── 그룹 접기: 지난 프로젝트는 기본으로 접어 둔다 (기록 중심 최소 표현) ──────
   var FOLD_GROUPS = ['archive'];
 
   function setFold(g, folded) {
@@ -411,6 +459,8 @@
           list.innerHTML = renderSections(data.projects);
           list.setAttribute('data-rendered', 'json');
           list.setAttribute('data-generated-at', data.generatedAt || '');
+          var facts = document.getElementById('facts');
+          if (facts) facts.innerHTML = renderStats(data.projects, data.generatedAt);
         })
         .catch(function () { /* 정적 카드 유지 */ })
         .then(function () { enhance(list); });
@@ -424,6 +474,7 @@
     renderProjectList: renderProjectList,
     renderSections: renderSections,
     renderFeaturedCard: renderFeaturedCard,
+    renderStats: renderStats,
     displayStatus: displayStatus,
     formatPeriod: formatPeriod,
     mount: mount

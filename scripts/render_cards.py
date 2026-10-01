@@ -23,7 +23,7 @@ STATUS_LABEL = {
     "completed": "완료",
     "paused":    "일시 중단",
     "unused":    "미사용",
-    "archived":  "아카이브",
+    "archived":  "과거",
 }
 
 PLACEHOLDER = "내용을 입력하세요."
@@ -33,12 +33,14 @@ GROUPS = (
     ("current",   "진행 중",           "Current"),
     ("paused",    "일시 중단",         "Paused"),
     ("completed", "완료",              "Completed"),
-    ("archive",   "미사용 · 아카이브", "Unused · Archived"),
+    ("archive",   "지난 프로젝트", "Past"),
 )
 GROUP_OF = {"active": "current", "paused": "paused", "completed": "completed",
             "unused": "archive", "archived": "archive"}
 FEATURED_MAX = 5
-CHIP_LIMIT = 5          # 접힌 카드에 보이는 기술 태그 수 (나머지는 +N, 펼치면 "기술 스택")
+CHIP_LIMIT = 4          # 접힌 카드에 보이는 기술 태그 수 (나머지는 +N, 펼치면 "기술 스택")
+STATS_START = "<!-- STATS:START -->"
+STATS_END   = "<!-- STATS:END -->"
 
 
 def display_status(p: dict) -> str:
@@ -130,13 +132,16 @@ def _videos(p: dict) -> str:
         return ""
     body = ""
     for v in videos:
-        if v.get("label"):
-            body += f'\n            <p class="video-label">{E(v["label"])}</p>'
+        label = f'\n              <p class="video-label">{E(v["label"])}</p>' if v.get("label") else ""
         body += f"""
-            <div class="video-wrap">
-              <iframe src="{E(v["url"])}" allowfullscreen></iframe>
-            </div>"""
-    return _section("시연 영상", body)
+            <figure class="video">{label}
+              <div class="video-wrap">
+                <iframe src="{E(v["url"])}" allowfullscreen></iframe>
+              </div>
+            </figure>"""
+    return _section("시연 영상", f"""
+            <div class="video-row">{body}
+            </div>""")
 
 
 def _team(p: dict) -> str:
@@ -161,7 +166,7 @@ def _chip_cls(p: dict) -> str:
 
 
 def _is_archived_view(p: dict) -> bool:
-    """미사용·아카이브 그룹 카드는 접힌 상태에서 기술 태그를 숨긴다 (기록 중심 최소 표현)"""
+    """지난 프로젝트(미사용·과거) 카드는 접힌 상태에서 기술 태그를 숨긴다 (기록 중심 최소 표현)"""
     return display_status(p) in ("archived", "unused")
 
 
@@ -206,12 +211,30 @@ def _attrs(p: dict) -> str:
 
 
 def _live_pill(p: dict) -> str:
-    """접힌 카드에서도 보이는 Live Demo 링크 (unused 제외)"""
+    """접힌 카드에서도 보이는 Live 링크 (unused 제외)"""
     live = p.get("liveUrl") or ""
     if not live or p.get("status") == "unused":
         return ""
-    return (f'\n            <a class="proj-live" href="{E(live)}" target="_blank" rel="noopener">'
-            f'Live Demo ↗</a>')
+    return (f'\n              <a class="proj-live" href="{E(live)}" target="_blank" rel="noopener">'
+            f'Live ↗</a>')
+
+
+def _repo_pill(p: dict) -> str:
+    """접힌 카드에서도 보이는 GitHub 링크"""
+    url = p.get("repositoryUrl") or ""
+    if not url:
+        return ""
+    return (f'\n              <a class="proj-repo" href="{E(url)}" target="_blank" rel="noopener">'
+            f'GitHub ↗</a>')
+
+
+def _card_links(p: dict) -> str:
+    inner = _live_pill(p) + _repo_pill(p)
+    if not inner:
+        return ""
+    return f"""
+            <div class="card-links">{inner}
+            </div>"""
 
 
 def _period_str(p: dict) -> str:
@@ -242,12 +265,13 @@ def _render_unused(p: dict) -> str:
     return f"""
       <details{_attrs(p)}>
         <summary>
-          <span class="proj-period">{E(_period_str(p))}</span>
+          <div class="card-top">{_badge("unused")}
+            <span class="proj-period">{E(_period_str(p))}</span>
+          </div>
           <div class="proj-main">
-            <div class="proj-title">{E(p.get("title"))}</div>{_badge("unused")}
+            <div class="proj-title">{E(p.get("title"))}</div>
             <div class="proj-sub">{E(sub)}</div>
           </div>
-          <span class="arrow">▶</span>
         </summary>
         <div class="detail">{body}
         </div>
@@ -279,14 +303,17 @@ def render_card(p: dict) -> str:
     return f"""
       <details{_attrs(p)}>
         <summary>
-          <span class="proj-period">{E(_period_str(p))}</span>
-          <div class="proj-main">
-            <div class="proj-title">{E(p.get("title"))}</div>{_badge(p.get("status"))}{_live_pill(p)}
-            <div class="proj-sub">{E(p.get("subtitle"))}</div>
-            <div class="proj-chips">{_chips(p)}
-            </div>
+          <div class="card-top">{_badge(p.get("status"))}
+            <span class="proj-period">{E(_period_str(p))}</span>
           </div>
-          <span class="arrow">▶</span>
+          <div class="proj-main">
+            <div class="proj-title">{E(p.get("title"))}</div>
+            <div class="proj-sub">{E(p.get("subtitle"))}</div>
+          </div>
+          <div class="card-foot">
+            <div class="proj-chips">{_chips(p)}
+            </div>{_card_links(p)}
+          </div>
         </summary>
         <div class="detail">{body}
         </div>
@@ -346,7 +373,7 @@ def render_featured_card(p: dict) -> str:
             <p class="feat-sub">{E(p.get("subtitle"))}</p>
             <div class="proj-chips">{chips}
             </div>
-            <div class="proj-links">{links}
+            <div class="card-links">{links}
             </div>
           </div>
         </article>"""
@@ -372,7 +399,15 @@ def render_sections(projects: list[dict], with_markers: bool = True) -> str:
         items = [p for p in projects if GROUP_OF[display_status(p)] == key]
         if not items:
             continue
-        cards = "".join((render_card_block(p) if with_markers else render_card(p)) for p in items)
+        cards = ""
+        last_year = None
+        for p in items:
+            if key == "archive":
+                year = (p.get("started") or "")[:4] or "기타"
+                if year != last_year:
+                    cards += f'\n        <div class="tl-year" aria-hidden="true">{E(year)}</div>'
+                    last_year = year
+            cards += render_card_block(p) if with_markers else render_card(p)
         out += f"""
       <div class="proj-group" data-group="{key}">
         <h3 class="proj-group-title">{ko}<span class="proj-group-en">{en}</span><span class="proj-group-count">{len(items)}</span></h3>
@@ -382,18 +417,50 @@ def render_sections(projects: list[dict], with_markers: bool = True) -> str:
     return out
 
 
-def render_auto_section(html: str, projects: list[dict]) -> str:
-    """index.html 의 AUTO:START ~ AUTO:END 구간 전체를 JSON 기반 카드로 교체"""
+def project_stats(projects: list[dict]) -> dict:
+    counts = {"total": len(projects), "current": 0, "paused": 0, "completed": 0, "archive": 0, "live": 0}
+    for p in projects:
+        counts[GROUP_OF[display_status(p)]] += 1
+        if p.get("liveUrl") and p.get("status") != "unused":
+            counts["live"] += 1
+    years = sorted(int(p["started"][:4]) for p in projects if (p.get("started") or "")[:4].isdigit())
+    counts["since"] = str(years[0]) if years else ""
+    return counts
+
+
+def render_stats(projects: list[dict], generated_at: str | None = None) -> str:
+    """첫 화면 사실 요약 (STATS 마커 사이). JS 가 같은 JSON 으로 다시 그린다."""
+    c = project_stats(projects)
+    rows = [
+        ("프로젝트", f"{c['total']}<span class=\"unit\">개</span>", "total"),
+        ("진행 중", str(c["current"]), "current"),
+        ("완료", str(c["completed"] + c["paused"]), "done"),
+        ("지난 프로젝트", str(c["archive"]), "archive"),
+    ]
+    if c["since"]:
+        rows.append(("기록 시작", c["since"], "since"))
+    if generated_at:
+        rows.append(("마지막 동기화", E(generated_at[:10].replace("-", ".")), "synced"))
+    return "".join(f"""
+        <div class="fact" data-fact="{key}"><dt>{E(label)}</dt><dd>{value}</dd></div>""" for label, value, key in rows)
+
+
+def render_auto_section(html: str, projects: list[dict], generated_at: str | None = None) -> str:
+    """index.html 의 AUTO:START ~ AUTO:END 구간 전체를 JSON 기반 카드로 교체.
+    STATS:START ~ STATS:END 마커가 있으면 첫 화면 사실 요약도 함께 갱신한다."""
     start_idx = html.find(AUTO_START)
     end_idx   = html.find(AUTO_END)
     if start_idx == -1 or end_idx == -1:
         raise ValueError("index.html 에 AUTO:START / AUTO:END 마커가 없습니다.")
-    start_line_end = html.index("\n", start_idx)
     # START 마커 줄 자체를 최신 문구로 갱신
     line_begin = html.rfind("\n", 0, start_idx) + 1
     indent = html[line_begin:start_idx]
     head = html[:line_begin] + indent + AUTO_START_LINE
-    return head + render_sections(projects) + "\n      " + html[end_idx:]
+    out = head + render_sections(projects) + "\n      " + html[end_idx:]
+    s_idx, e_idx = out.find(STATS_START), out.find(STATS_END)
+    if s_idx != -1 and e_idx != -1 and e_idx > s_idx:
+        out = out[:s_idx + len(STATS_START)] + render_stats(projects, generated_at) + "\n        " + out[e_idx:]
+    return out
 
 
 def normalize_html(s: str) -> str:
