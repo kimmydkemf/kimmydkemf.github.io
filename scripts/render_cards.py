@@ -56,6 +56,26 @@ def card_id(p: dict) -> str:
     return "proj-" + str(p.get("slug") or "")
 
 
+HUES = 6   # 프로젝트별 고유 색 (CSS --hue-1 … --hue-6). Python / JS 같은 계산
+
+
+def hue_index(p: dict) -> int:
+    s = str(p.get("slug") or p.get("title") or "")
+    return sum(ord(ch) for ch in s) % HUES + 1
+
+
+def monogram(p: dict) -> str:
+    """제목 첫 글자. 공백·기호는 건너뛴다"""
+    for ch in str(p.get("title") or ""):
+        if ch.isalnum():
+            return ch.upper()
+    return "·"
+
+
+def _mark(p: dict) -> str:
+    return (f'\n            <span class="mark hue-{hue_index(p)}" aria-hidden="true">{E(monogram(p))}</span>')
+
+
 def E(s) -> str:
     return html_escape("" if s is None else str(s))
 
@@ -268,9 +288,11 @@ def _render_unused(p: dict) -> str:
           <div class="card-top">{_badge("unused")}
             <span class="proj-period">{E(_period_str(p))}</span>
           </div>
-          <div class="proj-main">
-            <div class="proj-title">{E(p.get("title"))}</div>
-            <div class="proj-sub">{E(sub)}</div>
+          <div class="card-head">{_mark(p)}
+            <div class="proj-main">
+              <div class="proj-title">{E(p.get("title"))}</div>
+              <div class="proj-sub">{E(sub)}</div>
+            </div>
           </div>
         </summary>
         <div class="detail">{body}
@@ -306,9 +328,11 @@ def render_card(p: dict) -> str:
           <div class="card-top">{_badge(p.get("status"))}
             <span class="proj-period">{E(_period_str(p))}</span>
           </div>
-          <div class="proj-main">
-            <div class="proj-title">{E(p.get("title"))}</div>
-            <div class="proj-sub">{E(p.get("subtitle"))}</div>
+          <div class="card-head">{_mark(p)}
+            <div class="proj-main">
+              <div class="proj-title">{E(p.get("title"))}</div>
+              <div class="proj-sub">{E(p.get("subtitle"))}</div>
+            </div>
           </div>
           <div class="card-foot">
             <div class="proj-chips">{_chips(p)}
@@ -428,6 +452,28 @@ def project_stats(projects: list[dict]) -> dict:
     return counts
 
 
+def year_counts(projects: list[dict]) -> list[tuple[str, int]]:
+    """시작 연도별 프로젝트 수, 첫 해부터 올해(또는 마지막 해)까지 빈 해 포함"""
+    years = [int(p["started"][:4]) for p in projects if (p.get("started") or "")[:4].isdigit()]
+    if not years:
+        return []
+    lo, hi = min(years), max(years)
+    return [(str(y), sum(1 for v in years if v == y)) for y in range(lo, hi + 1)]
+
+
+def render_year_bars(projects: list[dict]) -> str:
+    rows = year_counts(projects)
+    if not rows:
+        return ""
+    peak = max(n for _, n in rows) or 1
+    bars = "".join(
+        f'\n          <div class="ybar" style="--v:{n / peak:.2f}" title="{y} · {n}개">'
+        f'<i></i><b>{y[2:]}</b></div>' for y, n in rows)
+    return f"""
+        <div class="year-bars" aria-label="연도별 시작한 프로젝트 수">{bars}
+        </div>"""
+
+
 def render_stats(projects: list[dict], generated_at: str | None = None) -> str:
     """첫 화면 사실 요약 (STATS 마커 사이). JS 가 같은 JSON 으로 다시 그린다."""
     c = project_stats(projects)
@@ -441,8 +487,9 @@ def render_stats(projects: list[dict], generated_at: str | None = None) -> str:
         rows.append(("기록 시작", c["since"], "since"))
     if generated_at:
         rows.append(("마지막 동기화", E(generated_at[:10].replace("-", ".")), "synced"))
-    return "".join(f"""
+    facts = "".join(f"""
         <div class="fact" data-fact="{key}"><dt>{E(label)}</dt><dd>{value}</dd></div>""" for label, value, key in rows)
+    return render_year_bars(projects) + facts
 
 
 def render_auto_section(html: str, projects: list[dict], generated_at: str | None = None) -> str:
