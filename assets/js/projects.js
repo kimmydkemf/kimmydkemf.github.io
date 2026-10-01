@@ -356,17 +356,17 @@
 
   function renderStats(projects, generatedAt) {
     var c = projectStats(projects);
-    var rows = [
-      ['프로젝트', c.total + '<span class="unit">개</span>', 'total'],
-      ['진행 중', String(c.current), 'current'],
-      ['완료', String(c.completed + c.paused), 'done'],
-      ['지난 프로젝트', String(c.archive), 'archive']
-    ];
-    if (c.since) rows.push(['기록 시작', c.since, 'since']);
-    if (generatedAt) rows.push(['마지막 동기화', E(String(generatedAt).slice(0, 10).replace(/-/g, '.')), 'synced']);
-    return renderYearBars(projects) + rows.map(function (r) {
-      return '\n<div class="fact" data-fact="' + r[2] + '"><dt>' + E(r[0]) + '</dt><dd>' + r[1] + '</dd></div>';
+    var stats = [['total', c.total, '프로젝트'], ['current', c.current, '진행 중'], ['done', c.completed + c.paused, '완료'], ['archive', c.archive, '과거']];
+    var grid = stats.map(function (s) {
+      return '\n<div class="stat" data-fact="' + s[0] + '"><b>' + s[1] + '</b><span>' + E(s[2]) + '</span></div>';
     }).join('');
+    var meta = [];
+    if (c.since) meta.push('<span>' + E(c.since) + '년부터 기록</span>');
+    if (generatedAt) {
+      var d = String(generatedAt).slice(0, 10);
+      meta.push('<span>마지막 동기화 <time datetime="' + E(d) + '">' + E(d.replace(/-/g, '.')) + '</time></span>');
+    }
+    return renderYearBars(projects) + '\n<div class="stat-grid">' + grid + '\n</div>' + (meta.length ? '\n<p class="stat-meta">' + meta.join('') + '</p>' : '');
   }
 
   // ── 상태 필터 (DOM 기반 — 정적 카드에서도 동작) ─────────────────────────────
