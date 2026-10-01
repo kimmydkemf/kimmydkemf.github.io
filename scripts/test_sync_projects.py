@@ -526,21 +526,29 @@ class TestMigration(unittest.TestCase):
             self.assertEqual(_display(p), by_title[p["title"]], msg=p["title"])
 
     def test_committed_data_matches_legacy(self):
-        """저장된 data/*.json 이 legacy index.html 과 같은 내용인지"""
+        """저장된 data/*.json 이 legacy index.html 의 정보를 잃지 않았는지.
+        실제 sync 로 다시 만들어진 항목(syncStatus != migrated)과 사람이 편집한 manual 항목은 비교하지 않고,
+        마이그레이션 상태 그대로인 항목만 legacy 와 비교한다. index.html ↔ JSON 일치는 항상 검사한다."""
         legacy = LEGACY_INDEX.read_text(encoding="utf-8")
         cfg = json.loads((ROOT / "scripts" / "projects.json").read_text(encoding="utf-8"))
         github, manual = mig.parse_index(legacy, cfg.get("repos", {}))
-        saved_manual = json.loads((ROOT / "data" / "projects.manual.json").read_text(encoding="utf-8"))["projects"]
-        self.assertEqual([_display(p) for p in saved_manual], [_display(p) for p in manual])
+        legacy_by_title = {p["title"]: _display(p) for p in github + manual}
         saved_gen = json.loads((ROOT / "data" / "projects.generated.json").read_text(encoding="utf-8"))["projects"]
-        gen_by_title = {p["title"]: _display(p) for p in saved_gen}
-        for p in github + manual:
-            self.assertEqual(gen_by_title[p["title"]], _display(p), msg=p["title"])
-        # 현재 index.html 의 정적 카드도 JSON 과 일치
+        for p in saved_gen:
+            if p.get("syncStatus") == "migrated" and p["title"] in legacy_by_title:
+                self.assertEqual(_display(p), legacy_by_title[p["title"]], msg=p["title"])
+        # manual 파일의 모든 항목은 generated 에 그대로 들어가 있어야 한다
+        saved_manual = json.loads((ROOT / "data" / "projects.manual.json").read_text(encoding="utf-8"))["projects"]
+        gen_by_slug = {p["slug"]: p for p in saved_gen}
+        for m in saved_manual:
+            self.assertIn(m["slug"], gen_by_slug)
+            self.assertEqual(_display(gen_by_slug[m["slug"]]), _display(m), msg=m["slug"])
+        # 현재 index.html 의 정적 카드 == JSON
         current = (ROOT / "index.html").read_text(encoding="utf-8")
         cur_github, cur_manual = mig.parse_index(current, cfg.get("repos", {}))
         self.assertEqual(cur_manual, [])
-        self.assertEqual({p["title"]: _display(p) for p in cur_github}, gen_by_title)
+        self.assertEqual({p["title"]: _display(p) for p in cur_github},
+                         {p["title"]: _display(p) for p in saved_gen})
         self.assertEqual(len(cur_github), len(saved_gen))
 
 

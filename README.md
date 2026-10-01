@@ -28,13 +28,17 @@ portfolio/
 ├── data/
 │   ├── projects.generated.json # sync 결과 — 전체 프로젝트 데이터 (직접 편집 X)
 │   └── projects.manual.json    # 레포 없는 과거 프로젝트 — 사람이 편집
-├── sync.sh                     # 포트폴리오 동기화 실행 스크립트
+├── Update Portfolio.command    # Mac 더블클릭 업데이터 (→ scripts/portfolio_update.sh)
+├── sync.sh                     # 기존 일괄 동기화 스크립트 (확인 없이 commit & push)
 ├── .env                        # 토큰 저장 (git 제외)
 ├── scripts/
 │   ├── sync_projects.py        # GitHub API → 메타데이터 정규화 → JSON 생성 → 정적 HTML 재생성
 │   ├── render_cards.py         # JSON → 정적 카드 HTML (projects.js 와 1:1)
 │   ├── migrate_index_cards.py  # (1회성) 예전 index.html 카드 → JSON 마이그레이션
+│   ├── portfolio_update.sh     # Dry Run / Preview / Update & Push 업데이터
+│   ├── validate_site.py        # commit 전 검증 (JSON · HTML · CNAME · Secret · 크기)
 │   ├── test_sync_projects.py   # 단위/통합/parity 테스트 (네트워크 없음)
+│   ├── test_portfolio_update.py# 업데이터 통합 테스트 (임시 저장소 + bare 원격)
 │   └── projects.json           # 변경 감지 캐시 (README/portfolio.yml SHA, 커밋 월) + 제외 목록
 ├── fixtures/                   # 개발·테스트용 가상 프로젝트 샘플 (--fixtures), legacy index 스냅샷
 └── docs/
@@ -74,7 +78,46 @@ ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxx   # 선택
 
 ## 포트폴리오 업데이트 방법
 
-### 새 프로젝트를 GitHub에 올린 경우
+### Mac — `Update Portfolio.command` (권장)
+
+Finder 에서 저장소 루트의 **`Update Portfolio.command`** 를 더블클릭하면 Terminal 에 메뉴가 열립니다.
+
+```text
+── Dounselor Portfolio Updater ──
+▶ 환경 확인        git · Python 3.10+ · 브랜치 · .env 토큰 확인
+▶ git pull --ff-only
+무엇을 할까요?
+  1) Dry Run        — 변경 없이 탐지만
+  2) Preview        — 임시 사본에 sync → 로컬 서버 → 브라우저 (저장소 변경 없음)
+  3) Update & Push  — sync → Validation → 변경 파일 확인 → (미리보기) → commit → push
+  4) Cancel
+```
+
+- **처음 한 번**: 우클릭 → 열기 (Gatekeeper 확인). 실행 권한이 없다면 `chmod +x "Update Portfolio.command"`.
+- **Preview** 는 임시 디렉터리에서 sync 하고 추가/변경/제거된 프로젝트를 요약한 뒤 브라우저로 엽니다. 저장소 파일은 바뀌지 않습니다.
+- **Update & Push** 는 매 단계마다 확인을 받습니다. 변경이 없으면 commit 하지 않고, commit 을 거절하면 sync 결과를 되돌릴 수 있습니다.
+- commit 전 **Validation** (`scripts/validate_site.py`): JSON 스키마, index.html 정적 카드 == JSON, `CNAME == dounselor.com`, Secret 패턴, 파일 크기. 실패하면 commit 하지 않습니다.
+- commit 대상은 sync 산출물 4개뿐입니다: `index.html`, `data/projects.generated.json`, `data/projects.manual.json`, `scripts/projects.json`. 다른 로컬 변경은 섞이지 않습니다.
+- push 대상은 **현재 브랜치**입니다. GitHub Pages 는 `main` 을 배포하므로 다른 브랜치에서 실행하면 사이트에는 main 병합 후 반영됩니다. `.env` 에 `PORTFOLIO_BRANCH=main` 을 넣으면 그 브랜치에서만 Update 가 허용됩니다.
+- 실패해도 창이 바로 닫히지 않습니다. 실행 기록은 `logs/portfolio-sync.log` (git 제외).
+
+터미널에서 직접 / 비대화형 (launchd 등):
+
+```bash
+scripts/portfolio_update.sh                              # 메뉴
+scripts/portfolio_update.sh --mode dry-run
+scripts/portfolio_update.sh --mode preview
+scripts/portfolio_update.sh --mode update                # 확인 질문 있음 (tty 가 아니면 모두 'no')
+scripts/portfolio_update.sh --mode update --yes          # 확인 없이 commit & push
+scripts/portfolio_update.sh --mode update --yes --no-push
+scripts/portfolio_update.sh --force ...                  # sync --force (SHA 무시 전체 재생성)
+```
+
+`.env` 에서 읽는 값 (허용된 키만, 값은 출력하지 않음): `GITHUB_TOKEN` (필수), `ANTHROPIC_API_KEY`, `OBSIDIAN_VAULT` (지정 시 Obsidian md 생성), `PORTFOLIO_BRANCH`. 예시는 [`.env.example`](.env.example).
+
+### `./sync.sh` (기존 방식)
+
+확인 없이 sync 후 변경이 있으면 바로 commit & push 합니다.
 
 ```bash
 cd ~/Workspace/portfolio
@@ -105,6 +148,7 @@ python3 scripts/sync_projects.py --fixtures fixtures/repos \
         --index /tmp/preview.html --config /tmp/preview.json \
         --generated /tmp/preview.generated.json --manual data/projects.manual.json   # 스크래치 복사본에 렌더링
 python3 scripts/test_sync_projects.py                                      # 테스트 (node 있으면 JS parity 포함)
+python3 scripts/test_portfolio_update.py                                   # 업데이터 테스트 (임시 저장소, push 없음)
 ```
 
 ---

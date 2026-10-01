@@ -14,17 +14,27 @@ cd "$SCRIPT_DIR"
 # Windows cp949 회피 — Python 출력 utf-8 강제 (sync_projects.py 의 stdout reconfigure 와 이중 안전)
 export PYTHONIOENCODING=utf-8
 
-# GitHub Token 로드
-if [ -z "$GITHUB_TOKEN" ]; then
-  if [ -f ".env" ]; then
-    export $(grep GITHUB_TOKEN .env | xargs)
-  fi
-fi
+# ※ 미리보기/확인 후 commit 하려면 "Update Portfolio.command" (scripts/portfolio_update.sh) 를 사용하세요.
+#   이 스크립트는 기존과 같이 sync 후 변경이 있으면 바로 commit & push 합니다.
+
+# GitHub Token / Anthropic Key 로드 (.env 또는 scripts/.env, 셸 값 우선, 허용된 키만)
+for envfile in ".env" "scripts/.env"; do
+  [ -f "$envfile" ] || continue
+  while IFS= read -r line || [ -n "$line" ]; do
+    line="${line%$'\r'}"; line="${line#export }"
+    case "$line" in
+      GITHUB_TOKEN=*|ANTHROPIC_API_KEY=*)
+        key="${line%%=*}"; val="${line#*=}"
+        val="$(echo "$val" | sed -e 's/[[:space:]]*#.*$//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^"\(.*\)"$/\1/' -e "s/^'\(.*\)'$/\1/")"
+        if [ -z "$(eval "echo \${$key:-}")" ] && [ -n "$val" ]; then export "$key=$val"; fi ;;
+    esac
+  done < "$envfile"
+done
 
 if [ -z "$GITHUB_TOKEN" ]; then
   echo "❌  GITHUB_TOKEN이 없습니다."
   echo "   방법 1: export GITHUB_TOKEN=ghp_xxxx && ./sync.sh"
-  echo "   방법 2: scripts/.env 파일에 GITHUB_TOKEN=ghp_xxxx 저장 후 실행"
+  echo "   방법 2: 저장소 루트 .env (또는 scripts/.env) 에 GITHUB_TOKEN=ghp_xxxx 저장 후 실행"
   exit 1
 fi
 
