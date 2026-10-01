@@ -511,6 +511,10 @@ class TestJsParity(unittest.TestCase):
                   screenshots={"desktop": "assets/projects/shotu/desktop.webp"}),
             entry({"title": "ShotBad", "status": "active", "started": "2025-02"}, slug="shotbad",
                   screenshots={"desktop": "../etc/passwd"}),
+            entry({"title": "ManyTags", "status": "active", "started": "2025-02",
+                   "tech": ["A", "B", "C", "D", "E", "F", "G"]}, slug="many"),
+            {"slug": "arch", "source": "manual", "title": "Arch", "status": "archived", "started": "2019.03",
+             "tech": ["Unity", "AR"], "awards": ["상"], "tagClass": ""},
         ]
         self.assert_parity(cases)
 
@@ -574,9 +578,14 @@ class TestMigration(unittest.TestCase):
         github, manual = mig.parse_index(legacy, cfg.get("repos", {}))
         legacy_by_title = {p["title"]: _display(p) for p in github + manual}
         saved_gen = json.loads((ROOT / "data" / "projects.generated.json").read_text(encoding="utf-8"))["projects"]
+        legacy_raw = {p["title"]: p for p in github + manual}
         for p in saved_gen:
             if p.get("syncStatus") == "migrated" and p["title"] in legacy_by_title:
-                self.assertEqual(_display(p), legacy_by_title[p["title"]], msg=p["title"])
+                exp = dict(legacy_by_title[p["title"]])
+                # 태그 · 부제는 Phase 4.1 에서 의도적으로 정리 (정보는 정규화 규칙으로 재현 가능)
+                exp["tech"] = sp.normalize_tech(legacy_raw[p["title"]]["tech"]) or legacy_raw[p["title"]]["tech"]
+                exp["subtitle"] = sp.repair_subtitle(legacy_raw[p["title"]]["subtitle"], legacy_raw[p["title"]]["summary"])
+                self.assertEqual(_display(p), exp, msg=p["title"])
         # manual 파일의 모든 항목은 generated 에 그대로 들어가 있어야 한다
         saved_manual = json.loads((ROOT / "data" / "projects.manual.json").read_text(encoding="utf-8"))["projects"]
         gen_by_slug = {p["slug"]: p for p in saved_gen}
@@ -590,6 +599,70 @@ class TestMigration(unittest.TestCase):
         self.assertEqual({p["title"]: _display(p) for p in cur_github},
                          {p["title"]: _display(p) for p in saved_gen})
         self.assertEqual(len(cur_github), len(saved_gen))
+
+
+# ── 태그 정리 · 부제 · 표시 개수 ─────────────────────────────────────────────
+class TestTagsAndCompact(unittest.TestCase):
+    def test_normalize_tech(self):
+        n = sp.normalize_tech
+        self.assertEqual(n(["Frontend: Next.js 14 (App Router) · React 18 · Tailwind CSS · next-pwa"]),
+                         ["Next.js", "React", "Tailwind CSS", "PWA"])
+        self.assertEqual(n(["Backend: Next.js API Routes · better-sqlite3 · jose (JWT) · sharp (이미지)"]),
+                         ["Next.js", "SQLite", "JWT", "sharp"])
+        self.assertEqual(n(["AI: 로컬 Ollama (qwen2.5:7b 권장, 키·비용 0)"]), ["Ollama"])
+        self.assertEqual(n(["Auth: 자체 JWT (소유자) + Kakao OAuth (게스트)"]), ["JWT", "Kakao OAuth"])
+        self.assertEqual(n(["Hosting: PC 로컬 + Cloudflare Named Tunnel", "Tunnel: cloudflared (named tunnel)"]),
+                         ["Cloudflare Tunnel"])
+        self.assertEqual(n(["React 18", "React Router v6", "SQLite (WAL)", "Google Gemini 2.5 Flash (비전)", "Python 3"]),
+                         ["React", "React Router", "SQLite", "Gemini", "Python"])
+        self.assertEqual(n(["Spring Boot", "Android", "Unity", "AR / VR", "C++", "OpenGL"]),
+                         ["Spring Boot", "Android", "Unity", "AR / VR", "C++", "OpenGL"])     # 이미 짧은 것은 그대로
+        self.assertEqual(n(["a"] * 3 + [f"T{i}" for i in range(20)])[:3], ["a", "T0", "T1"])
+        self.assertEqual(len(n([f"T{i}" for i in range(20)])), sp.TECH_STORE_MAX)
+
+    def test_yml_tech_is_kept_as_written(self):
+        repo = {"name": "x", "html_url": "https://github.com/u/x", "language": "Python"}
+        m = sp.normalize_metadata("x", repo, {"title": "X", "tech": ["React 18", "Next.js 14"]}, {}, "", "",
+                                  date(2026, 10, 1))
+        self.assertEqual(sp.to_project_entry(m, repo)["tech"], ["React 18", "Next.js 14"])
+        m2 = sp.normalize_metadata("x", repo, None, {"tech_items": ["Frontend: React 18 · Vite"]}, "", "",
+                                   date(2026, 10, 1))
+        self.assertEqual(sp.to_project_entry(m2, repo)["tech"], ["React", "Vite"])
+
+    def test_subtitle(self):
+        self.assertEqual(sp.smart_truncate("짧은 문장", 80), "짧은 문장")
+        long = "blog.dounselor.com — 개인 기록 + 협업이 한 곳에 있는 통합 사이트. PWA 로 폰에서도 앱처럼 사용 가능. 그리고 더 긴 설명이 이어집니다"
+        out = sp.smart_truncate(long, 80)
+        self.assertTrue(out.endswith("…") and len(out) <= 81)
+        self.assertTrue(long.startswith(out[:-1]))
+        self.assertNotEqual(out[-2], " ")
+        self.assertEqual(sp.repair_subtitle("abc de", "abc def ghi\n둘째"), "abc def ghi")
+        self.assertEqual(sp.repair_subtitle("다른 부제", "abc def"), "다른 부제")      # 접두어가 아니면 그대로
+
+    def test_chip_limit_and_tech_section(self):
+        p = entry({"title": "T", "status": "active", "started": "2026-01",
+                   "tech": ["A", "B", "C", "D", "E", "F", "G"]})
+        html = rc.render_card(p)
+        summary = html.split("</summary>")[0]
+        self.assertEqual(summary.count('<span class="chip dev">'), rc.CHIP_LIMIT)
+        self.assertIn('class="chip more" title="펼치면 전체 기술 스택">+2<', summary)
+        detail = html.split("</summary>")[1]
+        self.assertIn("<h4>기술 스택</h4>", detail)
+        self.assertEqual(detail.count('<span class="chip dev">'), 7)
+        # 5개 이하면 +N · 기술 스택 섹션 없음
+        html2 = rc.render_card(entry({"title": "T", "status": "active", "started": "2026-01", "tech": ["A", "B"]}))
+        self.assertNotIn("chip more", html2)
+        self.assertNotIn("기술 스택", html2)
+
+    def test_archived_card_is_compact(self):
+        p = {"slug": "m", "source": "manual", "title": "M", "status": "archived", "started": "2019.03",
+             "ended": "2019.07", "tech": ["Unity", "AR"], "awards": ["상"], "tagClass": ""}
+        html = rc.render_card(p)
+        summary = html.split("</summary>")[0]
+        self.assertNotIn('<span class="chip">Unity</span>', summary)
+        self.assertIn('<span class="chip award">🏆 상</span>', summary)
+        self.assertIn("<h4>기술 스택</h4>", html)
+        self.assertIn('<span class="chip">Unity</span>', html.split("</summary>")[1])
 
 
 # ── 다른 사람 소유 레포 · manual 관리 ─────────────────────────────────────────

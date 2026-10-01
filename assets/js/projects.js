@@ -33,6 +33,7 @@
   ];
   var GROUP_OF = { active: 'current', paused: 'paused', completed: 'completed', unused: 'archive', archived: 'archive' };
   var FEATURED_MAX = 5;
+  var CHIP_LIMIT = 5;
   var PLACEHOLDER = '내용을 입력하세요.';
 
   function E(s) {
@@ -129,16 +130,35 @@
 
   function chipClass(p) { return p.tagClass ? ('chip ' + p.tagClass).trim() : 'chip'; }
 
+  function isArchivedView(p) {
+    var s = displayStatus(p);
+    return s === 'archived' || s === 'unused';
+  }
+
   function chips(p) {
     var cls = chipClass(p);
+    var tech = p.tech || [];
     var out = '';
-    (p.tech || []).slice(0, 7).forEach(function (t) {
-      out += '\n<span class="' + cls + '">' + E(t) + '</span>';
-    });
+    if (!isArchivedView(p)) {
+      tech.slice(0, CHIP_LIMIT).forEach(function (t) {
+        out += '\n<span class="' + cls + '">' + E(t) + '</span>';
+      });
+      if (tech.length > CHIP_LIMIT) {
+        out += '\n<span class="chip more" title="펼치면 전체 기술 스택">+' + (tech.length - CHIP_LIMIT) + '</span>';
+      }
+    }
     (p.awards || []).forEach(function (a) {
       out += '\n<span class="chip award">🏆 ' + E(a) + '</span>';
     });
     return out;
+  }
+
+  function techSection(p) {
+    var tech = p.tech || [];
+    if (!tech.length || (tech.length <= CHIP_LIMIT && !isArchivedView(p))) return '';
+    var cls = chipClass(p);
+    var chipHtml = tech.map(function (t) { return '\n<span class="' + cls + '">' + E(t) + '</span>'; }).join('');
+    return section('기술 스택', '\n<div class="proj-chips">' + chipHtml + '\n</div>');
   }
 
   function attrs(p) {
@@ -192,6 +212,7 @@
     }
     if (p.status === 'paused' && p.pauseReason) body += section('일시 중단 사유', '\n<p>' + multiline(p.pauseReason) + '</p>');
     if (p.myRole) body += section('담당 역할', '\n<p>' + E(p.myRole) + '</p>');
+    body += techSection(p);
     body += shots(p);
     body += videos(p);
     body += links(p);
@@ -301,6 +322,32 @@
     return bar;
   }
 
+  // ── 그룹 접기: 미사용·아카이브는 기본으로 접어 둔다 (기록 중심 최소 표현) ──────
+  var FOLD_GROUPS = ['archive'];
+
+  function setFold(g, folded) {
+    g.classList.toggle('is-folded', folded);
+    var b = g.querySelector('.proj-group-toggle');
+    if (b) {
+      b.textContent = folded ? '펼치기' : '접기';
+      b.setAttribute('aria-expanded', folded ? 'false' : 'true');
+    }
+  }
+
+  function setupFolds(list) {
+    FOLD_GROUPS.forEach(function (key) {
+      var g = list.querySelector('.proj-group[data-group="' + key + '"]');
+      if (!g || g.querySelector('.proj-group-toggle')) return;
+      var title = g.querySelector('.proj-group-title');
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'proj-group-toggle';
+      title.insertBefore(btn, title.querySelector('.proj-group-count'));
+      btn.addEventListener('click', function () { setFold(g, !g.classList.contains('is-folded')); });
+      setFold(g, true);
+    });
+  }
+
   function applyFilter(list, f) {
     var bar = list.querySelector('.proj-filter');
     if (bar && !bar.querySelector('[data-filter="' + f + '"]')) f = 'all';
@@ -313,6 +360,9 @@
     }
     var featured = list.querySelector('.proj-featured');
     if (featured) featured.hidden = f !== 'all';
+    if (f === 'archived' || f === 'unused') {
+      Array.prototype.forEach.call(list.querySelectorAll('.proj-group.is-folded'), function (g) { setFold(g, false); });
+    }
     Array.prototype.forEach.call(list.querySelectorAll('.proj-group'), function (g) {
       var visible = 0;
       Array.prototype.forEach.call(g.querySelectorAll('details[data-display-status]'), function (d) {
@@ -334,12 +384,15 @@
     try { el = document.getElementById(decodeURIComponent(h.slice(1))); } catch (e) { return; }
     if (!el || el.tagName !== 'DETAILS') return;
     if (el.hidden) applyFilter(list, 'all');
+    var g = el.closest ? el.closest('.proj-group.is-folded') : null;
+    if (g) setFold(g, false);
     el.open = true;
     el.scrollIntoView({ block: 'start' });
   }
 
   function enhance(list) {
     if (!buildFilterBar(list)) return;
+    setupFolds(list);
     applyFilter(list, storageGet() || 'all');
     openFromHash(list);
   }
