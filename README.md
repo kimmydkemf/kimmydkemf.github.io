@@ -8,8 +8,8 @@ GitHub 레포지토리의 README를 자동으로 읽어 프로젝트 카드를 �
 
 ## 기능
 
-- **Apple 스타일 디자인** — 다크/라이트 모두 깔끔하고 임팩트 있는 비주얼 (라이트 배경 `#f5f5f7`, SF Pro 폴백 폰트, 부드러운 그림자·진입 페이드 애니메이션, 호버 lift)
-- **다크 / 라이트 테마 전환** — nav 우측 버튼으로 전환, 선택값 localStorage 저장, 시스템 `prefers-color-scheme` 자동 감지
+- **프로젝트 아카이브 디자인** — 표지(소개 + 사실 요약) → 프로젝트(상태별 2열 카드, 과거 기록은 연도 타임라인) → 소개 → 연락. 한 가지 강조색, 두 테마 같은 구조
+- **다크 / 라이트 테마 전환** — 상단 버튼으로 전환, 선택값 localStorage 저장, 저장값이 없으면 시스템 `prefers-color-scheme` 를 따름
 - **GitHub 자동 동기화** — README / portfolio.yml 이 있는 레포를 감지해 `data/projects.generated.json` 생성 → 포트폴리오 카드 자동 생성 (정적 HTML + JS 렌더)
 - **Claude AI 카드 생성** — `ANTHROPIC_API_KEY` 설정 시 Claude가 README를 분석해 소개 문장을 다듬어 줌
 - **최신순 자동 정렬** — 시작일 기준 내림차순 정렬
@@ -149,8 +149,8 @@ replaced_by:              # 선택 — 대체 프로젝트
 | `active` | 진행 중 | 진행 중 | `2026.05 – Present` | 전체 (소개 · 기능 · 기술 · Live Demo · GitHub) |
 | `completed` | 완료 | 완료 | `2025.11 – 2026.03` | 전체 |
 | `paused` | 일시 중단 | 일시 중단 | 시작 – 종료 | 전체 + "일시 중단 사유" (`pause_reason`) |
-| `unused` | 미사용 | 미사용 · 아카이브 | 시작 – 종료 | **간단 카드**: 제목 · 기간 · 미사용 사유 · 대체 프로젝트 · Repository 만. 기술 · 기능 · 소개 · Live Demo · Screenshot 숨김 |
-| `archived` | 아카이브 | 미사용 · 아카이브 | 시작 – 종료 | 전체 |
+| `unused` | 미사용 | 지난 프로젝트 (기본 접힘) | 시작 – 종료 | **간단 카드**: 제목 · 기간 · 미사용 사유 · 대체 프로젝트 · Repository 만. 기술 · 기능 · 소개 · Live Demo · Screenshot 숨김 |
+| `archived` | 과거 | 지난 프로젝트 (기본 접힘) | 시작 – 종료 | 전체 |
 | 없음 (`null`) | 없음 | 마지막 커밋 3개월 이내면 진행 중, 아니면 완료 | 커밋 날짜 기준 | 전체 |
 
 함께 바뀌는 것:
@@ -369,7 +369,7 @@ summary: >
 | `completed` | 완료, 목적 달성 | 배지 "완료" (`ended` 권장) |
 | `paused` | 일시 중단 | 배지 "일시 중단", `pause_reason` 표시 |
 | `unused` | 더 이상 사용하지 않음 | **간단 카드**: 제목·기간·미사용 사유·대체 프로젝트만. 기술/기능/Live Demo 숨김 |
-| `archived` | 과거 기록 보존 | 배지 "아카이브" |
+| `archived` | 과거 기록 보존 | 배지 "과거", "지난 프로젝트" 그룹 (기본 접힘) |
 
 `status`·`started`·`ended`·`featured`·`live_url`·`unused_reason`·`replaced_by`는
 `portfolio.yml`에서만 읽습니다. Claude나 README 파서가 추정하지 않습니다.
@@ -454,7 +454,7 @@ data/projects.manual.json ───────┘                          ├�
 ```
 
 - `index.html` 의 `<!-- AUTO:START -->` ~ `<!-- AUTO:END -->` 구간은 **모든 카드**를 sync 가 생성합니다. 직접 편집하지 마세요.
-- 프로젝트 영역은 **Featured → 진행 중 → 일시 중단 → 완료 → 미사용·아카이브** 순서로 나뉘고, 상단에 상태 필터가 붙습니다.
+- 프로젝트 영역은 **Featured → 진행 중 → 일시 중단 → 완료 → 지난 프로젝트(미사용·과거, 기본 접힘)** 순서로 나뉘고, 상단에 상태 필터가 붙습니다.
   Featured 에 올리려면 해당 레포 `portfolio.yml` 에 `featured: true` (또는 manual JSON 의 `"featured": true`). 최대 5개.
   `live_url` 이 있으면 카드에 **Live Demo** 버튼이 생깁니다. 자세한 규칙은 스키마 문서의 "프로젝트 영역 구조" 참고.
 - **과거 프로젝트(레포 없음)** 는 `data/projects.manual.json` 을 편집한 뒤 `./sync.sh` 를 실행하면 반영됩니다.
@@ -508,8 +508,8 @@ data/projects.manual.json ───────┘                          ├�
 
 ## 디자인 노트
 
-- **라이트 모드** — Anthropic / Substack 스타일 따뜻한 크림 톤 (`#faf6ed` 배경 + 오프화이트 카드 + 깊은 블루 액센트). 종이 매거진 같은 인상.
-- **다크 모드** — 거의 검정 (`#07090f`) 배경에 네온 블루·퍼플 그라데이션 hero. 심플한 톤 유지.
-- **라이트 전용 임팩트 레이어** — 큰 섹션 번호 인디케이터 (`01·02·03·04`, CSS counter), Hero 그라데이션 블롭 + 28초 드리프트 애니메이션, About/Project 카드 상단 stripe 슬라이드.
-- **공통** — hero 진입 fadeUp stagger, 카드 호버 lift, sticky nav backdrop blur, `prefers-reduced-motion` 대응.
-- 모든 색상은 CSS Variables 로 분리 → 두 테마에서 동일 룩 유지.
+- **구조** — 표지는 이력서 표지처럼 왼쪽에 이름·소개·연락 버튼, 오른쪽에 사실 요약(프로젝트 수 · 진행 중 · 기록 시작 · 마지막 동기화 · 소속). 숫자는 sync 가 `<!-- STATS:START -->` 구간에 쓰고, JS 가 같은 JSON 으로 다시 그린다.
+- **프로젝트** — 진행 중 · 완료는 2열 카드(열면 전체 폭), 지난 프로젝트(미사용 · 과거)는 기본으로 접힌 연도 타임라인 한 줄 카드. 접힌 카드에는 상태 · 기간 · 제목 · 부제(2줄) · 태그 4개 + `+N` · GitHub/Live 링크만.
+- **색** — 강조색은 잉크 블루 하나. 상태(진행 중 초록 · 일시 중단 황색 · 완료 회청)는 의미색으로 분리. 두 테마는 토큰만 다르고 구조는 같다 (`assets/css/style.css` 맨 위 `:root`).
+- **글꼴** — IBM Plex Sans KR(본문·제목) + IBM Plex Mono(기간·개수·태그 같은 데이터). Google Fonts 에서 불러오며 시스템 글꼴로 폴백.
+- **모바일** — 한 열, 필터는 가로 스크롤 한 줄, 요약 카드는 2열 타일. `prefers-reduced-motion` 대응.

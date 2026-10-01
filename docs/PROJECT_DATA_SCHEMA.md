@@ -71,20 +71,22 @@ data/projects.manual.json (수동) ─┘                                      �
 ## 렌더링 규칙 (Python 과 JS 공통)
 
 - `status == "unused"` → 제목·기간·배지·사유·대체 프로젝트·Repository 만. chips/기능/소개/Live Demo 없음.
-- 그 외 → 기간 · 제목 · [배지] · 부제 · chips / 소개 · [기능] · [일시 중단 사유] · [담당 역할] · [시연 영상] · [Links] · [팀 구성].
+- 그 외 → 접힌 카드: `.card-top`([배지] · 기간) · 제목 · 부제 · `.card-foot`(태그 최대 4개 + `+N` · GitHub/Live 링크).
+  펼치면: 소개 · [기능] · [일시 중단 사유] · [담당 역할] · [기술 스택 — 태그가 4개를 넘거나 지난 프로젝트일 때] · [화면] · [시연 영상 `.video-row`] · [Links] · [팀 구성].
 - 모든 텍스트는 HTML 이스케이프된다.
 - `<details [class="proj-unused"] id="proj-{slug}" data-slug data-source [data-status] data-display-status [data-featured]>`
-- `liveUrl` 이 있으면(unused 제외) 접힌 카드에도 "Live Demo ↗" 링크가 보인다.
+- 지난 프로젝트 그룹에는 시작 연도가 바뀔 때마다 `<div class="tl-year">YYYY</div>` 가 끼어든다 (연도 타임라인).
+- `render_stats()` / `renderStats()` 는 표지의 `<!-- STATS:START -->` 구간에 들어가는 사실 요약(`.fact` 행)을 만든다.
 
 ### 프로젝트 영역 구조 (Phase 4)
 
 ```text
-[필터 바]  전체 · 진행 중 · 완료 · 일시 중단 · 미사용 · 아카이브   ← JS 가 DOM 에서 개수를 세어 붙임 (있는 상태만)
+[필터 바]  전체 · 진행 중 · 완료 · 일시 중단 · 미사용 · 과거   ← JS 가 DOM 에서 개수를 세어 붙임 (있는 상태만)
 Featured   featured: true 이고 unused 가 아닌 프로젝트, 최대 5개 (카드 그리드)
 진행 중    Current
 일시 중단  Paused
 완료       Completed
-미사용 · 아카이브
+지난 프로젝트 (미사용 · 과거) — 기본 접힘, 연도 타임라인
 ```
 
 - 그룹과 필터는 `data-display-status` 기준이다. 명시적 `status` 가 있으면 그 값, 없으면 `ongoing` 이면 `active`, 아니면 `completed`.

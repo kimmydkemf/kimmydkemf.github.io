@@ -390,7 +390,8 @@ def run(root: Path, *, dry_run=False, refresh=(), refresh_all=False, max_age_day
     if json.dumps(projects, ensure_ascii=False, sort_keys=True) != before_projects:
         write_json(gen_path, data)
         if index_path.exists():
-            index_path.write_text(render_auto_section(index_path.read_text(encoding="utf-8"), projects),
+            index_path.write_text(render_auto_section(index_path.read_text(encoding="utf-8"), projects,
+                                                      data.get("generatedAt")),
                                   encoding="utf-8")
         print("projects.generated.json / index.html 에 Screenshot 반영")
     print(f"Screenshot: 캡처 {len(todo) - failures}, 실패 {failures}, 유지 {sum(1 for p in projects if is_target(p)) - len(todo)}")

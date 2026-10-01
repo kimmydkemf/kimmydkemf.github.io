@@ -2,122 +2,90 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Dounselor</title>
-  <meta name="description" content="Dounselor — AX센터 Infra 담당자. 느리더라도 매일 배우면서 한 걸음씩 전진합니다.">
+  <meta name="description" content="이상호(Dounselor)의 프로젝트 아카이브. 한국부동산원 AX센터 Infra. 진행 중인 서비스부터 2017년 이후의 기록까지.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="assets/css/style.css">
+  <script>
+    // 저장된 테마를 첫 그리기 전에 적용 (깜빡임 방지). 저장값이 없으면 시스템 설정을 따른다.
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
   <script src="assets/js/projects.js" defer></script>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <div class="inner">
-    <span class="nav-brand">DOUNSELOR</span>
-    <div class="nav-links">
-      <a href="#about">About</a>
-      <a href="#skills">Skills</a>
-      <a href="#projects">Projects</a>
-      <a href="#contact">Contact</a>
-    </div>
-    <button class="theme-toggle" id="themeToggle" aria-label="테마 전환">
-      <span class="toggle-icon">🌙</span>
-      <span class="toggle-label">Dark</span>
-    </button>
-  </div>
-</nav>
-
-<!-- HERO -->
-<header>
+<header class="topbar">
   <div class="container">
-    <div class="hero-label">Infra Engineer · Lifelong Learner</div>
-    <h1 class="hero-name">Dounselor</h1>
-    <p class="hero-meaning"><span>Counselor for Develop</span> · 개발의 길을 함께 걷는 상담사</p>
-    <p class="hero-realname">LEE SANGHO · 이상호</p>
-    <p class="hero-tagline">
-      느리더라도 매일 배우면서 한 걸음씩 전진합니다.
-    </p>
-    <div class="hero-role">
-      <span class="dot"></span>
-      한국부동산원 AX센터 AX전략부 · Infra
-    </div>
+    <a class="brand" href="#top"><span class="brand-name">DOUNSELOR</span><span class="brand-sub">이상호 · 프로젝트 아카이브</span></a>
+    <nav class="topnav" aria-label="페이지 이동">
+      <a href="#projects">프로젝트</a>
+      <a href="#about">소개</a>
+      <a href="#contact">연락</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="테마 전환">
+      <span class="toggle-icon" aria-hidden="true">◐</span>
+      <span class="toggle-label">테마</span>
+    </button>
   </div>
 </header>
 
-<!-- ABOUT -->
-<section id="about">
+<!-- 표지 -->
+<section class="cover" id="top">
   <div class="container">
-    <div class="section-header"><h2>About</h2></div>
-    <div class="about-grid">
-      <div class="about-card">
-        <h3>Background</h3>
-        <p>
-          AR/VR · Android · 빅데이터 기반 서비스 개발 경험을 보유한 개발자에서,
-          현재는 <strong style="color:var(--text)">한국부동산원 AX센터 AX전략부</strong>에서
-          인프라 담당자로 재직 중입니다.<br><br>
-          개발자의 시각으로 인프라를 바라보며, 더 나은 시스템 환경을 만들어가고 있습니다.
-        </p>
-      </div>
-      <div class="about-card">
-        <h3>Career</h3>
-        <ul>
-          <li>한동대학교 (2012 – 2019)</li>
-          <li>SSAFY 삼성청년SW아카데미 (2020)</li>
-          <li>한국부동산원 AX센터 Infra (2021 –)</li>
-        </ul>
-        <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">
-          <p style="font-size:0.75rem; color:var(--accent); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;">자격 · 어학</p>
-          <p style="font-size:0.88rem; color:var(--muted);">정보처리기사 &nbsp;·&nbsp; JLPT 1급</p>
-        </div>
+    <div class="cover-intro">
+      <p class="eyebrow">Infra Engineer · 한국부동산원 AX센터 AX전략부</p>
+      <h1 class="cover-name">이상호 <span class="alias">Dounselor</span></h1>
+      <p class="cover-lead">
+        AR/VR, Android, 빅데이터 서비스를 만들던 개발자에서 지금은 인프라를 맡고 있습니다.
+        개발자의 눈으로 시스템 환경을 다듬고, 느리더라도 매일 한 걸음씩 배운 것을 기록합니다.
+      </p>
+      <p class="cover-note">
+        <b>Dounselor</b>는 Develop과 Counselor를 합친 이름입니다. 개발의 길을 함께 걷는 상담사라는 뜻으로 씁니다.
+        이 페이지의 프로젝트 정보는 GitHub 저장소에서 자동으로 동기화됩니다.
+      </p>
+      <div class="cover-actions">
+        <a class="btn primary" href="#projects">프로젝트 보기</a>
+        <a class="btn" href="mailto:kimmydkemf@naver.com">이메일</a>
+        <a class="btn" href="https://github.com/kimmydkemf" target="_blank" rel="noopener">GitHub ↗</a>
       </div>
     </div>
+
+    <aside class="facts-card" aria-label="요약">
+      <p class="eyebrow">한눈에</p>
+      <dl class="facts" id="facts">
+        <!-- STATS:START -->
+        <div class="fact" data-fact="total"><dt>프로젝트</dt><dd>12<span class="unit">개</span></dd></div>
+        <div class="fact" data-fact="current"><dt>진행 중</dt><dd>5</dd></div>
+        <div class="fact" data-fact="done"><dt>완료</dt><dd>1</dd></div>
+        <div class="fact" data-fact="archive"><dt>지난 프로젝트</dt><dd>6</dd></div>
+        <div class="fact" data-fact="since"><dt>기록 시작</dt><dd>2017</dd></div>
+        <div class="fact" data-fact="synced"><dt>마지막 동기화</dt><dd>2026.10.01</dd></div>
+        <!-- STATS:END -->
+      </dl>
+      <dl class="facts facts-static">
+        <div class="fact fact-static"><dt>현재</dt><dd>한국부동산원 AX센터 · Infra</dd></div>
+        <div class="fact fact-static"><dt>이전</dt><dd>SSAFY 3기 · 한동대학교</dd></div>
+        <div class="fact fact-static"><dt>관심</dt><dd>인프라 · 자동화 · AI 활용</dd></div>
+      </dl>
+    </aside>
   </div>
 </section>
 
-<!-- SKILLS -->
-<section id="skills">
+<!-- 프로젝트 -->
+<section class="section" id="projects">
   <div class="container">
-    <div class="section-header"><h2>Skills</h2></div>
-    <div class="skill-group">
-      <div class="skill-group-label">Infrastructure</div>
-      <div class="tags">
-        <span class="tag infra">Linux</span>
-        <span class="tag infra">Network</span>
-        <span class="tag infra">Server Management</span>
-        <span class="tag infra">Git</span>
-      </div>
+    <div class="section-head">
+      <h2>프로젝트</h2>
+      <p class="lede">지금 운영 중인 서비스부터 학생 때 만든 것까지. 진행 중인 것부터 보여주고, 지난 프로젝트는 연도순으로 접어 둡니다.</p>
     </div>
-    <div class="skill-group">
-      <div class="skill-group-label">Backend · Web</div>
-      <div class="tags">
-        <span class="tag dev">Spring Boot</span>
-        <span class="tag dev">MySQL</span>
-        <span class="tag dev">MongoDB</span>
-      </div>
-    </div>
-    <div class="skill-group">
-      <div class="skill-group-label">Mobile · Game</div>
-      <div class="tags">
-        <span class="tag mobile">Android Studio (Java)</span>
-        <span class="tag mobile">Unity</span>
-        <span class="tag mobile">AR / VR</span>
-      </div>
-    </div>
-    <div class="skill-group">
-      <div class="skill-group-label">AI · Automation</div>
-      <div class="tags">
-        <span class="tag ai">Claude</span>
-        <span class="tag ai">Prompt Engineering</span>
-        <span class="tag ai">Workflow Automation</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PROJECTS -->
-<section id="projects">
-  <div class="container">
-    <div class="section-header"><h2>Projects</h2></div>
     <div class="project-list">
 
       <!-- AUTO:START — 아래 카드는 sync_projects.py 가 data/projects.generated.json 에서 자동 생성합니다. 직접 편집하지 마세요 -->
@@ -127,20 +95,25 @@
       <!-- AUTO:health-tracker -->
       <details id="proj-health-tracker" data-slug="health-tracker" data-source="github" data-display-status="active">
         <summary>
-          <span class="proj-period">2026.05 – Present</span>
+          <div class="card-top">
+            <span class="proj-period">2026.05 – Present</span>
+          </div>
           <div class="proj-main">
             <div class="proj-title">Pacer</div>
             <div class="proj-sub">건강, 술, 운동 나를 기록하다.</div>
+          </div>
+          <div class="card-foot">
             <div class="proj-chips">
               <span class="chip dev">React</span>
               <span class="chip dev">Vite</span>
               <span class="chip dev">React Router</span>
               <span class="chip dev">FastAPI</span>
-              <span class="chip dev">SQLAlchemy</span>
-              <span class="chip more" title="펼치면 전체 기술 스택">+2</span>
+              <span class="chip more" title="펼치면 전체 기술 스택">+3</span>
+            </div>
+            <div class="card-links">
+              <a class="proj-repo" href="https://github.com/kimmydkemf/health-tracker" target="_blank" rel="noopener">GitHub ↗</a>
             </div>
           </div>
-          <span class="arrow">▶</span>
         </summary>
         <div class="detail">
           <div class="dl-section">
@@ -172,20 +145,25 @@
       <!-- AUTO:kimmydkemf.github.io -->
       <details id="proj-kimmydkemf-github-io" data-slug="kimmydkemf-github-io" data-source="github" data-display-status="active">
         <summary>
-          <span class="proj-period">2026.05 – Present</span>
+          <div class="card-top">
+            <span class="proj-period">2026.05 – Present</span>
+          </div>
           <div class="proj-main">
             <div class="proj-title">Dounselor Portfolio</div>
             <div class="proj-sub">dounselor.com (GitHub Pages 호스팅, kimmydkemf.github.io → 커스텀 도메인 CNAME) — 개인…</div>
+          </div>
+          <div class="card-foot">
             <div class="proj-chips">
               <span class="chip dev">HTML</span>
               <span class="chip dev">CSS</span>
               <span class="chip dev">Vanilla JS</span>
               <span class="chip dev">Python</span>
-              <span class="chip dev">GitHub REST API</span>
-              <span class="chip more" title="펼치면 전체 기술 스택">+2</span>
+              <span class="chip more" title="펼치면 전체 기술 스택">+3</span>
+            </div>
+            <div class="card-links">
+              <a class="proj-repo" href="https://github.com/kimmydkemf/kimmydkemf.github.io" target="_blank" rel="noopener">GitHub ↗</a>
             </div>
           </div>
-          <span class="arrow">▶</span>
         </summary>
         <div class="detail">
           <div class="dl-section">
@@ -227,20 +205,25 @@
       <!-- AUTO:dounselor-blog -->
       <details id="proj-dounselor-blog" data-slug="dounselor-blog" data-source="github" data-display-status="active">
         <summary>
-          <span class="proj-period">2026.05 – Present</span>
+          <div class="card-top">
+            <span class="proj-period">2026.05 – Present</span>
+          </div>
           <div class="proj-main">
             <div class="proj-title">Dounselor Blog</div>
             <div class="proj-sub">blog.dounselor.com — 개인 기록 + 협업이 한 곳에 있는 통합 사이트. PWA 로 폰에서도 앱처럼 사용 가능.</div>
+          </div>
+          <div class="card-foot">
             <div class="proj-chips">
               <span class="chip dev">Next.js</span>
               <span class="chip dev">React</span>
               <span class="chip dev">Tailwind CSS</span>
               <span class="chip dev">PWA</span>
-              <span class="chip dev">SQLite</span>
-              <span class="chip more" title="펼치면 전체 기술 스택">+5</span>
+              <span class="chip more" title="펼치면 전체 기술 스택">+6</span>
+            </div>
+            <div class="card-links">
+              <a class="proj-repo" href="https://github.com/kimmydkemf/dounselor-blog" target="_blank" rel="noopener">GitHub ↗</a>
             </div>
           </div>
-          <span class="arrow">▶</span>
         </summary>
         <div class="detail">
           <div class="dl-section">
@@ -274,20 +257,25 @@
       <!-- AUTO:life-manager -->
       <details id="proj-life-manager" data-slug="life-manager" data-source="github" data-display-status="active">
         <summary>
-          <span class="proj-period">2026.05 – Present</span>
+          <div class="card-top">
+            <span class="proj-period">2026.05 – Present</span>
+          </div>
           <div class="proj-main">
             <div class="proj-title">Life Manager</div>
             <div class="proj-sub">life.dounselor.com — 개인 일정·가계부·습관 관리 PWA (Next.js).</div>
+          </div>
+          <div class="card-foot">
             <div class="proj-chips">
               <span class="chip dev">Next.js</span>
               <span class="chip dev">React</span>
               <span class="chip dev">Tailwind CSS</span>
               <span class="chip dev">PWA</span>
-              <span class="chip dev">SQLite</span>
-              <span class="chip more" title="펼치면 전체 기술 스택">+4</span>
+              <span class="chip more" title="펼치면 전체 기술 스택">+5</span>
+            </div>
+            <div class="card-links">
+              <a class="proj-repo" href="https://github.com/kimmydkemf/life-manager" target="_blank" rel="noopener">GitHub ↗</a>
             </div>
           </div>
-          <span class="arrow">▶</span>
         </summary>
         <div class="detail">
           <div class="dl-section">
@@ -331,15 +319,21 @@
       <!-- AUTO:MyNote -->
       <details id="proj-mynote" data-slug="mynote" data-source="github" data-display-status="active">
         <summary>
-          <span class="proj-period">2026.05 – Present</span>
+          <div class="card-top">
+            <span class="proj-period">2026.05 – Present</span>
+          </div>
           <div class="proj-main">
             <div class="proj-title">MyNote — Personal Obsidian Vault</div>
             <div class="proj-sub">매일의 학습 · 묵상 · 업무 · 자료를 한 곳에 차곡차곡 쌓아두는 Obsidian 노트 저장소.</div>
+          </div>
+          <div class="card-foot">
             <div class="proj-chips">
               <span class="chip dev">Python</span>
             </div>
+            <div class="card-links">
+              <a class="proj-repo" href="https://github.com/kimmydkemf/MyNote" target="_blank" rel="noopener">GitHub ↗</a>
+            </div>
           </div>
-          <span class="arrow">▶</span>
         </summary>
         <div class="detail">
           <div class="dl-section">
@@ -364,15 +358,21 @@
       <!-- AUTO:bcplus_legacy -->
       <details id="proj-bcplus-legacy" data-slug="bcplus-legacy" data-source="manual" data-display-status="completed">
         <summary>
-          <span class="proj-period">2021.08</span>
+          <div class="card-top">
+            <span class="proj-period">2021.08</span>
+          </div>
           <div class="proj-main">
             <div class="proj-title">Business Calendar Plus</div>
             <div class="proj-sub">BC+ is a business Calendar. You can use this calendar if you</div>
+          </div>
+          <div class="card-foot">
             <div class="proj-chips">
               <span class="chip dev">Python</span>
             </div>
+            <div class="card-links">
+              <a class="proj-repo" href="https://github.com/ghals5737/bcplus_legacy" target="_blank" rel="noopener">GitHub ↗</a>
+            </div>
           </div>
-          <span class="arrow">▶</span>
         </summary>
         <div class="detail">
           <div class="dl-section">
@@ -393,21 +393,25 @@
         </div>
       </div>
       <div class="proj-group" data-group="archive">
-        <h3 class="proj-group-title">미사용 · 아카이브<span class="proj-group-en">Unused · Archived</span><span class="proj-group-count">6</span></h3>
+        <h3 class="proj-group-title">지난 프로젝트<span class="proj-group-en">Past</span><span class="proj-group-count">6</span></h3>
         <div class="proj-group-list">
+        <div class="tl-year" aria-hidden="true">2020</div>
       <!-- AUTO:p-s-private-secretary -->
       <details id="proj-p-s-private-secretary" data-slug="p-s-private-secretary" data-source="manual" data-status="archived" data-display-status="archived">
         <summary>
-          <span class="proj-period">2020.10 – 2020.11</span>
+          <div class="card-top">
+            <span class="status-badge status-archived">과거</span>
+            <span class="proj-period">2020.10 – 2020.11</span>
+          </div>
           <div class="proj-main">
             <div class="proj-title">P.S — Private Secretary</div>
-            <span class="status-badge status-archived">아카이브</span>
             <div class="proj-sub">캘린더 기반 비즈니스 협업 관리 서비스 (Android · iOS · Windows · Mac)</div>
+          </div>
+          <div class="card-foot">
             <div class="proj-chips">
               <span class="chip award">🏆 SSAFY 자율 프로젝트 우수상</span>
             </div>
           </div>
-          <span class="arrow">▶</span>
         </summary>
         <div class="detail">
           <div class="dl-section">
@@ -437,17 +441,25 @@
           </div>
           <div class="dl-section">
             <h4>시연 영상</h4>
-            <p class="video-label">UCC</p>
-            <div class="video-wrap">
-              <iframe src="https://www.youtube.com/embed/D1ZmTUlXaPk" allowfullscreen></iframe>
-            </div>
-            <p class="video-label">이전 서비스 소개</p>
-            <div class="video-wrap">
-              <iframe src="https://www.youtube.com/embed/uZ0cJ3dvOnY" allowfullscreen></iframe>
-            </div>
-            <p class="video-label">일상 속 시연</p>
-            <div class="video-wrap">
-              <iframe src="https://www.youtube.com/embed/uQ9JkZSqRFw" allowfullscreen></iframe>
+            <div class="video-row">
+            <figure class="video">
+              <p class="video-label">UCC</p>
+              <div class="video-wrap">
+                <iframe src="https://www.youtube.com/embed/D1ZmTUlXaPk" allowfullscreen></iframe>
+              </div>
+            </figure>
+            <figure class="video">
+              <p class="video-label">이전 서비스 소개</p>
+              <div class="video-wrap">
+                <iframe src="https://www.youtube.com/embed/uZ0cJ3dvOnY" allowfullscreen></iframe>
+              </div>
+            </figure>
+            <figure class="video">
+              <p class="video-label">일상 속 시연</p>
+              <div class="video-wrap">
+                <iframe src="https://www.youtube.com/embed/uQ9JkZSqRFw" allowfullscreen></iframe>
+              </div>
+            </figure>
             </div>
           </div>
           <div class="dl-section">
@@ -477,15 +489,18 @@
       <!-- AUTO:meetingground -->
       <details id="proj-meetingground" data-slug="meetingground" data-source="manual" data-status="archived" data-display-status="archived">
         <summary>
-          <span class="proj-period">2020.08 – 2020.10</span>
+          <div class="card-top">
+            <span class="status-badge status-archived">과거</span>
+            <span class="proj-period">2020.08 – 2020.10</span>
+          </div>
           <div class="proj-main">
             <div class="proj-title">MeetingGround</div>
-            <span class="status-badge status-archived">아카이브</span>
             <div class="proj-sub">빅데이터 기반 맛집 추천 &amp; 모임 장소 선정 게임 앱</div>
+          </div>
+          <div class="card-foot">
             <div class="proj-chips">
             </div>
           </div>
-          <span class="arrow">▶</span>
         </summary>
         <div class="detail">
           <div class="dl-section">
@@ -503,8 +518,12 @@
           </div>
           <div class="dl-section">
             <h4>시연 영상</h4>
-            <div class="video-wrap">
-              <iframe src="https://www.youtube.com/embed/yWS_nIPnmNc" allowfullscreen></iframe>
+            <div class="video-row">
+            <figure class="video">
+              <div class="video-wrap">
+                <iframe src="https://www.youtube.com/embed/yWS_nIPnmNc" allowfullscreen></iframe>
+              </div>
+            </figure>
             </div>
           </div>
           <div class="dl-section">
@@ -534,16 +553,19 @@
       <!-- AUTO:bc -->
       <details id="proj-bc" data-slug="bc" data-source="manual" data-status="archived" data-display-status="archived">
         <summary>
-          <span class="proj-period">2020.07 – 2020.08</span>
+          <div class="card-top">
+            <span class="status-badge status-archived">과거</span>
+            <span class="proj-period">2020.07 – 2020.08</span>
+          </div>
           <div class="proj-main">
             <div class="proj-title">BC+</div>
-            <span class="status-badge status-archived">아카이브</span>
             <div class="proj-sub">캘린더 활용 비즈니스 협업 관리 웹 프로그램 (P.S의 전신)</div>
+          </div>
+          <div class="card-foot">
             <div class="proj-chips">
               <span class="chip award">🏆 SSAFY 공통 프로젝트 우수상</span>
             </div>
           </div>
-          <span class="arrow">▶</span>
         </summary>
         <div class="detail">
           <div class="dl-section">
@@ -560,8 +582,12 @@
           </div>
           <div class="dl-section">
             <h4>시연 영상</h4>
-            <div class="video-wrap">
-              <iframe src="https://www.youtube.com/embed/HdnPBbn4Se0" allowfullscreen></iframe>
+            <div class="video-row">
+            <figure class="video">
+              <div class="video-wrap">
+                <iframe src="https://www.youtube.com/embed/HdnPBbn4Se0" allowfullscreen></iframe>
+              </div>
+            </figure>
             </div>
           </div>
           <div class="dl-section">
@@ -588,18 +614,22 @@
         </div>
       </details>
       <!-- /AUTO:bc -->
+        <div class="tl-year" aria-hidden="true">2019</div>
       <!-- AUTO:butterfly -->
       <details id="proj-butterfly" data-slug="butterfly" data-source="manual" data-status="archived" data-display-status="archived">
         <summary>
-          <span class="proj-period">2019.11 – 2019.12</span>
+          <div class="card-top">
+            <span class="status-badge status-archived">과거</span>
+            <span class="proj-period">2019.11 – 2019.12</span>
+          </div>
           <div class="proj-main">
             <div class="proj-title">Interactive Visual Media — Butterfly</div>
-            <span class="status-badge status-archived">아카이브</span>
             <div class="proj-sub">OpenGL + 조이스틱 드론 여행 시뮬레이션</div>
+          </div>
+          <div class="card-foot">
             <div class="proj-chips">
             </div>
           </div>
-          <span class="arrow">▶</span>
         </summary>
         <div class="detail">
           <div class="dl-section">
@@ -616,8 +646,12 @@
           </div>
           <div class="dl-section">
             <h4>시연 영상</h4>
-            <div class="video-wrap">
-              <iframe src="https://www.youtube.com/embed/f4GsT_vh-cU" allowfullscreen></iframe>
+            <div class="video-row">
+            <figure class="video">
+              <div class="video-wrap">
+                <iframe src="https://www.youtube.com/embed/f4GsT_vh-cU" allowfullscreen></iframe>
+              </div>
+            </figure>
             </div>
           </div>
           <div class="dl-section">
@@ -639,16 +673,19 @@
       <!-- AUTO:천로역정 -->
       <details id="proj-천로역정" data-slug="천로역정" data-source="manual" data-status="archived" data-display-status="archived">
         <summary>
-          <span class="proj-period">2019.03 – 2019.07</span>
+          <div class="card-top">
+            <span class="status-badge status-archived">과거</span>
+            <span class="proj-period">2019.03 – 2019.07</span>
+          </div>
           <div class="proj-main">
             <div class="proj-title">VR 게임 — 천로역정</div>
-            <span class="status-badge status-archived">아카이브</span>
             <div class="proj-sub">Unity + 모션캡처 기반 AR/VR 융합 게임</div>
+          </div>
+          <div class="card-foot">
             <div class="proj-chips">
               <span class="chip award">🏆 HGU SW Festival 융합연구 공모전</span>
             </div>
           </div>
-          <span class="arrow">▶</span>
         </summary>
         <div class="detail">
           <div class="dl-section">
@@ -677,8 +714,12 @@
           </div>
           <div class="dl-section">
             <h4>시연 영상</h4>
-            <div class="video-wrap">
-              <iframe src="https://www.youtube.com/embed/_Qwtb5Sv-MA" allowfullscreen></iframe>
+            <div class="video-row">
+            <figure class="video">
+              <div class="video-wrap">
+                <iframe src="https://www.youtube.com/embed/_Qwtb5Sv-MA" allowfullscreen></iframe>
+              </div>
+            </figure>
             </div>
           </div>
           <div class="dl-section">
@@ -713,18 +754,22 @@
         </div>
       </details>
       <!-- /AUTO:천로역정 -->
+        <div class="tl-year" aria-hidden="true">2017</div>
       <!-- AUTO:mixedreality-졸업작품 -->
       <details id="proj-mixedreality-졸업작품" data-slug="mixedreality-졸업작품" data-source="manual" data-status="archived" data-display-status="archived">
         <summary>
-          <span class="proj-period">2017.07 – 2018.05</span>
+          <div class="card-top">
+            <span class="status-badge status-archived">과거</span>
+            <span class="proj-period">2017.07 – 2018.05</span>
+          </div>
           <div class="proj-main">
             <div class="proj-title">HGU 졸업 Project — 캠퍼스 안내 AR/VR 투어</div>
-            <span class="status-badge status-archived">아카이브</span>
             <div class="proj-sub">AR + VR 융합 MR 환경 캠퍼스 안내 투어 프로그램</div>
+          </div>
+          <div class="card-foot">
             <div class="proj-chips">
             </div>
           </div>
-          <span class="arrow">▶</span>
         </summary>
         <div class="detail">
           <div class="dl-section">
@@ -752,8 +797,12 @@
           </div>
           <div class="dl-section">
             <h4>시연 영상</h4>
-            <div class="video-wrap">
-              <iframe src="https://www.youtube.com/embed/HnoxcLM8ksU" allowfullscreen></iframe>
+            <div class="video-row">
+            <figure class="video">
+              <div class="video-wrap">
+                <iframe src="https://www.youtube.com/embed/HnoxcLM8ksU" allowfullscreen></iframe>
+              </div>
+            </figure>
             </div>
           </div>
           <div class="dl-section">
@@ -788,64 +837,116 @@
   </div>
 </section>
 
-<!-- CONTACT -->
-<section id="contact">
+<!-- 소개 -->
+<section class="section" id="about">
   <div class="container">
-    <div class="section-header"><h2>Contact</h2></div>
-    <div class="contact-row">
-      <a class="contact-btn" href="mailto:kimmydkemf@naver.com">
-        <span class="ci">✉</span> kimmydkemf@naver.com
-      </a>
+    <div class="section-head">
+      <h2>소개</h2>
+    </div>
+    <div class="about-grid">
+      <div class="prose">
+        <p>
+          한동대학교에서 AR/VR과 Unity로 캠퍼스 투어, VR 게임을 만들었고, SSAFY에서는 캘린더 기반 협업 서비스와
+          빅데이터 모임 장소 추천 앱을 팀으로 개발했습니다. 2021년부터는 <b>한국부동산원 AX센터</b>에서 인프라를 담당하고 있습니다.
+        </p>
+        <p>
+          서비스를 직접 만들어 본 경험 덕분에 인프라를 "개발자가 쓰기 좋은 환경"의 관점에서 봅니다.
+          운영 중인 개인 서비스(건강 기록, 일정·가계부, 블로그)는 모두 직접 배포하고 유지합니다.
+        </p>
+        <p>
+          AI는 생각을 정리하는 파트너로 씁니다. 업무 문서, 지식 관리, 반복 작업 자동화에 Claude를 붙여 두었고,
+          이 포트폴리오도 GitHub README와 <code class="mono">portfolio.yml</code>을 읽어 스스로 갱신됩니다.
+        </p>
+      </div>
+      <div class="about-side">
+        <div>
+          <h3>이력</h3>
+          <dl class="career">
+            <dt>2021 –</dt><dd>한국부동산원 AX센터 AX전략부<small>Infra 담당</small></dd>
+            <dt>2020</dt><dd>SSAFY 삼성청년SW아카데미 3기<small>공통 · 자율 프로젝트 우수상</small></dd>
+            <dt>2012 – 2019</dt><dd>한동대학교<small>HGU SW Festival 융합연구 공모전 수상</small></dd>
+          </dl>
+        </div>
+        <div>
+          <h3>자격 · 어학</h3>
+          <p>정보처리기사 · JLPT 1급</p>
+        </div>
+        <div>
+          <h3>기술</h3>
+          <dl class="skills">
+            <dt>인프라</dt><dd><span class="chip">Linux</span><span class="chip">Network</span><span class="chip">Server Management</span><span class="chip">Git</span></dd>
+            <dt>백엔드 · 웹</dt><dd><span class="chip">Spring Boot</span><span class="chip">MySQL</span><span class="chip">MongoDB</span><span class="chip">Next.js</span></dd>
+            <dt>모바일 · XR</dt><dd><span class="chip">Android (Java)</span><span class="chip">Unity</span><span class="chip">AR / VR</span></dd>
+            <dt>AI · 자동화</dt><dd><span class="chip">Claude</span><span class="chip">Prompt Engineering</span><span class="chip">Workflow Automation</span></dd>
+          </dl>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- FLOATING CLAUDE BADGE -->
-<div class="float-badge" id="floatBadge">
-  <div class="float-badge-header" onclick="this.parentElement.classList.toggle('expanded')">
-    <span>🤖</span>
-    <span class="float-badge-title">Claude 탐구 중</span>
-    <span class="float-badge-toggle">▾</span>
+<!-- 연락 -->
+<section class="section" id="contact">
+  <div class="container">
+    <div class="section-head">
+      <h2>연락</h2>
+      <p class="lede">프로젝트나 인프라 이야기, 함께 일할 제안 모두 환영합니다.</p>
+    </div>
+    <div class="contact-row">
+      <a class="btn" href="mailto:kimmydkemf@naver.com"><span class="mono">kimmydkemf@naver.com</span></a>
+      <button class="copy-btn" type="button" id="copyEmail" data-copy="kimmydkemf@naver.com">주소 복사</button>
+      <a class="btn" href="https://github.com/kimmydkemf" target="_blank" rel="noopener">github.com/kimmydkemf ↗</a>
+    </div>
   </div>
-  <div class="float-badge-body">
-    AI를 사고의 파트너로 — 업무·지식관리·자동화에 Claude를 접목 중입니다.
-  </div>
-</div>
+</section>
 
 <footer>
-  <p>© 2026 Dounselor · Built with GitHub Pages</p>
+  <div class="container">
+    <span>© 2026 Dounselor · GitHub Pages</span>
+    <span>프로젝트 정보는 각 저장소의 README와 portfolio.yml에서 자동 동기화됩니다 ·
+      <a href="https://github.com/kimmydkemf/kimmydkemf.github.io" target="_blank" rel="noopener">이 사이트의 저장소</a></span>
+  </div>
 </footer>
 
 <script>
-  (function() {
-    const toggle = document.getElementById('themeToggle');
-    const icon   = toggle.querySelector('.toggle-icon');
-    const label  = toggle.querySelector('.toggle-label');
-    const html   = document.documentElement;
+  (function () {
+    var root = document.documentElement;
+    var toggle = document.getElementById('themeToggle');
+    var icon = toggle.querySelector('.toggle-icon');
+    var label = toggle.querySelector('.toggle-label');
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
 
-    function applyTheme(theme) {
-      if (theme === 'light') {
-        html.setAttribute('data-theme', 'light');
-        icon.textContent  = '☀️';
-        label.textContent = 'Light';
-      } else {
-        html.removeAttribute('data-theme');
-        icon.textContent  = '🌙';
-        label.textContent = 'Dark';
-      }
+    function current() {
+      var t = root.getAttribute('data-theme');
+      return t === 'light' || t === 'dark' ? t : (mq.matches ? 'dark' : 'light');
     }
-
-    // 저장된 테마 또는 시스템 설정 적용
-    const saved = localStorage.getItem('theme');
-    const preferLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-    applyTheme(saved || (preferLight ? 'light' : 'dark'));
-
-    toggle.addEventListener('click', function() {
-      const current = html.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
-      const next = current === 'light' ? 'dark' : 'light';
-      applyTheme(next);
-      localStorage.setItem('theme', next);
+    function paint() {
+      var dark = current() === 'dark';
+      icon.textContent = dark ? '☾' : '☀';
+      label.textContent = dark ? '다크' : '라이트';
+      toggle.setAttribute('aria-label', dark ? '라이트 테마로 전환' : '다크 테마로 전환');
+    }
+    toggle.addEventListener('click', function () {
+      var next = current() === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('theme', next); } catch (e) {}
+      paint();
     });
+    if (mq.addEventListener) mq.addEventListener('change', paint);
+    paint();
+
+    var copy = document.getElementById('copyEmail');
+    if (copy && navigator.clipboard) {
+      copy.addEventListener('click', function () {
+        navigator.clipboard.writeText(copy.getAttribute('data-copy')).then(function () {
+          copy.textContent = '복사됨';
+          copy.classList.add('is-done');
+          setTimeout(function () { copy.textContent = '주소 복사'; copy.classList.remove('is-done'); }, 1600);
+        }).catch(function () {});
+      });
+    } else if (copy) {
+      copy.hidden = true;
+    }
   })();
 </script>
 </body>

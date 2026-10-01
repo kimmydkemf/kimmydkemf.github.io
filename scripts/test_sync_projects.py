@@ -371,7 +371,7 @@ class TestRender(unittest.TestCase):
         self.assertEqual(html3.count("<iframe"), 2)
         self.assertIn('이상호<span class="me">me</span>', html3)
         self.assertNotIn("Links", html3)
-        self.assertIn('status-archived">아카이브<', html3)
+        self.assertIn('status-archived">과거<', html3)
         self.assertIn('data-source="manual"', html3)
 
     def test_render_auto_section_replaces_block(self):
@@ -645,7 +645,8 @@ class TestTagsAndCompact(unittest.TestCase):
         html = rc.render_card(p)
         summary = html.split("</summary>")[0]
         self.assertEqual(summary.count('<span class="chip dev">'), rc.CHIP_LIMIT)
-        self.assertIn('class="chip more" title="펼치면 전체 기술 스택">+2<', summary)
+        self.assertIn(f'class="chip more" title="펼치면 전체 기술 스택">+{7 - rc.CHIP_LIMIT}<', summary)
+        self.assertIn('<a class="proj-repo" href="https://github.com/u/x"', summary)      # 접힌 카드의 GitHub 링크
         detail = html.split("</summary>")[1]
         self.assertIn("<h4>기술 스택</h4>", detail)
         self.assertEqual(detail.count('<span class="chip dev">'), 7)
@@ -876,7 +877,7 @@ class TestEndToEnd(unittest.TestCase):
         self.assertEqual(r2.returncode, 0, r2.stderr)
         html = self.index.read_text(encoding="utf-8")
         card = html.split('id="proj-frozen-tracker"')[1].split("</summary>")[0]
-        self.assertIn('status-archived">아카이브<', card)
+        self.assertIn('status-archived">과거<', card)
         archive = html.split('data-group="archive"')[1]
         self.assertIn('id="proj-frozen-tracker"', archive)
         self.assertIn("고정된 소개", html)                     # 내용은 그대로
