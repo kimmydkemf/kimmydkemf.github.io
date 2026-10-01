@@ -82,6 +82,88 @@ ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxx   # 선택
 
 ---
 
+## 프로젝트 상태 바꾸기
+
+프로젝트가 어디에 있느냐에 따라 고치는 곳이 다릅니다.
+
+| 프로젝트 | 고치는 곳 |
+|----------|-----------|
+| 본인(`kimmydkemf`) 소유 레포 — Pacer, Life Manager, Dounselor Blog 등 | 그 레포 루트의 `portfolio.yml` |
+| 다른 사람 소유 레포 · 레포 없는 과거 프로젝트 — Business Calendar Plus, P.S 등 | 이 저장소의 `data/projects.manual.json` 의 `"status"` |
+
+### 본인 레포: `portfolio.yml` 추가
+
+1. 해당 프로젝트 레포의 **최상단(루트)** 에 `portfolio.yml` 파일을 만듭니다.
+   [`docs/portfolio.template.yml`](docs/portfolio.template.yml) 을 복사해도 되고, 아래처럼 필요한 줄만 써도 됩니다.
+2. 기본 브랜치(보통 `main`)에 commit & push 합니다.
+3. 다음 자동 실행 때 반영됩니다 (아래 "반영 시점").
+
+지켜야 할 것:
+
+- 파일 이름은 정확히 **`portfolio.yml`**. `portfolio.template.yml` 같은 이름 그대로면 읽지 않습니다.
+- **루트**에 있어야 하고, **기본 브랜치**에 push 되어 있어야 합니다. 다른 브랜치에만 있으면 읽지 않습니다.
+- 토큰(`PORTFOLIO_PAT`)을 "Only select repositories" 로 만들었다면 그 레포가 선택 목록에 있어야 합니다.
+- 템플릿의 `summary` 줄에는 `프로젝트 소개 2~3문장.` 이라는 예시 문장이 있습니다. 그대로 두면 이 문장이 README 소개 대신 카드에 나오므로 **실제 소개로 바꾸거나 지우세요.**
+  나머지 빈 칸은 비워 두면 README 내용으로 채워집니다.
+
+상태만 바꿀 때 (최소):
+
+```yaml
+title: Pacer
+status: active
+started: 2026-05
+```
+
+더 이상 쓰지 않는 프로젝트:
+
+```yaml
+title: Dounselor Blog
+status: unused
+started: 2026-05
+ended: 2026-10
+unused_reason: >
+  Personal Archive 의 Journal 기능으로 통합해 운영을 종료함.
+replaced_by:              # 선택 — 대체 프로젝트
+  title: Personal Archive
+  url: https://archive.dounselor.com
+```
+
+### 다른 사람 레포 · 과거 프로젝트: `data/projects.manual.json`
+
+이 저장소의 `data/projects.manual.json` 에서 해당 항목의 `"status"` 값만 바꿉니다. 다른 내용은 그대로 둡니다.
+
+```json
+"status": "archived",
+```
+
+`null` 은 "배지 없음" 입니다. 바꾼 뒤 Mac 업데이터나 Actions 를 실행하면 반영됩니다.
+
+### 반영 시점
+
+- **자동**: 매일 03:00 KST 에 GitHub Actions 가 변경을 감지해 PR 을 만듭니다. PR 을 확인하고 병합하면 사이트에 반영됩니다.
+- **바로**: GitHub → Actions → Sync GitHub Projects → Run workflow, 또는 Mac 에서 `Update Portfolio.command`.
+
+### 상태별로 화면이 바뀌는 방식
+
+| status | 배지 | 들어가는 그룹 | 기간 표시 | 카드 내용 |
+|--------|------|--------------|----------|----------|
+| `active` | 진행 중 | 진행 중 | `2026.05 – Present` | 전체 (소개 · 기능 · 기술 · Live Demo · GitHub) |
+| `completed` | 완료 | 완료 | `2025.11 – 2026.03` | 전체 |
+| `paused` | 일시 중단 | 일시 중단 | 시작 – 종료 | 전체 + "일시 중단 사유" (`pause_reason`) |
+| `unused` | 미사용 | 미사용 · 아카이브 | 시작 – 종료 | **간단 카드**: 제목 · 기간 · 미사용 사유 · 대체 프로젝트 · Repository 만. 기술 · 기능 · 소개 · Live Demo · Screenshot 숨김 |
+| `archived` | 아카이브 | 미사용 · 아카이브 | 시작 – 종료 | 전체 |
+| 없음 (`null`) | 없음 | 마지막 커밋 3개월 이내면 진행 중, 아니면 완료 | 커밋 날짜 기준 | 전체 |
+
+함께 바뀌는 것:
+
+- 상단 **필터 버튼**의 개수가 바뀌고, 처음 생긴 상태는 버튼이 새로 나타납니다.
+- **Featured**: `featured: true` 이고 `unused` 가 아닌 프로젝트가 맨 위 카드로 올라갑니다 (최대 5개). `unused` 로 바꾸면 Featured 에서 빠집니다.
+- **Live Demo · Screenshot**: `live_url` 이 있으면 Live Demo 버튼과 Screenshot 이 생깁니다 (`unused` 는 둘 다 숨김).
+  로그인 후 개인 데이터가 보이는 서비스라면 `screenshot: false` 를 함께 넣으세요.
+- 상태 값에 **오타**가 있으면 sync 가 경고하고, Update & Push 의 Validation 이 commit 을 막습니다.
+
+---
+
 ## 포트폴리오 업데이트 방법
 
 ### Mac — `Update Portfolio.command` (권장)
@@ -294,6 +376,8 @@ summary: >
 `portfolio.yml`에서만 읽습니다. Claude나 README 파서가 추정하지 않습니다.
 
 `status`가 없는 README 전용 프로젝트는 커밋 날짜로 기간을 추정하며, 마지막 커밋이 3개월 이내면 진행 중으로 표시합니다.
+
+바꾸는 방법과 화면 변화는 위 ["프로젝트 상태 바꾸기"](#프로젝트-상태-바꾸기) 참고.
 
 ### 미사용(unused) 프로젝트 예
 
