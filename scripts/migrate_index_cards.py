@@ -83,9 +83,12 @@ def parse_card(block: str) -> dict:
     subtitle = _text(first(r'class="proj-sub">(.*?)</div>'))
 
     tech, awards, tag_class = [], [], None
-    for cls, label in re.findall(r'<span class="chip([^"]*)">(.*?)</span>', block, re.DOTALL):
+    summary_html = block.split("</summary>")[0]
+    for cls, label in re.findall(r'<span class="chip([^"]*)"[^>]*>(.*?)</span>', summary_html, re.DOTALL):
         cls = cls.strip()
         label = _text(label)
+        if "more" in cls.split():
+            continue
         if "award" in cls:
             awards.append(re.sub(r"^🏆\s*", "", label))
         else:
@@ -103,6 +106,10 @@ def parse_card(block: str) -> dict:
             summary = _paragraph_lines(p)
             if summary == PLACEHOLDER:
                 summary = ""
+        elif heading == "기술 스택":
+            tech = [_text(t) for t in re.findall(r'<span class="chip[^"]*">(.*?)</span>', part, re.DOTALL)]
+            m = re.search(r'<span class="chip([^"]*)">', part)
+            tag_class = m.group(1).strip() if m else tag_class
         elif heading == "담당 역할":
             my_role = _text(first_in(part, r"<p>(.*?)</p>"))
         elif heading == "시연 영상":

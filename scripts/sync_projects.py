@@ -434,7 +434,7 @@ def _parse_readme_fallback(readme: str, repo: dict) -> dict:
     intro_lines = paragraphs(intro_sec) if intro_sec else paragraphs(sections.get("__top__", []))
     result["intro"] = "\n".join(intro_lines)
     if not result["subtitle"] and intro_lines:
-        result["subtitle"] = intro_lines[0][:60]
+        result["subtitle"] = smart_truncate(intro_lines[0], SUBTITLE_MAX)
 
     # 기능
     result["features"] = bullets(get_section("features"))[:5]
@@ -686,6 +686,7 @@ def normalize_metadata(name: str, repo: dict, yml: dict | None, content: dict,
     subtitle   = _as_str(yml.get("subtitle")) or _as_str(content.get("subtitle")) \
                  or _as_str(repo.get("description"))
     summary    = _as_str(yml.get("summary")) or _as_str(content.get("intro"))
+    tech_from_yml = bool(_as_list(yml.get("tech")))
     tech       = _as_list(yml.get("tech")) or list(content.get("tech_items") or [])
     highlights = _as_list(yml.get("highlights")) or list(content.get("features") or [])
     team       = _as_list(yml.get("team")) or list(content.get("team") or [])
@@ -733,6 +734,7 @@ def normalize_metadata(name: str, repo: dict, yml: dict | None, content: dict,
         "category":        _as_list(yml.get("category")),
         "role":            role,
         "tech":            tech,
+        "tech_from_yml":   tech_from_yml,
         "highlights":      highlights,
         "team":            team,
         "my_role":         my_role,
@@ -782,6 +784,80 @@ def validate_metadata(meta: dict, yml: dict | None, name: str) -> list[str]:
     return warns
 
 
+# ── 태그 · 부제 정리 ──────────────────────────────────────────────────────────
+SUBTITLE_MAX = 80
+TECH_STORE_MAX = 10
+# README 에서 흔히 쓰는 표기 → 짧은 이름 (소문자 비교). 값이 "" 이면 버린다.
+TECH_ALIASES = {
+    "better-sqlite3": "SQLite", "sqlite": "SQLite", "next-pwa": "PWA",
+    "next.js api routes": "Next.js", "node-telegram-bot-api": "Telegram Bot",
+    "cloudflared": "Cloudflare Tunnel", "cloudflare named tunnel": "Cloudflare Tunnel",
+    "named tunnel": "Cloudflare Tunnel",
+    "jose": "JWT", "jsonwebtoken": "JWT", "google gemini": "Gemini",
+    "anthropic claude api": "Claude API", "anthropic claude": "Claude",
+    "pc": "", "in-memory pub/sub": "",
+}
+_HANGUL_WORD = re.compile(r"(?:^|\s)[가-힣]+(?=\s|$)")
+_VERSION_TAIL = re.compile(r"\s+v?\d+(?:\.\d+)*[a-z]?$", re.I)
+
+
+def smart_truncate(text: str, limit: int) -> str:
+    """단어 경계에서 자르고 … 를 붙인다 (문장 중간 잘림 방지)"""
+    text = (text or "").strip()
+    if len(text) <= limit:
+        return text
+    cut = text[:limit].rstrip()
+    space = cut.rfind(" ")
+    if space > limit * 0.6:
+        cut = cut[:space]
+    return cut.rstrip(" ,·-—(") + "…"
+
+
+def normalize_tech(items: list[str], max_items: int = TECH_STORE_MAX) -> list[str]:
+    """README 기술 목록 한 줄("Frontend: Next.js 14 (App Router) · React 18") → 기술 이름 하나씩.
+    분류 이름 · 괄호 설명 · 끝의 버전 · 한글 수식어를 떼고, 같은 이름은 한 번만."""
+    out: list[str] = []
+    seen: set[str] = set()
+    for raw in items or []:
+        text = str(raw).strip()
+        m = re.match(r"^[^:：]{1,24}[:：]\s*(.+)$", text)
+        if m and not re.match(r"^https?$", text.split(":")[0], re.I):
+            text = m.group(1)
+        text = re.sub(r"\([^)]*\)|（[^）]*）", " ", text)                 # 괄호 설명
+        for part in re.split(r"\s*[·,，]\s*|\s+\+\s+|\s+&\s+", text):
+            part = re.sub(r"\s+", " ", part).strip(" -—`*")
+            part = _HANGUL_WORD.sub(" ", part).strip()                     # "로컬 Ollama" → "Ollama"
+            if not part:
+                continue
+            key = part.lower()
+            if key in TECH_ALIASES:
+                part = TECH_ALIASES[key]
+            else:
+                part = _VERSION_TAIL.sub("", part).strip()                  # "React 18" → "React"
+                for alias, name in TECH_ALIASES.items():
+                    if name and part.lower().startswith(alias + " "):        # "Google Gemini 2.5 Flash"
+                        part = name
+                        break
+                if part.lower() in TECH_ALIASES:
+                    part = TECH_ALIASES[part.lower()]
+            if not part or len(part) > 30 or part.lower() in seen:
+                continue
+            seen.add(part.lower())
+            out.append(part)
+            if len(out) >= max_items:
+                return out
+    return out
+
+
+def repair_subtitle(subtitle: str, summary: str) -> str:
+    """예전 파서가 60자에서 자른 부제(요약 첫 줄의 앞부분)를 단어 경계 기준으로 다시 만든다"""
+    sub = (subtitle or "").strip()
+    first = next((l.strip() for l in (summary or "").splitlines() if l.strip()), "")
+    if sub and first and first != sub and first.startswith(sub):
+        return smart_truncate(first, SUBTITLE_MAX)
+    return subtitle
+
+
 # ── JSON 데이터 레이어 ────────────────────────────────────────────────────────
 def parse_team_item(item: str) -> dict:
     """'이름 — 역할' → {name, role, me}"""
@@ -815,7 +891,8 @@ def to_project_entry(meta: dict, repo: dict, readme_sha: str = "", pf_sha: str =
         "repositoryUrl":   meta["repository_url"],
         "category":        meta["category"],
         "role":            meta["role"],
-        "tech":            (meta["tech"] or [tag_lbl])[:7],
+        # portfolio.yml 의 tech 는 그대로, README/Claude 에서 온 목록은 기술 이름 단위로 정리
+        "tech":            (meta["tech"] if meta.get("tech_from_yml") else normalize_tech(meta["tech"])) or [tag_lbl],
         "highlights":      meta["highlights"],
         "highlightsTitle": None,
         "team":            [parse_team_item(t) for t in meta["team"]],
@@ -1084,7 +1161,7 @@ def main():
             if meta["status"]:
                 print(f"    상태: {meta['status']} ({STATUS_LABEL[meta['status']]})")
             print(f"    기간: {format_period(meta['started'], meta['ended'], meta['ongoing'])}")
-            print(f"    기술: {meta['tech']}")
+            print(f"    기술: {meta['tech'] if meta.get('tech_from_yml') else normalize_tech(meta['tech'])}")
             print(f"    기능: {meta['highlights'][:3]}")
 
             new_entries[name] = to_project_entry(meta, repo, readme_sha, pf_sha, "ok", today_str)

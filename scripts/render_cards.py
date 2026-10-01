@@ -38,6 +38,7 @@ GROUPS = (
 GROUP_OF = {"active": "current", "paused": "paused", "completed": "completed",
             "unused": "archive", "archived": "archive"}
 FEATURED_MAX = 5
+CHIP_LIMIT = 5          # 접힌 카드에 보이는 기술 태그 수 (나머지는 +N, 펼치면 "기술 스택")
 
 
 def display_status(p: dict) -> str:
@@ -155,14 +156,39 @@ def _team(p: dict) -> str:
             </div>""")
 
 
+def _chip_cls(p: dict) -> str:
+    return ("chip " + p["tagClass"]).strip() if p.get("tagClass") else "chip"
+
+
+def _is_archived_view(p: dict) -> bool:
+    """미사용·아카이브 그룹 카드는 접힌 상태에서 기술 태그를 숨긴다 (기록 중심 최소 표현)"""
+    return display_status(p) in ("archived", "unused")
+
+
 def _chips(p: dict) -> str:
-    cls = ("chip " + p["tagClass"]).strip() if p.get("tagClass") else "chip"
+    cls = _chip_cls(p)
+    tech = p.get("tech") or []
     out = ""
-    for t in (p.get("tech") or [])[:7]:
-        out += f'\n              <span class="{cls}">{E(t)}</span>'
+    if not _is_archived_view(p):
+        for t in tech[:CHIP_LIMIT]:
+            out += f'\n              <span class="{cls}">{E(t)}</span>'
+        if len(tech) > CHIP_LIMIT:
+            out += f'\n              <span class="chip more" title="펼치면 전체 기술 스택">+{len(tech) - CHIP_LIMIT}</span>'
     for a in p.get("awards") or []:
         out += f'\n              <span class="chip award">🏆 {E(a)}</span>'
     return out
+
+
+def _tech_section(p: dict) -> str:
+    """접힌 카드에서 다 보이지 않은 기술은 펼친 화면에 전체 목록으로"""
+    tech = p.get("tech") or []
+    if not tech or (len(tech) <= CHIP_LIMIT and not _is_archived_view(p)):
+        return ""
+    cls = _chip_cls(p)
+    chips = "".join(f'\n              <span class="{cls}">{E(t)}</span>' for t in tech)
+    return _section("기술 스택", f"""
+            <div class="proj-chips">{chips}
+            </div>""")
 
 
 def _attrs(p: dict) -> str:
@@ -244,6 +270,7 @@ def render_card(p: dict) -> str:
         body += _section("일시 중단 사유", f"\n            <p>{_multiline(p['pauseReason'])}</p>")
     if p.get("myRole"):
         body += _section("담당 역할", f"\n            <p>{E(p['myRole'])}</p>")
+    body += _tech_section(p)
     body += _shots(p)
     body += _videos(p)
     body += _links(p)

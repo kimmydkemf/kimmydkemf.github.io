@@ -980,3 +980,96 @@ section { counter-increment: section-num; }
   [data-theme="light"] .section-header { gap: 12px; margin-bottom: 36px; }
   [data-theme="light"] .section-header::before { font-size: 2rem; letter-spacing: -2px; }
 }
+
+/* ===========================================================================
+   Phase 4.1 — 한눈에 보이는 프로젝트 영역 · 모바일 정리
+   (기존 규칙 뒤에 두어 덮어쓴다. 색상·모서리 등 디자인 토큰은 그대로 사용)
+   =========================================================================== */
+
+/* 제목 옆에 상태 배지 · Live 링크를 같은 줄로 */
+.proj-main > .proj-title { display: inline; margin-right: 8px; line-height: 1.5; }
+.proj-main > .status-badge,
+.proj-main > .proj-live { margin: 0 6px 0 0; vertical-align: 2px; }
+.proj-main > .proj-sub { margin-top: 6px; }
+
+/* 부제는 접힌 상태에서 2줄까지 (펼치면 전체) */
+summary .proj-sub {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+details[open] summary .proj-sub { display: block; -webkit-line-clamp: unset; }
+
+/* 데스크톱: 기간 배지 폭을 맞춰 제목 열 정렬 */
+summary > .proj-period { min-width: 128px; text-align: center; }
+
+/* +N 태그 — 눈에 덜 띄게 */
+.chip.more {
+  background: transparent; color: var(--muted);
+  border: 1px dashed var(--border-strong);
+}
+
+/* 미사용 · 아카이브 그룹 접기 (JS) */
+.proj-group-toggle {
+  margin-left: 10px;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 999px;
+  padding: 3px 11px; font: inherit; font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0; color: var(--muted); cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.proj-group-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.proj-group-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.proj-group.is-folded .proj-group-list { display: none; }
+
+/* 미사용 · 아카이브 카드는 더 간결하게 */
+.proj-group[data-group="archive"] summary { padding-top: 18px; padding-bottom: 18px; }
+.proj-group[data-group="archive"] .proj-chips:empty { display: none; }
+.proj-group[data-group="archive"] .proj-chips { margin-top: 10px; }
+
+/* ── 모바일 ─────────────────────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  header  { padding: 64px 0 44px; }
+  section { padding: 48px 0; }
+  .section-header { margin-bottom: 22px; }
+
+  /* 카드: 기간은 위 작은 글씨, 제목·배지·부제·태그 순서로 */
+  summary { flex-direction: column; align-items: stretch; gap: 6px; padding: 16px 18px; }
+  summary > .proj-period, .proj-period {
+    order: 0; flex-basis: auto; align-self: flex-start; width: auto; margin-top: 0; min-width: 0; text-align: left;
+    background: none; border: none; padding: 0;
+    font-size: 0.72rem; color: var(--muted);
+  }
+  .proj-title { font-size: 1rem; }
+  .proj-chips { margin-top: 8px; }
+  .detail { padding: 0 18px 20px; }
+  .proj-group-list, .project-list { gap: 12px; }
+  .proj-featured, .proj-group { gap: 10px; margin-top: 18px; }
+  .proj-group[data-group="archive"] summary { padding-top: 14px; padding-bottom: 14px; }
+
+  /* 필터는 한 줄 — 넘치면 가로로 밀어서 본다 (페이지 가로 스크롤은 생기지 않음) */
+  .proj-filter {
+    flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; margin: 0 -16px; padding: 2px 16px;
+  }
+  .proj-filter::-webkit-scrollbar { display: none; }
+  .proj-filter-btn { flex: 0 0 auto; }
+
+  /* "Claude 탐구 중" 배지: 접힌 상태는 아이콘만, 오른쪽 아래 작게 */
+  .float-badge { width: auto; left: auto; right: 16px; bottom: 16px; border-radius: 999px; }
+  .float-badge:not(.expanded) .float-badge-title,
+  .float-badge:not(.expanded) .float-badge-toggle,
+  .float-badge:not(.expanded) .float-badge-body { display: none; }
+  .float-badge:not(.expanded) .float-badge-header { padding: 10px 12px; font-size: 1.1rem; }
+  .float-badge.expanded { width: calc(100% - 32px); left: 16px; border-radius: 16px; }
+}
+
+/* 좁은 휴대폰: 메뉴가 화면 밖으로 밀리지 않게 */
+@media (max-width: 480px) {
+  .container, nav .inner { padding: 0 16px; }
+  .nav-brand { font-size: 0.84rem; letter-spacing: 0.5px; }
+  .nav-links { gap: 10px; }
+  .nav-links a { font-size: 0.74rem; }
+  .theme-toggle { padding: 5px 8px; }
+  .theme-toggle .toggle-label { display: none; }
+  [data-theme="light"] header { padding: 72px 0 52px; }
+  [data-theme="light"] .section-header { margin-bottom: 26px; }
+}

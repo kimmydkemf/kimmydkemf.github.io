@@ -19,13 +19,13 @@
       "category": [],
       "role": [],
       "tech": [
-        "React 18",
+        "React",
         "Vite",
-        "React Router v6",
+        "React Router",
         "FastAPI",
         "SQLAlchemy",
-        "SQLite (WAL)",
-        "Google Gemini 2.5 Flash (비전)"
+        "SQLite",
+        "Gemini"
       ],
       "highlights": [],
       "highlightsTitle": null,
@@ -53,7 +53,7 @@
       "repo": "kimmydkemf.github.io",
       "source": "github",
       "title": "Dounselor Portfolio",
-      "subtitle": "dounselor.com (GitHub Pages 호스팅, kimmydkemf.github.io → 커스텀",
+      "subtitle": "dounselor.com (GitHub Pages 호스팅, kimmydkemf.github.io → 커스텀 도메인 CNAME) — 개인…",
       "summary": "dounselor.com (GitHub Pages 호스팅, kimmydkemf.github.io → 커스텀 도메인 CNAME) — 개인 포트폴리오 사이트.\nGitHub 레포지토리의 README를 자동으로 읽어 프로젝트 카드를 생성·업데이트하는 동기화 기능을 포함합니다.",
       "status": null,
       "started": "2026.05",
@@ -65,9 +65,13 @@
       "category": [],
       "role": [],
       "tech": [
-        "Frontend: HTML · CSS (CSS Variables 기반 다크/라이트 테마, Apple-inspired) · Vanilla JS",
-        "Sync: Python 3 · GitHub REST API · Anthropic Claude API",
-        "Hosting: GitHub Pages"
+        "HTML",
+        "CSS",
+        "Vanilla JS",
+        "Python",
+        "GitHub REST API",
+        "Claude API",
+        "GitHub Pages"
       ],
       "highlights": [
         "Apple 스타일 디자인 — 다크/라이트 모두 깔끔하고 임팩트 있는 비주얼 (라이트 배경 #f5f5f7, SF Pro 폴백 폰트, 부드러운 그림자·진입 페이드 애니메이션, 호버 lift)",
@@ -101,7 +105,7 @@
       "repo": "dounselor-blog",
       "source": "github",
       "title": "Dounselor Blog",
-      "subtitle": "blog.dounselor.com — 개인 기록 + 협업이 한 곳에 있는 통합 사이트. PWA 로 폰에서도",
+      "subtitle": "blog.dounselor.com — 개인 기록 + 협업이 한 곳에 있는 통합 사이트. PWA 로 폰에서도 앱처럼 사용 가능.",
       "summary": "blog.dounselor.com — 개인 기록 + 협업이 한 곳에 있는 통합 사이트. PWA 로 폰에서도 앱처럼 사용 가능.",
       "status": null,
       "started": "2026.05",
@@ -113,12 +117,16 @@
       "category": [],
       "role": [],
       "tech": [
-        "Frontend: Next.js 14 (App Router) · React 18 · Tailwind CSS · next-pwa",
-        "Backend: Next.js API Routes · better-sqlite3 · jose (JWT) · sharp (이미지)",
-        "AI: 로컬 Ollama (qwen2.5:7b 권장, 키·비용 0)",
-        "Auth: 자체 JWT (소유자) + Kakao OAuth (게스트)",
-        "Realtime: SSE (Server-Sent Events) + in-memory pub/sub",
-        "Hosting: PC 로컬 + Cloudflare Named Tunnel"
+        "Next.js",
+        "React",
+        "Tailwind CSS",
+        "PWA",
+        "SQLite",
+        "JWT",
+        "sharp",
+        "Ollama",
+        "Kakao OAuth",
+        "SSE"
       ],
       "highlights": [],
       "highlightsTitle": null,
@@ -158,12 +166,15 @@
       "category": [],
       "role": [],
       "tech": [
-        "Frontend: Next.js 14 (App Router) · React 18 · Tailwind CSS · next-pwa",
-        "Backend: Next.js API Routes · better-sqlite3",
-        "Auth: JWT (jose, jsonwebtoken)",
-        "Bot: node-telegram-bot-api (polling)",
-        "Scheduler: node-cron",
-        "Tunnel: cloudflared (named tunnel)"
+        "Next.js",
+        "React",
+        "Tailwind CSS",
+        "PWA",
+        "SQLite",
+        "JWT",
+        "Telegram Bot",
+        "node-cron",
+        "Cloudflare Tunnel"
       ],
       "highlights": [
         "2단계 인증 (텔레그램 OTP) — 비밀번호 검증 후 텔레그램 봇으로 6자리 코드 발송, 코드 입력해야만 로그인 완료",
