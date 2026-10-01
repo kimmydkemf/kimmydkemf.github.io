@@ -58,6 +58,7 @@ class UpdaterTestBase(unittest.TestCase):
             "HOME": str(self.tmp),                 # 사용자 git 설정/자격증명 격리
             "PORTFOLIO_SYNC_ARGS": "--fixtures fixtures/repos",
             "PORTFOLIO_NO_OPEN": "1",
+            "PORTFOLIO_SCREENSHOTS": "0",          # Screenshot 은 전용 테스트에서만 (네트워크 접근 방지)
             "GIT_CONFIG_NOSYSTEM": "1",
             "GIT_AUTHOR_NAME": "Test", "GIT_AUTHOR_EMAIL": "test@example.com",
             "GIT_COMMITTER_NAME": "Test", "GIT_COMMITTER_EMAIL": "test@example.com",
@@ -167,6 +168,24 @@ class TestUpdater(UpdaterTestBase):
         self.assertNotIn("notes.txt", files)
         self.assertIn("?? notes.txt", self.dirty())
 
+    def test_screenshot_step_failure_is_not_fatal(self):
+        # 캡처 엔진을 쓸 수 없어도 (system python 에 playwright 없음) sync/commit 은 계속된다
+        r = self.run_updater("--mode", "update", "--yes", "--no-push",
+                             env_extra={"PORTFOLIO_SCREENSHOTS": "1",
+                                        "PORTFOLIO_SCREENSHOT_ARGS": "--backend playwright",
+                                        "PYTHONPATH": str(self.tmp / "no-such-dir")})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("Screenshot (live_url 있는 프로젝트", r.stdout)
+        self.assertIn("Screenshot 을 건너뜁니다", r.stdout)
+        self.assertTrue(self.head().startswith("chore: sync"))
+        self.assertFalse((self.work / "assets" / "projects").exists())
+
+    def test_dry_run_shows_screenshot_plan(self):
+        r = self.run_updater("--mode", "dry-run", env_extra={"PORTFOLIO_SCREENSHOTS": "1"})
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("Screenshot 계획", r.stdout)
+        self.assertEqual(self.dirty(), "")
+
     def test_branch_guard(self):
         r = self.run_updater("--mode", "update", "--yes", env_extra={"PORTFOLIO_BRANCH": "develop"})
         self.assertNotEqual(r.returncode, 0)
@@ -232,7 +251,7 @@ class TestValidateSite(unittest.TestCase):
         self.assertEqual(vs.scan_secrets(FAKE_TOKEN), ["GitHub token"])
         self.assertEqual(vs.scan_secrets("github_pat_" + "a" * 50), ["GitHub fine-grained"])
         self.assertEqual(vs.scan_secrets("sk-ant-api03-" + "x" * 30), ["Anthropic key"])
-        self.assertEqual(vs.scan_secrets("-----BEGIN OPENSSH PRIVATE KEY-----"), ["Private key"])
+        self.assertEqual(vs.scan_secrets("-----BEGIN OPENSSH " + "PRIVATE KEY-----"), ["Private key"])
         # README 예시 같은 placeholder 는 통과
         self.assertEqual(vs.scan_secrets("GITHUB_TOKEN=github_pat_xxxxxxxxxxxx ghp_xxxx sk-ant-xxx"), [])
 

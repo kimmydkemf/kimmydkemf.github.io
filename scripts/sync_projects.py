@@ -46,6 +46,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from render_cards import (  # noqa: E402
     STATUS_LABEL, PLACEHOLDER, format_period, render_auto_section,
 )
+from screenshot_projects import attach_screenshots  # noqa: E402
 
 # PyYAML 이 있으면 사용, 없으면 내장 subset 파서로 폴백 (의존성 없는 실행 유지)
 try:
@@ -729,6 +730,7 @@ def normalize_metadata(name: str, repo: dict, yml: dict | None, content: dict,
         "cover_image":     cover_image,
         "indexable":       yml.get("indexable") is not False,
         "screenshot_refresh": bool(yml.get("screenshot_refresh")),
+        "screenshot_enabled": yml.get("screenshot") is not False,
         # 기존 호환 키
         "proj_title":      title,
         "intro":           summary,
@@ -816,6 +818,7 @@ def to_project_entry(meta: dict, repo: dict, readme_sha: str = "", pf_sha: str =
         "tagClass":        tag_cls,
         "indexable":       meta["indexable"],
         "screenshotRefresh": meta["screenshot_refresh"],
+        "screenshotEnabled": meta["screenshot_enabled"],
         "hasPortfolioYml": meta["has_portfolio_yml"],
         "periodFallback":  (repo.get("updated_at") or "")[:7].replace("-", "."),
         "syncStatus":      sync_status,
@@ -1092,6 +1095,12 @@ def main():
         github_entries.append(entry)
 
     projects = sort_projects(github_entries + manual, prev["projects"])
+    # Screenshot (scripts/screenshot_projects.py 가 만든 manifest) 를 붙인다 — 파일이 있을 때만
+    shots_manifest = GENERATED_JSON.parent / "screenshots.json"
+    if shots_manifest.exists():
+        attach_screenshots(projects,
+                           json.loads(shots_manifest.read_text(encoding="utf-8")).get("screenshots", {}),
+                           GENERATED_JSON.parent.parent)
     changed  = projects != prev["projects"] or args.force
 
     if changed and not args.dry_run:

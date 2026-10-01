@@ -57,6 +57,7 @@ replaced_by:
 cover:
   image:                    # 레포 내 경로. 예: docs/cover.png
 
-screenshot_refresh: false   # true 면 다음 Sync 에서 Screenshot 재생성 (Phase 6)
+screenshot: true            # false 면 live_url 이 있어도 Screenshot 을 찍지 않음 (개인 데이터가 보이는 화면 등)
+screenshot_refresh: false   # true 면 다음 Sync 에서 Screenshot 재생성. 확인 후 false 로 돌려둘 것
 
 indexable: true             # false 면 검색엔진 노출 제외 (Phase 4 이후)

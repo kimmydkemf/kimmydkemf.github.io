@@ -87,6 +87,23 @@
     return section('Links', '\n<div class="proj-links">' + out + '\n</div>');
   }
 
+  function usableSrc(src) {
+    src = src || '';
+    return /^(https?:\/\/|assets\/)/.test(src) ? src : '';
+  }
+
+  function shots(p) {
+    var s = p.screenshots || {};
+    var desktop = usableSrc(s.desktop), mobile = usableSrc(s.mobile);
+    if (!desktop || p.status === 'unused') return '';
+    var title = E(p.title);
+    var body = '\n<img class="shot-desktop" src="' + E(desktop) + '" alt="' + title + ' 데스크톱 화면" loading="lazy" width="1440" height="900">';
+    if (mobile) {
+      body += '\n<img class="shot-mobile" src="' + E(mobile) + '" alt="' + title + ' 모바일 화면" loading="lazy" width="390" height="844">';
+    }
+    return section('화면', '\n<div class="shot-row">' + body + '\n</div>');
+  }
+
   function videos(p) {
     var list = (p.videos || []).filter(function (v) { return v && v.url; });
     if (!list.length) return '';
@@ -175,6 +192,7 @@
     }
     if (p.status === 'paused' && p.pauseReason) body += section('일시 중단 사유', '\n<p>' + multiline(p.pauseReason) + '</p>');
     if (p.myRole) body += section('담당 역할', '\n<p>' + E(p.myRole) + '</p>');
+    body += shots(p);
     body += videos(p);
     body += links(p);
     body += team(p);
@@ -191,8 +209,7 @@
 
   // ── Featured / 그룹 섹션 ───────────────────────────────────────────────────
   function coverSrc(p) {
-    var src = p.coverImage || '';
-    return /^(https?:\/\/|assets\/)/.test(src) ? src : '';
+    return usableSrc(p.coverImage) || usableSrc((p.screenshots || {}).desktop);
   }
 
   function renderFeaturedCard(p) {

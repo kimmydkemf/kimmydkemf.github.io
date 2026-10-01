@@ -18,6 +18,8 @@
 #   --no-push                       commit 까지만
 #   --no-pull                       시작 시 git pull 생략
 #   --force                         sync --force (SHA 무시 전체 재생성)
+#   --no-screenshots                Screenshot 단계 생략
+#   --refresh-screenshots           live_url 이 있는 모든 프로젝트 Screenshot 다시 캡처
 #
 # 환경변수 (.env 또는 셸):
 #   GITHUB_TOKEN          필수 (private 레포 조회). .env 에서 읽는다
@@ -26,6 +28,8 @@
 #   PORTFOLIO_BRANCH      선택 (지정 시 이 브랜치에서만 update 허용)
 #   PORTFOLIO_SYNC_ARGS   선택 (sync 에 추가 인자. 예: "--fixtures fixtures/repos" — 테스트용)
 #   PORTFOLIO_NO_OPEN=1   Preview 에서 브라우저를 자동으로 열지 않음
+#   PORTFOLIO_SCREENSHOTS=0  Screenshot 단계 생략 (--no-screenshots 와 같음)
+#   PORTFOLIO_SCREENSHOT_ARGS 선택 (screenshot_projects.py 추가 인자. 예: "--max-age-days 7")
 #   PORTFOLIO_LOG         로그 파일 경로 (기본: logs/portfolio-sync.log)
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -38,8 +42,9 @@ cd "$REPO" || exit 1
 
 export PYTHONIOENCODING=utf-8
 
-# sync 가 만들거나 바꾸는 파일 (이 파일들만 add 한다)
-OUTPUT_FILES="index.html data/projects.generated.json data/projects.manual.json scripts/projects.json"
+# sync / screenshot 이 만들거나 바꾸는 파일 (이 경로들만 add 한다)
+OUTPUT_FILES="index.html data/projects.generated.json data/projects.manual.json scripts/projects.json data/screenshots.json"
+SHOT_DIR="assets/projects"
 COMMIT_PREFIX="chore: sync portfolio projects"
 LOG_FILE="${PORTFOLIO_LOG:-$REPO/logs/portfolio-sync.log}"
 
@@ -48,6 +53,8 @@ ASSUME_YES=0
 DO_PUSH=1
 DO_PULL=1
 SYNC_FORCE=""
+DO_SHOTS="${PORTFOLIO_SCREENSHOTS:-1}"
+SHOT_REFRESH=""
 SERVER_PID=""
 TMP_DIR=""
 
@@ -58,7 +65,9 @@ while [ $# -gt 0 ]; do
     --no-push) DO_PUSH=0; shift ;;
     --no-pull) DO_PULL=0; shift ;;
     --force)   SYNC_FORCE="--force"; shift ;;
-    -h|--help) sed -n '2,33p' "$0"; exit 0 ;;
+    --no-screenshots)      DO_SHOTS=0; shift ;;
+    --refresh-screenshots) SHOT_REFRESH="--refresh-all"; shift ;;
+    -h|--help) sed -n '2,38p' "$0"; exit 0 ;;
     *) echo "알 수 없는 옵션: $1" >&2; exit 2 ;;
   esac
 done
@@ -73,6 +82,14 @@ step() { echo ""; echo "${C_B}${C_BLU}▶ $*${C_0}"; }
 ok()   { echo "${C_GRN}✔ $*${C_0}"; }
 warn() { echo "${C_YEL}⚠ $*${C_0}"; }
 fail() { echo "${C_RED}✖ $*${C_0}" >&2; log "FAIL $*"; cleanup; exit 1; }
+
+existing_outputs() {  # 실제로 존재하거나 git 이 추적 중인 산출물 경로만 (git add 오류 방지)
+  local f out=""
+  for f in $OUTPUT_FILES $SHOT_DIR; do
+    if [ -e "$f" ] || git ls-files --error-unmatch -- "$f" >/dev/null 2>&1; then out="$out $f"; fi
+  done
+  echo "$out"
+}
 
 log() {
   mkdir -p "$(dirname "$LOG_FILE")" 2>/dev/null || return 0
@@ -146,10 +163,10 @@ check_env() {
 git_pull() {
   [ "$DO_PULL" = "1" ] || { warn "git pull 생략 (--no-pull)"; return 0; }
   step "git pull --ff-only"
-  if ! git diff --quiet -- $OUTPUT_FILES 2>/dev/null; then
+  if [ -n "$(git status --porcelain -- $OUTPUT_FILES $SHOT_DIR)" ]; then
     warn "sync 산출물에 커밋되지 않은 변경이 있습니다:"
-    git status --short -- $OUTPUT_FILES
-    fail "먼저 커밋하거나 되돌린 뒤 다시 실행하세요 (git restore $OUTPUT_FILES)."
+    git status --short -- $OUTPUT_FILES $SHOT_DIR
+    fail "먼저 커밋하거나 되돌린 뒤 다시 실행하세요 (git restore / git clean 으로 정리)."
   fi
   git pull --ff-only 2>&1 || fail "git pull 실패 — 로컬 커밋과 원격이 갈라졌거나 네트워크 문제입니다. 터미널에서 git status 를 확인하세요."
   ok "최신 상태"
@@ -173,12 +190,24 @@ run_sync() {  # run_sync [추가 인자...]  — 출력은 화면 + 로그 요�
   return "$rc"
 }
 
+run_screenshots() {  # run_screenshots [추가 인자...] — 실패해도 계속 (경고만)
+  if [ "$DO_SHOTS" = "0" ]; then warn "Screenshot 생략"; return 0; fi
+  step "Screenshot (live_url 있는 프로젝트, 필요한 것만)"
+  # shellcheck disable=SC2086
+  "$PY" scripts/screenshot_projects.py $SHOT_REFRESH ${PORTFOLIO_SCREENSHOT_ARGS:-} "$@" 2>&1
+  local rc=$?
+  log "screenshots rc=$rc"
+  [ $rc -eq 0 ] || warn "Screenshot 단계 오류 — 기존 Screenshot 을 유지하고 계속합니다."
+  return 0
+}
+
 # ── 1. Dry Run ────────────────────────────────────────────────────────────────
 do_dry_run() {
   step "Dry Run — 파일을 변경하지 않습니다"
   run_sync --dry-run
   local rc=$?
   [ $rc -eq 0 ] || warn "일부 프로젝트 처리 실패 (위 [ERROR] 참고)"
+  [ "$DO_SHOTS" = "0" ] || { step "Screenshot 계획 (캡처하지 않음)"; "$PY" scripts/screenshot_projects.py --dry-run $SHOT_REFRESH ${PORTFOLIO_SCREENSHOT_ARGS:-} 2>&1; }
   echo ""
   ok "No files were changed or committed."
 }
@@ -219,10 +248,12 @@ do_preview() {
   cp index.html CNAME "$TMP_DIR/"
   cp -R assets "$TMP_DIR/"
   cp data/projects.generated.json data/projects.manual.json "$TMP_DIR/data/"
+  [ -f data/screenshots.json ] && cp data/screenshots.json "$TMP_DIR/data/"
   cp scripts/projects.json "$TMP_DIR/scripts/"
   run_sync --index "$TMP_DIR/index.html" --config "$TMP_DIR/scripts/projects.json" \
            --generated "$TMP_DIR/data/projects.generated.json" --manual "$TMP_DIR/data/projects.manual.json"
   [ $? -eq 0 ] || warn "일부 프로젝트 처리 실패 (위 [ERROR] 참고)"
+  run_screenshots --root "$TMP_DIR"
   step "Validation (미리보기 사본)"
   "$PY" scripts/validate_site.py --root "$TMP_DIR" --files index.html data/projects.generated.json \
     || warn "미리보기 사본이 Validation 을 통과하지 못했습니다. 이 상태로 Update 하면 commit 이 막힙니다."
@@ -252,8 +283,11 @@ PYEOF
 
 # ── 3. Update & Push ──────────────────────────────────────────────────────────
 restore_outputs() {
-  git checkout -- $OUTPUT_FILES 2>/dev/null
-  git clean -fq -- data/projects.generated.json 2>/dev/null
+  local f
+  for f in $OUTPUT_FILES $SHOT_DIR; do
+    git ls-files --error-unmatch -- "$f" >/dev/null 2>&1 && git checkout -- "$f" 2>/dev/null
+  done
+  git clean -fdq -- $OUTPUT_FILES $SHOT_DIR 2>/dev/null   # sync/screenshot 이 새로 만든 파일만
 }
 
 do_update() {
@@ -268,9 +302,10 @@ do_update() {
   run_sync
   local rc=$?
   [ $rc -eq 0 ] || warn "일부 프로젝트 처리 실패 — 실패한 프로젝트는 기존 데이터를 유지합니다."
+  run_screenshots
 
   local changed
-  changed="$(git status --porcelain -- $OUTPUT_FILES)"
+  changed="$(git status --porcelain -- $OUTPUT_FILES $SHOT_DIR)"
   if [ -z "$changed" ]; then
     ok "변경 없음 — commit 하지 않습니다."
     log "update: no changes"
@@ -278,15 +313,18 @@ do_update() {
   fi
 
   step "Validation"
-  if ! "$PY" scripts/validate_site.py --files $OUTPUT_FILES; then
+  local check_files
+  check_files="$OUTPUT_FILES $(git ls-files -mo --exclude-standard -- $SHOT_DIR | tr '\n' ' ')"
+  # shellcheck disable=SC2086
+  if ! "$PY" scripts/validate_site.py --files $check_files; then
     warn "Validation 실패 — commit 하지 않습니다."
     if confirm "sync 로 바뀐 파일을 원래대로 되돌릴까요?"; then restore_outputs; ok "되돌렸습니다."; fi
     fail "Validation 실패"
   fi
 
   step "변경 파일"
-  git status --short -- $OUTPUT_FILES
-  git --no-pager diff --stat -- $OUTPUT_FILES
+  git status --short -uall -- $OUTPUT_FILES $SHOT_DIR
+  git --no-pager diff --stat -- $OUTPUT_FILES $SHOT_DIR
 
   if [ "$ASSUME_YES" != "1" ] && confirm "브라우저에서 변경 결과를 미리 볼까요?"; then
     serve_and_open "$REPO" "저장소 작업본"
@@ -300,14 +338,18 @@ do_update() {
   fi
 
   step "Commit"
-  git add -- $OUTPUT_FILES
+  # shellcheck disable=SC2046
+  git add -A -- $(existing_outputs)
   local staged
   staged="$(git diff --cached --name-only)"
   echo "$staged" | sed 's/^/  /'
   # staged 목록이 산출물 파일로만 구성됐는지 확인
   local f
   for f in $staged; do
-    case " $OUTPUT_FILES " in *" $f "*) ;; *) git reset -q; fail "예상하지 못한 파일이 staged 됨: $f" ;; esac
+    case " $OUTPUT_FILES " in
+      *" $f "*) ;;
+      *) case "$f" in "$SHOT_DIR"/*) ;; *) git reset -q; fail "예상하지 못한 파일이 staged 됨: $f" ;; esac ;;
+    esac
   done
   # staged diff 에 Secret 이 없는지 한 번 더
   if git diff --cached -U0 | grep -E '^\+' | "$PY" -c '

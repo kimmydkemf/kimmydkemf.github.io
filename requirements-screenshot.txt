@@ -1,0 +1,8 @@
+# Screenshot 자동화 (선택) — scripts/screenshot_projects.py
+#   python3 -m pip install --user -r requirements-screenshot.txt
+# 브라우저는 설치된 Google Chrome 을 사용한다. Chrome 이 없으면:
+#   python3 -m playwright install chromium
+# Playwright 가 없으면 Chrome CLI 로 Desktop 만 캡처한다.
+playwright>=1.40
+# 선택: 있으면 WebP 로 저장 (없으면 cwebp → sips(jpeg) → png)
+pillow>=10

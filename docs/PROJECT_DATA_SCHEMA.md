@@ -16,6 +16,7 @@ data/projects.manual.json (수동) ─┘                                      �
 |------|------|------|
 | `data/projects.generated.json` | sync 결과. 전체 프로젝트 목록 (github + manual) | **직접 편집하지 않음** (sync 가 덮어씀) |
 | `data/projects.manual.json` | 레포가 없거나 자동화 대상이 아닌 과거 프로젝트 | 사람이 편집 → `./sync.sh` 로 반영 |
+| `data/screenshots.json` | Screenshot manifest: `{slug: {url, desktop, mobile, capturedAt, engine, lastError?}}` | 직접 편집하지 않음 (`scripts/screenshot_projects.py`) |
 | `scripts/projects.json` | 변경 감지 캐시 (README/portfolio.yml SHA, 커밋 월, 제외 목록) | `excluded` / `skip_repos` 만 편집 |
 
 ## 최상위
@@ -58,7 +59,9 @@ data/projects.manual.json (수동) ─┘                                      �
 | `language` | string \| null | GitHub 주 언어 |
 | `tagClass` | `"dev"` \| `"infra"` \| `"mobile"` \| `""` | chip 색상 클래스 (언어 기반). manual 은 `""` |
 | `indexable` | bool | SEO 노출 여부 (Phase 4 이후) |
-| `screenshotRefresh` | bool | 다음 sync 에서 Screenshot 재생성 (Phase 6) |
+| `screenshotRefresh` | bool | portfolio.yml `screenshot_refresh`. true 면 매 실행마다 다시 캡처 |
+| `screenshotEnabled` | bool | portfolio.yml `screenshot` (기본 true). false 면 캡처 대상에서 제외 |
+| `screenshots` | `{desktop, mobile?}` \| 없음 | `assets/projects/{slug}/…` 경로. 파일이 실제로 있을 때만 붙는다 (`data/screenshots.json` 기준) |
 | `hasPortfolioYml` | bool | portfolio.yml 존재 여부 |
 | `periodFallback` | string | 기간을 알 수 없을 때 표시할 값 (repo `updated_at` 월) |
 | `syncStatus` | `"ok"` \| `"migrated"` \| `"unavailable"` | `unavailable` = 레포 목록에서 사라짐(삭제/비공개). 데이터는 유지되고 표시도 그대로. 관리자가 확인 후 `excluded` 에 넣으면 제거됨 |
@@ -86,7 +89,8 @@ Featured   featured: true 이고 unused 가 아닌 프로젝트, 최대 5개 (�
 
 - 그룹과 필터는 `data-display-status` 기준이다. 명시적 `status` 가 있으면 그 값, 없으면 `ongoing` 이면 `active`, 아니면 `completed`.
 - 상태 배지는 명시적 `status` 가 있을 때만 붙는다. status 없는 README 전용 프로젝트는 배지 없이 기간 기준 그룹에만 들어간다.
-- Featured 카드 커버는 `coverImage` 가 `http(s)://` 또는 `assets/` 로 시작할 때만 이미지로 쓴다. 그 외에는 제목 첫 글자 placeholder (Phase 6 Screenshot 이 `assets/projects/{slug}/…` 를 채울 예정).
+- Featured 카드 커버: `coverImage` (`http(s)://` 또는 `assets/` 로 시작할 때) > `screenshots.desktop` > 제목 첫 글자 placeholder.
+- 상세 카드에는 `screenshots` 가 있으면 "화면" 섹션 (Desktop + Mobile) 이 붙는다. `unused` 는 표시하지 않는다.
 - Featured 의 "자세히" 는 `#proj-{slug}` 링크다. JS 가 해시를 보고 해당 카드를 열고, 필터로 숨겨져 있으면 "전체"로 되돌린다.
 - 선택한 필터는 브라우저 localStorage(`projectFilter`) 에 저장된다 (방문자별 편의 기능, 없어도 동작).
 

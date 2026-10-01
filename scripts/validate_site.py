@@ -92,6 +92,9 @@ def check_generated(root: Path, r: Report) -> list[dict]:
             v = p.get(key) or ""
             if v and not re.match(r"^https?://", v):
                 r.error(f"[{label}] {key} 가 http(s) URL 이 아님: {v!r}")
+        for key, f in (p.get("screenshots") or {}).items():
+            if f and not (root / f).exists():
+                r.error(f"[{label}] screenshots.{key} 파일 없음: {f}")
         if p.get("syncStatus") == "unavailable":
             r.warn(f"[{label}] syncStatus=unavailable (레포 삭제/비공개?) — 확인 후 필요하면 excluded 에 추가")
     return projects

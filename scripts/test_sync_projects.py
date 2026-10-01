@@ -426,6 +426,21 @@ class TestSections(unittest.TestCase):
         self.assertIn('<img src="assets/projects/f0/desktop.webp" alt="F0 미리보기" loading="lazy">', html)
         self.assertNotIn("docs/cover.png", html)
 
+    def test_screenshots_render(self):
+        p = entry({"title": "S", "status": "active", "started": "2026-01", "featured": True}, slug="s",
+                  screenshots={"desktop": "assets/projects/s/desktop.webp", "mobile": "assets/projects/s/mobile.webp"})
+        html = rc.render_sections([p])
+        self.assertIn('<img src="assets/projects/s/desktop.webp" alt="S 미리보기"', html)       # Featured 커버
+        self.assertIn('<img class="shot-desktop" src="assets/projects/s/desktop.webp"', html)
+        self.assertIn('<img class="shot-mobile" src="assets/projects/s/mobile.webp"', html)
+        self.assertIn("<h4>화면</h4>", html)
+        # cover.image 가 쓸 수 있는 경로면 커버는 cover 우선
+        p2 = dict(p, coverImage="assets/cover.png")
+        self.assertIn('<img src="assets/cover.png"', rc.render_featured_card(p2))
+        # unused 는 화면 섹션 없음, 허용되지 않은 경로는 무시
+        self.assertNotIn("화면", rc.render_card(dict(p, status="unused")))
+        self.assertNotIn("<img", rc.render_card(dict(p, screenshots={"desktop": "../x.png"})))
+
     def test_no_featured_section_when_none(self):
         html = rc.render_sections([entry({"title": "A", "status": "active", "started": "2026-01"})])
         self.assertNotIn("proj-featured", html)
@@ -471,6 +486,16 @@ class TestJsParity(unittest.TestCase):
                    "tech": ["A", "B", "C", "D", "E"]}, coverImage="assets/projects/feat/desktop.webp", slug="feat"),
             entry({"title": "😀 Emoji", "status": "archived", "started": "2019-01", "featured": True}, slug="emoji"),
             entry({"title": "Hidden", "status": "unused", "started": "2019-01", "featured": True}, slug="hidden"),
+            entry({"title": "Shot <1>", "status": "active", "started": "2026-02", "featured": True,
+                   "live_url": "https://shot.example"}, slug="shot",
+                  screenshots={"desktop": "assets/projects/shot/desktop.webp", "mobile": "assets/projects/shot/mobile.webp"}),
+            entry({"title": "Shot2", "status": "completed", "started": "2025-02"}, slug="shot2",
+                  screenshots={"desktop": "assets/projects/shot2/desktop.jpg"},
+                  coverImage="https://cdn.example/cover.png"),
+            entry({"title": "ShotU", "status": "unused", "started": "2025-02"}, slug="shotu",
+                  screenshots={"desktop": "assets/projects/shotu/desktop.webp"}),
+            entry({"title": "ShotBad", "status": "active", "started": "2025-02"}, slug="shotbad",
+                  screenshots={"desktop": "../etc/passwd"}),
         ]
         self.assert_parity(cases)
 

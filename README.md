@@ -27,7 +27,8 @@ portfolio/
 │   └── js/projects.js          # projects.generated.json 을 브라우저에서 렌더 (정적 카드와 동일 마크업)
 ├── data/
 │   ├── projects.generated.json # sync 결과 — 전체 프로젝트 데이터 (직접 편집 X)
-│   └── projects.manual.json    # 레포 없는 과거 프로젝트 — 사람이 편집
+│   ├── projects.manual.json    # 레포 없는 과거 프로젝트 — 사람이 편집
+│   └── screenshots.json        # Screenshot manifest (url · 파일 · 캡처 시각)
 ├── Update Portfolio.command    # Mac 더블클릭 업데이터 (→ scripts/portfolio_update.sh)
 ├── sync.sh                     # 기존 일괄 동기화 스크립트 (확인 없이 commit & push)
 ├── .env                        # 토큰 저장 (git 제외)
@@ -37,6 +38,8 @@ portfolio/
 │   ├── migrate_index_cards.py  # (1회성) 예전 index.html 카드 → JSON 마이그레이션
 │   ├── portfolio_update.sh     # Dry Run / Preview / Update & Push 업데이터
 │   ├── validate_site.py        # commit 전 검증 (JSON · HTML · CNAME · Secret · 크기)
+│   ├── screenshot_projects.py  # live_url Screenshot (Playwright / Chrome CLI)
+│   ├── test_screenshot_projects.py
 │   ├── test_sync_projects.py   # 단위/통합/parity 테스트 (네트워크 없음)
 │   ├── test_portfolio_update.py# 업데이터 통합 테스트 (임시 저장소 + bare 원격)
 │   └── projects.json           # 변경 감지 캐시 (README/portfolio.yml SHA, 커밋 월) + 제외 목록
@@ -113,6 +116,8 @@ scripts/portfolio_update.sh --mode update --yes --no-push
 scripts/portfolio_update.sh --force ...                  # sync --force (SHA 무시 전체 재생성)
 ```
 
+Screenshot 단계는 sync 다음에 자동으로 실행됩니다 (아래 "Screenshot" 참고). 끄려면 `--no-screenshots`, 전부 다시 찍으려면 `--refresh-screenshots`.
+
 `.env` 에서 읽는 값 (허용된 키만, 값은 출력하지 않음): `GITHUB_TOKEN` (필수), `ANTHROPIC_API_KEY`, `OBSIDIAN_VAULT` (지정 시 Obsidian md 생성), `PORTFOLIO_BRANCH`. 예시는 [`.env.example`](.env.example).
 
 ### `./sync.sh` (기존 방식)
@@ -149,6 +154,33 @@ python3 scripts/sync_projects.py --fixtures fixtures/repos \
         --generated /tmp/preview.generated.json --manual data/projects.manual.json   # 스크래치 복사본에 렌더링
 python3 scripts/test_sync_projects.py                                      # 테스트 (node 있으면 JS parity 포함)
 python3 scripts/test_portfolio_update.py                                   # 업데이터 테스트 (임시 저장소, push 없음)
+python3 scripts/test_screenshot_projects.py                                # Screenshot 테스트 (로컬 서버만)
+```
+
+---
+
+## Screenshot
+
+`live_url` 이 있는 프로젝트는 실제 서비스 화면을 캡처해 Featured 커버와 상세 카드의 "화면" 섹션에 보여줍니다.
+
+```text
+live_url → (HTTP 200 확인) → Playwright → assets/projects/{slug}/desktop.webp (1440×900)
+                                         → assets/projects/{slug}/mobile.webp  (390×844 @2x)
+         → data/screenshots.json (manifest) → projects.generated.json "screenshots" → index.html
+```
+
+- **언제 다시 찍나**: 새 프로젝트, `live_url` 변경, 파일 없음, 30일 경과, `--refresh SLUG` / `--refresh-all`, portfolio.yml `screenshot_refresh: true`. 그 외에는 기존 파일을 그대로 씁니다.
+- **실패해도 계속**: 접속 실패·HTTP 오류·엔진 없음은 경고만 남기고 기존 Screenshot 을 유지합니다. 오류 페이지를 캡처해 저장하지 않도록 캡처 전에 응답 코드를 확인합니다.
+- **대상 제외**: `status: unused`, 또는 portfolio.yml `screenshot: false`.
+  ⚠ Screenshot 은 공개 사이트에 올라갑니다. 로그인 후 개인 데이터가 보이는 화면이라면 `screenshot: false` 로 두세요.
+- **설치 (선택)**: `python3 -m pip install --user -r requirements-screenshot.txt`. 브라우저는 설치된 Chrome 을 씁니다.
+  Playwright 가 없으면 Chrome CLI 로 Desktop 만 찍습니다 (모바일은 Playwright 필요).
+
+```bash
+python3 scripts/screenshot_projects.py --dry-run          # 무엇을 찍을지
+python3 scripts/screenshot_projects.py                    # 필요한 것만 캡처
+python3 scripts/screenshot_projects.py --refresh pacer    # 특정 프로젝트 다시
+python3 scripts/screenshot_projects.py --max-age-days 7
 ```
 
 ---

@@ -106,6 +106,23 @@ def _links(p: dict) -> str:
             </div>""")
 
 
+def _shots(p: dict) -> str:
+    """상세 카드의 화면 (Screenshot). unused 는 표시하지 않음"""
+    shots = p.get("screenshots") or {}
+    desktop, mobile = _usable_src(shots.get("desktop")), _usable_src(shots.get("mobile"))
+    if not desktop or p.get("status") == "unused":
+        return ""
+    title = E(p.get("title"))
+    body = (f'\n              <img class="shot-desktop" src="{E(desktop)}" alt="{title} 데스크톱 화면"'
+            f' loading="lazy" width="1440" height="900">')
+    if mobile:
+        body += (f'\n              <img class="shot-mobile" src="{E(mobile)}" alt="{title} 모바일 화면"'
+                 f' loading="lazy" width="390" height="844">')
+    return _section("화면", f"""
+            <div class="shot-row">{body}
+            </div>""")
+
+
 def _videos(p: dict) -> str:
     videos = [v for v in (p.get("videos") or []) if v.get("url")]
     if not videos:
@@ -227,6 +244,7 @@ def render_card(p: dict) -> str:
         body += _section("일시 중단 사유", f"\n            <p>{_multiline(p['pauseReason'])}</p>")
     if p.get("myRole"):
         body += _section("담당 역할", f"\n            <p>{E(p['myRole'])}</p>")
+    body += _shots(p)
     body += _videos(p)
     body += _links(p)
     body += _team(p)
@@ -259,12 +277,14 @@ def render_project_list(projects: list[dict]) -> str:
 
 
 # ── Featured / 그룹 섹션 ──────────────────────────────────────────────────────
+def _usable_src(src) -> str:
+    src = src or ""
+    return src if src.startswith(("https://", "http://", "assets/")) else ""
+
+
 def _cover_src(p: dict) -> str:
-    """사이트에서 바로 쓸 수 있는 이미지 경로만 사용 (http(s) 또는 assets/). 레포 내부 경로는 Phase 6 에서 처리"""
-    src = p.get("coverImage") or ""
-    if src.startswith(("https://", "http://", "assets/")):
-        return src
-    return ""
+    """Featured 커버: portfolio.yml cover.image (사이트에서 바로 쓸 수 있는 경로일 때) > Desktop Screenshot"""
+    return _usable_src(p.get("coverImage")) or _usable_src((p.get("screenshots") or {}).get("desktop"))
 
 
 def render_featured_card(p: dict) -> str:

@@ -598,6 +598,20 @@ details.proj-unused .proj-title { color: var(--text2); }
   .proj-group-en { display: none; }
 }
 
+/* ── SCREENSHOTS (Phase 6) ────────────────────────────────────────────────── */
+.shot-row { display: flex; gap: 14px; align-items: flex-start; }
+.shot-row img {
+  display: block; height: auto;
+  border-radius: 12px; border: 1px solid var(--border);
+  background: var(--bg3); box-shadow: var(--shadow-sm);
+}
+.shot-desktop { flex: 1 1 auto; min-width: 0; width: 100%; max-width: 640px; }
+.shot-mobile  { flex: 0 0 auto; width: 132px; }
+@media (max-width: 720px) {
+  .shot-row { gap: 10px; }
+  .shot-mobile { width: 26%; }
+}
+
 /* ── CONTACT ─────────────────────────────────────────────────────────────── */
 .contact-row { display: flex; flex-wrap: wrap; gap: 14px; }
 .contact-btn {
