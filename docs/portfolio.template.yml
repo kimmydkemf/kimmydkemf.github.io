@@ -31,8 +31,8 @@ featured: false             # Featured 영역에 표시할지 (3~5개 권장)
 live_url:                   # 실제 서비스 URL. 있으면 Live Demo 버튼 표시 (unused 는 숨김)
 repository_url:             # 비우면 GitHub 레포 URL 사용
 
-summary: >
-  프로젝트 소개 2~3문장.
+summary:                    # 프로젝트 소개 2~3문장. 비우면 README 에서 가져온다
+                            # 여러 줄로 쓰려면:  summary: >  다음 줄부터 들여써서 작성
 
 tech: []                    # 예: [React, FastAPI, SQLite]
 

@@ -103,8 +103,7 @@ ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxx   # 선택
 - 파일 이름은 정확히 **`portfolio.yml`**. `portfolio.template.yml` 같은 이름 그대로면 읽지 않습니다.
 - **루트**에 있어야 하고, **기본 브랜치**에 push 되어 있어야 합니다. 다른 브랜치에만 있으면 읽지 않습니다.
 - 토큰(`PORTFOLIO_PAT`)을 "Only select repositories" 로 만들었다면 그 레포가 선택 목록에 있어야 합니다.
-- 템플릿의 `summary` 줄에는 `프로젝트 소개 2~3문장.` 이라는 예시 문장이 있습니다. 그대로 두면 이 문장이 README 소개 대신 카드에 나오므로 **실제 소개로 바꾸거나 지우세요.**
-  나머지 빈 칸은 비워 두면 README 내용으로 채워집니다.
+- 템플릿을 그대로 복사해도 됩니다. 빈 칸은 README 내용으로 채워지고, `status` 는 기본값 `active` 이니 프로젝트에 맞게 바꾸세요.
 
 상태만 바꿀 때 (최소):
 

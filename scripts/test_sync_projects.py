@@ -88,6 +88,21 @@ inline_comment: value   # 뒤 주석
             got = sp._parse_simple_yaml(text)
             self.assertEqual(_norm(got), _norm(ref), msg=f"mismatch in {f}")
 
+    def test_template_as_is_has_no_placeholder_text(self):
+        """템플릿을 그대로 복사해도 예시 문장이 카드에 들어가지 않는다 (README 내용 유지)"""
+        text = TEMPLATE.read_text(encoding="utf-8")
+        content = {"proj_title": "README Title", "subtitle": "readme sub", "intro": "README 소개",
+                   "tech_items": ["Vue"], "features": ["f"], "team": [], "my_role": ""}
+        for y in (sp._parse_simple_yaml(text), sp.load_yaml(text)):
+            m = sp.normalize_metadata("x", {"html_url": "https://github.com/u/x"}, y, content, "2026.01", "2026.09",
+                                      date(2026, 10, 1))
+            self.assertEqual(m["summary"], "README 소개")
+            self.assertEqual(m["title"], "README Title")
+            self.assertEqual(m["tech"], ["Vue"])
+            self.assertEqual(m["status"], "active")
+            self.assertEqual(m["unused_reason"], "")
+            self.assertIsNone(m["replaced_by"])
+
     def test_load_yaml_non_mapping(self):
         self.assertEqual(sp.load_yaml(""), {})
         self.assertEqual(sp.load_yaml("- a\n- b\n"), {})
