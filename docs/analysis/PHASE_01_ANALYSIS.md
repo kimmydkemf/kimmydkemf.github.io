@@ -243,7 +243,7 @@ kimmydkemf.github.io/            ← GitHub Pages user site (origin: kimmydkemf/
 | R9 | Actions 토큰 권한 | Fine-grained PAT를 Secret에 넣으면 private 레포 README가 Actions 로그에 찍힐 수 있음 | 로그에 README 본문 출력 금지 (현재도 제목·기술만 출력) |
 | R10 | Jekyll 처리 | `portfolio.template.yml`, `data/*.json` 등 새 파일은 정적 복사되므로 문제 없지만, 프론트매터(`---`)로 시작하는 `.md`를 두면 Jekyll이 변환을 시도 | 새 md 파일은 프론트매터 없이 작성하거나 `.nojekyll` 도입 여부를 결정 |
 | R11 | `projects.json` 키 충돌 | repo 이름 키라서 다른 소유자의 같은 이름 레포와 충돌 가능 | Phase 2에서 slug 도입, 내부 키는 `owner/repo` 또는 slug |
-| R12 | 회사 공유 계정 | 실제 개인 데이터 접근 금지. README 중 개인 정보가 있는 private 레포(MyNote 등)의 내용이 세션에 노출될 수 있음 | 개발·테스트는 `fixtures/` 샘플 README·portfolio.yml로 수행. 실제 sync 실행은 사용자가 직접 |
+| R12 | 개인 데이터 보호 | 실제 개인 데이터 접근 금지. README 중 개인 정보가 있는 private 레포(MyNote 등)의 내용이 세션에 노출될 수 있음 | 개발·테스트는 `fixtures/` 샘플 README·portfolio.yml로 수행. 실제 sync 실행은 사용자가 직접 |
 
 ---
 
@@ -290,7 +290,7 @@ docs/tasks의 Phase 순서(2→7)를 그대로 따르되, 각 Phase에 아래 �
 ### Phase 간 공통
 - 각 Phase 시작 시 `--dry-run`, 종료 시 `git diff` 검토, 브라우저 확인.
 - `CNAME`, Pages 설정, main 브랜치 배포 경로는 끝까지 불변.
-- 회사 계정 규칙상 실제 private README를 세션에 불러오는 sync 실행은 사용자가 직접 수행하고, Claude Code는 fixtures로 개발·검증.
+- 개인 데이터 보호 규칙상 실제 private README를 세션에 불러오는 sync 실행은 사용자가 직접 수행하고, Claude Code는 fixtures로 개발·검증.
 
 ---
 
