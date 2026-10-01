@@ -13,12 +13,16 @@ validate_site.py — commit/push 전에 사이트 산출물을 검사한다 (네
   python3 scripts/validate_site.py                     # 기본 대상 검사
   python3 scripts/validate_site.py --files a b c       # Secret/크기 검사 대상 지정
   python3 scripts/validate_site.py --root PATH         # 다른 사본 검사 (Preview 등)
+  python3 scripts/validate_site.py --scan-repo         # git 이 추적하는 모든 파일 Secret 검사
+                                                       # (+ 환경변수 PORTFOLIO_PAT / GITHUB_TOKEN /
+                                                       #    ANTHROPIC_API_KEY 의 실제 값이 파일에 없는지)
 
 종료 코드: 0 = 통과 (경고는 있을 수 있음), 1 = 실패
 """
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -157,6 +161,40 @@ def check_files(root: Path, files: list[str], r: Report) -> None:
             r.error(f"{f} 에 Secret 패턴 발견: {name}")
 
 
+SECRET_ENV_NAMES = ("PORTFOLIO_PAT", "GITHUB_TOKEN", "GH_TOKEN", "ANTHROPIC_API_KEY")
+BINARY_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".ico", ".pdf", ".woff", ".woff2", ".ttf"}
+
+
+def scan_repo(root: Path, r: Report) -> int:
+    """git 이 추적하는 모든 텍스트 파일 + 환경변수 Secret 실제 값 비교. 검사한 파일 수 반환"""
+    import subprocess
+    out = subprocess.run(["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"],
+                         cwd=root, capture_output=True, text=True)
+    if out.returncode != 0:
+        r.error("git ls-files 실패 — git 저장소가 아님?")
+        return 0
+    values = [(n, os.environ[n]) for n in SECRET_ENV_NAMES if len(os.environ.get(n, "")) >= 8]
+    n = 0
+    for f in filter(None, out.stdout.split("\0")):
+        path = root / f
+        if not path.is_file():
+            continue
+        if path.name == ".env" or (path.name.startswith(".env.") and path.name != ".env.example"):
+            r.error(f"{f} — .env 파일이 git 에 포함됨")
+            continue
+        data = path.read_bytes()
+        n += 1
+        for name, value in values:
+            if value.encode() in data:
+                r.error(f"{f} 에 환경변수 {name} 의 실제 값이 들어 있음")
+        if path.suffix.lower() in BINARY_SUFFIXES:
+            continue
+        text = data.decode("utf-8", errors="ignore")
+        for name in scan_secrets(text):
+            r.error(f"{f} 에 Secret 패턴 발견: {name}")
+    return n
+
+
 def validate(root: Path, files: list[str]) -> Report:
     r = Report()
     projects = check_generated(root, r)
@@ -170,8 +208,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=str(ROOT))
     ap.add_argument("--files", nargs="*", help="Secret/크기 검사 대상 (기본: sync 산출물)")
+    ap.add_argument("--scan-repo", action="store_true", help="저장소 전체 Secret 검사만 수행")
     args = ap.parse_args()
     root = Path(args.root).resolve()
+    if args.scan_repo:
+        r = Report()
+        n = scan_repo(root, r)
+        for e in r.errors:
+            print(f"  [FAIL] {e}")
+        if r.errors:
+            print(f"Secret 검사 실패: {len(r.errors)}건 (파일 {n}개 검사)")
+            sys.exit(1)
+        print(f"Secret 검사 통과 (파일 {n}개)")
+        return
     files = args.files if args.files is not None else list(DEFAULT_FILES)
     r = validate(root, files)
     for w in r.warnings:

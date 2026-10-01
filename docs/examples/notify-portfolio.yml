@@ -1,0 +1,33 @@
+# ── 프로젝트 레포용 예시: README / portfolio.yml 이 바뀌면 포트폴리오 sync 를 호출 ─────────
+# 사용법: 각 프로젝트 레포에 .github/workflows/notify-portfolio.yml 로 복사
+#
+# 필요한 Secret (프로젝트 레포 Settings → Secrets → Actions):
+#   PORTFOLIO_DISPATCH_TOKEN — Fine-grained PAT
+#     Repository access: kimmydkemf/kimmydkemf.github.io 만
+#     Permissions:       Contents: Read and write   (repository_dispatch 호출에 필요)
+#   ※ 포트폴리오 레포의 PORTFOLIO_PAT (읽기 전용) 과는 다른 토큰. 권한이 다르므로 분리한다.
+#
+# 이 파일은 포트폴리오 레포에서는 실행되지 않는다 (docs/examples 아래에 있음).
+name: Notify portfolio
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "README.md"
+      - "readme.md"
+      - "portfolio.yml"
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: repository_dispatch → kimmydkemf.github.io
+        env:
+          GH_TOKEN: ${{ secrets.PORTFOLIO_DISPATCH_TOKEN }}
+          SOURCE_REPO: ${{ github.repository }}
+        run: |
+          gh api repos/kimmydkemf/kimmydkemf.github.io/dispatches \
+            -f event_type=portfolio-sync \
+            -f "client_payload[repo]=$SOURCE_REPO"

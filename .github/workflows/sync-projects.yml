@@ -1,41 +1,88 @@
 name: Sync GitHub Projects
 
+# 매일 03:00 KST (= 18:00 UTC, 전날) 자동 실행 + 수동 실행 + 프로젝트 레포에서 호출(repository_dispatch)
+# schedule / repository_dispatch 는 기본 브랜치(main)에 이 파일이 있어야 동작한다.
 on:
+  schedule:
+    - cron: "0 18 * * *"
   workflow_dispatch:
     inputs:
+      mode:
+        description: "반영 방식 (pr: PR 생성 / push: main 에 바로 / dry-run: 확인만)"
+        type: choice
+        options: [pr, push, dry-run]
+        default: pr
       force:
-        description: '전체 재생성 (README SHA 무시)'
+        description: "전체 재생성 (README SHA 무시)"
         type: boolean
         default: false
+      screenshots:
+        description: "Screenshot 단계 실행"
+        type: boolean
+        default: true
+  repository_dispatch:
+    types: [portfolio-sync]
 
 permissions:
-  contents: write
+  contents: write        # 자동 브랜치 / main push
+  pull-requests: write   # PR 생성 (저장소 설정에서 Actions 의 PR 생성 허용 필요)
+
+# 동시에 두 번 돌지 않도록 (Mac 업데이터와는 git push 충돌 시 다음 실행에서 재시도)
+concurrency:
+  group: portfolio-sync
+  cancel-in-progress: false
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.12"
 
-      - name: Run sync script
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SYNC_SCREENSHOTS: ${{ ((github.event_name == 'workflow_dispatch' && !inputs.screenshots) || vars.PORTFOLIO_SCREENSHOTS == '0') && '0' || '1' }}
         run: |
-          FLAGS=""
-          if [ "${{ inputs.force }}" = "true" ]; then FLAGS="--force"; fi
-          python3 scripts/sync_projects.py $FLAGS
-
-      - name: Commit if changed
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html data/projects.generated.json scripts/projects.json
-          if git diff --staged --quiet; then
-            echo "변경사항 없음"
-          else
-            git commit -m "auto: sync projects $(date +'%Y-%m-%d')"
-            git push
+          python -m pip install --quiet pyyaml pillow
+          if [ "$SYNC_SCREENSHOTS" = "1" ]; then
+            python -m pip install --quiet playwright
+            # 한국어 글꼴 (Screenshot 의 한글 깨짐 방지). 브라우저는 runner 에 설치된 Google Chrome 사용
+            sudo apt-get install -y -qq fonts-noto-cjk >/dev/null
           fi
+
+      - name: Tests (네트워크 없음)
+        run: |
+          python scripts/test_sync_projects.py
+          python scripts/test_portfolio_update.py
+          python scripts/test_screenshot_projects.py
+
+      - name: Sync
+        env:
+          PORTFOLIO_PAT: ${{ secrets.PORTFOLIO_PAT }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ github.token }}          # gh CLI (PR 생성) 용 — 레포 읽기에는 쓰지 않음
+          # 수동 실행 입력 > 저장소 변수 PORTFOLIO_SYNC_MODE > 기본 pr
+          SYNC_MODE: ${{ inputs.mode || vars.PORTFOLIO_SYNC_MODE || 'pr' }}
+          SYNC_FORCE: ${{ inputs.force }}
+          SYNC_SCREENSHOTS: ${{ ((github.event_name == 'workflow_dispatch' && !inputs.screenshots) || vars.PORTFOLIO_SCREENSHOTS == '0') && '0' || '1' }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+        run: bash scripts/ci_sync.sh
+
+      - name: Secret scan (실행 후 작업 트리 재확인)
+        if: always()
+        env:
+          # 실제 Secret 값이 어떤 파일에도 들어가지 않았는지 문자열로 직접 비교 (값은 출력하지 않음)
+          # push 전 검사는 ci_sync.sh 안에서 이미 수행한다. 이 단계는 실패 시에도 남는 작업 트리를 다시 확인한다.
+          PORTFOLIO_PAT: ${{ secrets.PORTFOLIO_PAT }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/validate_site.py --scan-repo

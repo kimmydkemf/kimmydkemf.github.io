@@ -186,6 +186,13 @@ class TestUpdater(UpdaterTestBase):
         self.assertIn("Screenshot 계획", r.stdout)
         self.assertEqual(self.dirty(), "")
 
+    def test_branch_without_upstream_skips_pull(self):
+        sh("git", "checkout", "-q", "-b", "feature/no-upstream", cwd=self.work)
+        r = self.run_updater("--mode", "dry-run")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("원격 추적 브랜치가 없어 pull 을 건너뜁니다", r.stdout)
+        self.assertIn("No files were changed or committed.", r.stdout)
+
     def test_branch_guard(self):
         r = self.run_updater("--mode", "update", "--yes", env_extra={"PORTFOLIO_BRANCH": "develop"})
         self.assertNotEqual(r.returncode, 0)

@@ -39,6 +39,9 @@ portfolio/
 │   ├── portfolio_update.sh     # Dry Run / Preview / Update & Push 업데이터
 │   ├── validate_site.py        # commit 전 검증 (JSON · HTML · CNAME · Secret · 크기)
 │   ├── screenshot_projects.py  # live_url Screenshot (Playwright / Chrome CLI)
+│   ├── ci_sync.sh              # GitHub Actions 동기화 (pr / push / dry-run)
+│   ├── install_launchd.sh      # Mac launchd 자동 실행 설치/해제
+│   ├── test_automation.py      # ci_sync · launchd · workflow 테스트
 │   ├── test_screenshot_projects.py
 │   ├── test_sync_projects.py   # 단위/통합/parity 테스트 (네트워크 없음)
 │   ├── test_portfolio_update.py# 업데이터 통합 테스트 (임시 저장소 + bare 원격)
@@ -155,7 +158,71 @@ python3 scripts/sync_projects.py --fixtures fixtures/repos \
 python3 scripts/test_sync_projects.py                                      # 테스트 (node 있으면 JS parity 포함)
 python3 scripts/test_portfolio_update.py                                   # 업데이터 테스트 (임시 저장소, push 없음)
 python3 scripts/test_screenshot_projects.py                                # Screenshot 테스트 (로컬 서버만)
+python3 scripts/test_automation.py                                         # Actions · launchd 테스트 (push 없음)
+python3 scripts/validate_site.py --scan-repo                               # 저장소 전체 Secret 검사
 ```
+
+---
+
+## 자동 업데이트
+
+### GitHub Actions (Mac 이 꺼져 있어도 동작)
+
+`.github/workflows/sync-projects.yml` — **매일 03:00 KST** · 수동 실행 · 프로젝트 레포 호출(`repository_dispatch`).
+
+```text
+checkout → 테스트 → scripts/ci_sync.sh
+            └ portfolio_update.sh --mode update --yes --no-push   (sync → Screenshot → Validation → commit)
+            └ Secret 검사 (패턴 + 실제 토큰 값 비교) → 반영
+반영 방식 (SYNC_MODE):
+  pr      (기본) automation/portfolio-sync 브랜치에 push → main 으로 가는 PR 생성/갱신 → 확인 후 병합
+  push    main 에 바로 push (Pages 즉시 반영)
+  dry-run 결과만 확인
+```
+
+**처음 설정**
+
+1. Fine-grained PAT 발급 — GitHub → Settings → Developer settings → Fine-grained tokens
+   - Resource owner: `kimmydkemf`, Repository access: 포트폴리오에 올릴 **본인 레포** (또는 All repositories)
+   - Permissions: **Contents: Read-only**, **Metadata: Read-only** (그 외 권한 불필요)
+   - 다른 사람 소유 레포는 읽지 않으므로 권한이 필요 없습니다 (`data/projects.manual.json` 에서 관리).
+2. 이 레포 Settings → Secrets and variables → Actions → **Secrets**
+   - `PORTFOLIO_PAT` = 위 토큰 (필수)
+   - `ANTHROPIC_API_KEY` (선택, Claude 요약)
+3. PR 모드를 쓰려면 Settings → Actions → General → Workflow permissions →
+   **"Allow GitHub Actions to create and approve pull requests"** 체크. 끄면 브랜치만 push 하고 실행 요약에 비교 링크를 남깁니다.
+4. (선택) **Variables**: `PORTFOLIO_SYNC_MODE` = `pr` | `push` | `dry-run`, `PORTFOLIO_SCREENSHOTS` = `0` (끄기)
+5. 이 워크플로 파일이 **main 에 병합된 뒤부터** schedule / repository_dispatch 가 동작합니다 (GitHub 규칙).
+   수동 실행: Actions → Sync GitHub Projects → Run workflow.
+
+**시간대**: cron 은 UTC 기준입니다. `0 18 * * *` = 매일 18:00 UTC = 다음날 03:00 KST. GitHub 사정에 따라 수 분~수십 분 늦게 시작할 수 있습니다.
+바꾸려면 원하는 KST 시각에서 9시간을 뺀 값을 넣으세요 (예: 07:30 KST → `30 22 * * *`).
+
+**토큰 처리**: PAT 는 `env` 로만 전달하고 `run` 스크립트에 직접 넣지 않습니다. 로그에서는 마스킹하고, 기본 `GITHUB_TOKEN` 은 PR 생성에만 씁니다.
+push 직전에 `validate_site.py --scan-repo` 가 모든 파일에서 토큰 패턴과 **실제 토큰 값**을 찾아, 발견되면 push 하지 않습니다.
+
+### Mac launchd (Mac 에서 정해진 시각에 자동 실행)
+
+```bash
+scripts/install_launchd.sh install                    # 매일 03:00, dry-run (기록만 — 권장 기본값)
+scripts/install_launchd.sh install --mode update      # 매일 03:00, 확인 없이 sync → commit → push
+scripts/install_launchd.sh install --hour 7 --minute 30 --at-login
+scripts/install_launchd.sh status                     # 등록 여부 · 최근 실행
+scripts/install_launchd.sh run                        # 지금 한 번 실행
+scripts/install_launchd.sh uninstall                  # 해제 (plist 삭제)
+```
+
+- 설치 위치: `~/Library/LaunchAgents/com.dounselor.portfolio-sync.plist`. 로그: `logs/launchd.log`, `logs/portfolio-sync.log`.
+- Mac 이 잠자기 중이면 깨어난 뒤 한 번 실행됩니다. 토큰은 저장소 `.env` 에서 읽습니다.
+- `--mode update` 는 **현재 체크아웃된 브랜치**에 push 합니다. git 인증은 Terminal 과 같습니다 (암호 있는 SSH 키는 `ssh-add --apple-use-keychain` 로 키체인에 저장).
+- GitHub Actions 와 함께 쓸 때는 **한 곳에서만 push** 하도록 권장합니다 (예: Actions = pr/push, Mac = dry-run).
+
+### 프로젝트 레포에서 즉시 갱신 (repository_dispatch, 선택)
+
+프로젝트 레포의 README / portfolio.yml 이 바뀌면 포트폴리오 sync 를 바로 실행하도록 할 수 있습니다.
+예시: [`docs/examples/notify-portfolio.yml`](docs/examples/notify-portfolio.yml) 을 프로젝트 레포의 `.github/workflows/` 에 복사하고,
+그 레포에 `PORTFOLIO_DISPATCH_TOKEN` (이 포트폴리오 레포만 대상, Contents: Read and write 인 Fine-grained PAT) 을 등록합니다.
+읽기용 `PORTFOLIO_PAT` 과는 권한이 달라 별도 토큰을 씁니다.
 
 ---
 

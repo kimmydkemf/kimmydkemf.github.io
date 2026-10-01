@@ -168,6 +168,10 @@ git_pull() {
     git status --short -- $OUTPUT_FILES $SHOT_DIR
     fail "먼저 커밋하거나 되돌린 뒤 다시 실행하세요 (git restore / git clean 으로 정리)."
   fi
+  if ! git rev-parse --abbrev-ref --symbolic-full-name '@{u}' >/dev/null 2>&1; then
+    warn "$BRANCH 에 원격 추적 브랜치가 없어 pull 을 건너뜁니다 (git branch -u origin/<브랜치> 로 연결 가능)."
+    return 0
+  fi
   git pull --ff-only 2>&1 || fail "git pull 실패 — 로컬 커밋과 원격이 갈라졌거나 네트워크 문제입니다. 터미널에서 git status 를 확인하세요."
   ok "최신 상태"
 }
