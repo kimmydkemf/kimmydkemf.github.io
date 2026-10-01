@@ -1,0 +1,491 @@
+{
+  "projects": [
+    {
+      "slug": "p-s-private-secretary",
+      "repo": null,
+      "source": "manual",
+      "title": "P.S — Private Secretary",
+      "subtitle": "캘린더 기반 비즈니스 협업 관리 서비스 (Android · iOS · Windows · Mac)",
+      "summary": "\"기존 서비스보다 더 쉽고 편리하게 일정을 공유하고 이슈를 확인할 수 없을까?\"라는 고민에서 출발한 협업 서비스. 개인 일정 관리 + 캘린더 공유 + Kanban 기반 이슈 트래킹을 제공하며, Android · iOS · macOS · Windows 멀티 플랫폼을 지원합니다.",
+      "status": "archived",
+      "started": "2020.10",
+      "ended": "2020.11",
+      "ongoing": false,
+      "featured": false,
+      "liveUrl": "",
+      "repositoryUrl": "",
+      "category": [],
+      "role": [],
+      "tech": [
+        "Spring Boot",
+        "Android",
+        "Flutter",
+        "Electron",
+        "Kanban"
+      ],
+      "highlights": [
+        "캘린더 Drag & Drop / Resize 기반 일정 관리",
+        "그룹 캘린더 공유 및 일정 할당",
+        "Kanban 보드 (Todo / In Progress / Done)",
+        "그룹 실시간 채팅",
+        "GPS 기반 날씨 & 맛집 데이터 제공",
+        "Analytics (월간 일정 통계)"
+      ],
+      "highlightsTitle": null,
+      "team": [
+        {
+          "name": "이상호",
+          "role": "팀장 · 백엔드 · Android",
+          "me": true
+        },
+        {
+          "name": "황호민",
+          "role": "백엔드 · Electron",
+          "me": false
+        },
+        {
+          "name": "박현우",
+          "role": "Data 처리",
+          "me": false
+        },
+        {
+          "name": "김지연",
+          "role": "프론트 · Calendar 디자인",
+          "me": false
+        }
+      ],
+      "myRole": "",
+      "unusedReason": "",
+      "pauseReason": "",
+      "replacedBy": null,
+      "coverImage": "",
+      "videos": [
+        {
+          "label": "UCC",
+          "url": "https://www.youtube.com/embed/D1ZmTUlXaPk"
+        },
+        {
+          "label": "이전 서비스 소개",
+          "url": "https://www.youtube.com/embed/uZ0cJ3dvOnY"
+        },
+        {
+          "label": "일상 속 시연",
+          "url": "https://www.youtube.com/embed/uQ9JkZSqRFw"
+        }
+      ],
+      "awards": [
+        "SSAFY 자율 프로젝트 우수상"
+      ],
+      "language": null,
+      "tagClass": "",
+      "indexable": true,
+      "screenshotRefresh": false,
+      "hasPortfolioYml": false,
+      "periodFallback": "",
+      "syncStatus": "ok",
+      "lastSynced": null,
+      "readmeSha": "",
+      "portfolioSha": ""
+    },
+    {
+      "slug": "meetingground",
+      "repo": null,
+      "source": "manual",
+      "title": "MeetingGround",
+      "subtitle": "빅데이터 기반 맛집 추천 & 모임 장소 선정 게임 앱",
+      "summary": "빅데이터를 활용한 맛집 추천 및 모임 장소 선정 게임 앱. 배틀그라운드 형식의 게임 요소를 접목해 재미있게 모임 장소를 정할 수 있습니다.",
+      "status": "archived",
+      "started": "2020.08",
+      "ended": "2020.10",
+      "ongoing": false,
+      "featured": false,
+      "liveUrl": "",
+      "repositoryUrl": "",
+      "category": [],
+      "role": [],
+      "tech": [
+        "Android",
+        "BigData",
+        "Kakao API",
+        "Google Maps"
+      ],
+      "highlights": [],
+      "highlightsTitle": null,
+      "team": [
+        {
+          "name": "황호민",
+          "role": "팀장 · 백엔드 · 빅데이터",
+          "me": false
+        },
+        {
+          "name": "이상호",
+          "role": "Android · Google Maps · 게임",
+          "me": true
+        },
+        {
+          "name": "공필상",
+          "role": "Android · 디자인 총괄",
+          "me": false
+        },
+        {
+          "name": "박진용",
+          "role": "Android · Kakao API",
+          "me": false
+        }
+      ],
+      "myRole": "",
+      "unusedReason": "",
+      "pauseReason": "",
+      "replacedBy": null,
+      "coverImage": "",
+      "videos": [
+        {
+          "label": "",
+          "url": "https://www.youtube.com/embed/yWS_nIPnmNc"
+        }
+      ],
+      "awards": [],
+      "language": null,
+      "tagClass": "",
+      "indexable": true,
+      "screenshotRefresh": false,
+      "hasPortfolioYml": false,
+      "periodFallback": "",
+      "syncStatus": "ok",
+      "lastSynced": null,
+      "readmeSha": "",
+      "portfolioSha": ""
+    },
+    {
+      "slug": "bc",
+      "repo": null,
+      "source": "manual",
+      "title": "BC+",
+      "subtitle": "캘린더 활용 비즈니스 협업 관리 웹 프로그램 (P.S의 전신)",
+      "summary": "캘린더를 활용한 비즈니스 협업 관리 웹 프로그램. 이후 P.S — Private Secretary 서비스로 발전했습니다.",
+      "status": "archived",
+      "started": "2020.07",
+      "ended": "2020.08",
+      "ongoing": false,
+      "featured": false,
+      "liveUrl": "",
+      "repositoryUrl": "",
+      "category": [],
+      "role": [],
+      "tech": [
+        "Spring Boot",
+        "Calendar",
+        "Web"
+      ],
+      "highlights": [],
+      "highlightsTitle": null,
+      "team": [
+        {
+          "name": "이상호",
+          "role": "팀장 · 백엔드 · DB 설계",
+          "me": true
+        },
+        {
+          "name": "황호민",
+          "role": "백엔드 · CI/CD",
+          "me": false
+        },
+        {
+          "name": "박현우",
+          "role": "프론트 · UX/UI",
+          "me": false
+        },
+        {
+          "name": "김지연",
+          "role": "프론트 · Calendar",
+          "me": false
+        }
+      ],
+      "myRole": "",
+      "unusedReason": "",
+      "pauseReason": "",
+      "replacedBy": null,
+      "coverImage": "",
+      "videos": [
+        {
+          "label": "",
+          "url": "https://www.youtube.com/embed/HdnPBbn4Se0"
+        }
+      ],
+      "awards": [
+        "SSAFY 공통 프로젝트 우수상"
+      ],
+      "language": null,
+      "tagClass": "",
+      "indexable": true,
+      "screenshotRefresh": false,
+      "hasPortfolioYml": false,
+      "periodFallback": "",
+      "syncStatus": "ok",
+      "lastSynced": null,
+      "readmeSha": "",
+      "portfolioSha": ""
+    },
+    {
+      "slug": "butterfly",
+      "repo": null,
+      "source": "manual",
+      "title": "Interactive Visual Media — Butterfly",
+      "subtitle": "OpenGL + 조이스틱 드론 여행 시뮬레이션",
+      "summary": "OpenGL과 조이스틱을 활용하여 드론 여행 시뮬레이션을 제작한 프로젝트. Texture 입히기, 조작에 따른 Projection 변화 설계를 담당했습니다.",
+      "status": "archived",
+      "started": "2019.11",
+      "ended": "2019.12",
+      "ongoing": false,
+      "featured": false,
+      "liveUrl": "",
+      "repositoryUrl": "",
+      "category": [],
+      "role": [],
+      "tech": [
+        "OpenGL",
+        "C++",
+        "Simulation"
+      ],
+      "highlights": [],
+      "highlightsTitle": null,
+      "team": [
+        {
+          "name": "이상호",
+          "role": "OpenGL · 기획 · 영상 편집",
+          "me": true
+        },
+        {
+          "name": "우지원",
+          "role": "OpenGL · 영상편집/촬영",
+          "me": false
+        }
+      ],
+      "myRole": "",
+      "unusedReason": "",
+      "pauseReason": "",
+      "replacedBy": null,
+      "coverImage": "",
+      "videos": [
+        {
+          "label": "",
+          "url": "https://www.youtube.com/embed/f4GsT_vh-cU"
+        }
+      ],
+      "awards": [],
+      "language": null,
+      "tagClass": "",
+      "indexable": true,
+      "screenshotRefresh": false,
+      "hasPortfolioYml": false,
+      "periodFallback": "",
+      "syncStatus": "ok",
+      "lastSynced": null,
+      "readmeSha": "",
+      "portfolioSha": ""
+    },
+    {
+      "slug": "천로역정",
+      "repo": null,
+      "source": "manual",
+      "title": "VR 게임 — 천로역정",
+      "subtitle": "Unity + 모션캡처 기반 AR/VR 융합 게임",
+      "summary": "기독교 서적 '천로역정'을 소재로 Unity와 모션캡처 장비를 활용해 기획, 모델링, 레벨 디자인, 게임 로직을 포함한 전체적인 VR 게임 제작. AR로 시작해 VR로 전환되는 독창적인 기술을 구현했습니다.",
+      "status": "archived",
+      "started": "2019.03",
+      "ended": "2019.07",
+      "ongoing": false,
+      "featured": false,
+      "liveUrl": "",
+      "repositoryUrl": "",
+      "category": [],
+      "role": [],
+      "tech": [
+        "Unity",
+        "AR",
+        "VR",
+        "Vuforia",
+        "모션캡처"
+      ],
+      "highlights": [
+        "AR 마커 기반 VR 게임 진입 (Vuforia SDK)",
+        "Unity 전체 Flow 개발 및 AR ↔ VR 전환",
+        "Samsung Gear VR 컨트롤러 연동",
+        "모션캡처 기반 3D 캐릭터 애니메이션",
+        "미니게임 + 타임아웃 게임 요소"
+      ],
+      "highlightsTitle": "핵심 구현",
+      "team": [
+        {
+          "name": "이상호",
+          "role": "게임 Flow · AR/VR 적용",
+          "me": true
+        },
+        {
+          "name": "박고은",
+          "role": "기획 총괄 · 2D 애니메이션",
+          "me": false
+        },
+        {
+          "name": "최희라",
+          "role": "Stage 3 레벨 디자인",
+          "me": false
+        },
+        {
+          "name": "김성실",
+          "role": "게임 요소 개발 · 영상",
+          "me": false
+        },
+        {
+          "name": "이예원",
+          "role": "소품 모델링",
+          "me": false
+        },
+        {
+          "name": "변지혜",
+          "role": "게임 로직 · 영상 서브",
+          "me": false
+        }
+      ],
+      "myRole": "",
+      "unusedReason": "",
+      "pauseReason": "",
+      "replacedBy": null,
+      "coverImage": "",
+      "videos": [
+        {
+          "label": "",
+          "url": "https://www.youtube.com/embed/_Qwtb5Sv-MA"
+        }
+      ],
+      "awards": [
+        "HGU SW Festival 융합연구 공모전"
+      ],
+      "language": null,
+      "tagClass": "",
+      "indexable": true,
+      "screenshotRefresh": false,
+      "hasPortfolioYml": false,
+      "periodFallback": "",
+      "syncStatus": "ok",
+      "lastSynced": null,
+      "readmeSha": "",
+      "portfolioSha": ""
+    },
+    {
+      "slug": "mixedreality-졸업작품",
+      "repo": null,
+      "source": "manual",
+      "title": "HGU 졸업 Project — 캠퍼스 안내 AR/VR 투어",
+      "subtitle": "AR + VR 융합 MR 환경 캠퍼스 안내 투어 프로그램",
+      "summary": "VR과 AR을 융합한 MR 환경으로 만든 캠퍼스 안내 투어 프로그램. Marker + Markerless 기술을 융합하고 Google Maps GPS와 결합하여 실제 캠퍼스를 탐험하는 가이드 캐릭터 기반 투어를 구현했습니다.",
+      "status": "archived",
+      "started": "2017.07",
+      "ended": "2018.05",
+      "ongoing": false,
+      "featured": false,
+      "liveUrl": "",
+      "repositoryUrl": "",
+      "category": [],
+      "role": [],
+      "tech": [
+        "Unity",
+        "AR",
+        "VR",
+        "Vuforia",
+        "GPS"
+      ],
+      "highlights": [
+        "Marker 기반 AR (Vuforia SDK) + Markerless AR 융합",
+        "Google Maps GPS 연동 위치 안내",
+        "Samsung Gear VR 컨트롤러 3가지 방식 구현",
+        "Unity 개발 — marker/markerless 구현, AR ↔ VR 전환, 게임 로직"
+      ],
+      "highlightsTitle": "핵심 구현",
+      "team": [
+        {
+          "name": "정병권",
+          "role": "팀장 · Google Maps GPS",
+          "me": false
+        },
+        {
+          "name": "이상호",
+          "role": "Unity · AR/VR · 게임 로직",
+          "me": true
+        },
+        {
+          "name": "박예린",
+          "role": "UX/UI · 캐릭터 모델링",
+          "me": false
+        },
+        {
+          "name": "임예린",
+          "role": "Unity · 게임 로직 · 컨트롤러",
+          "me": false
+        }
+      ],
+      "myRole": "",
+      "unusedReason": "",
+      "pauseReason": "",
+      "replacedBy": null,
+      "coverImage": "",
+      "videos": [
+        {
+          "label": "",
+          "url": "https://www.youtube.com/embed/HnoxcLM8ksU"
+        }
+      ],
+      "awards": [],
+      "language": null,
+      "tagClass": "",
+      "indexable": true,
+      "screenshotRefresh": false,
+      "hasPortfolioYml": false,
+      "periodFallback": "",
+      "syncStatus": "ok",
+      "lastSynced": null,
+      "readmeSha": "",
+      "portfolioSha": ""
+    },
+    {
+      "slug": "bcplus-legacy",
+      "repo": "bcplus_legacy",
+      "source": "manual",
+      "title": "Business Calendar Plus",
+      "subtitle": "BC+ is a business Calendar. You can use this calendar if you",
+      "summary": "BC+ is a business Calendar. You can use this calendar if you connect internet.\nThis calendar make you to manage your private calendar and group calendar.\nAnd also this calendar help you to collaborate with your team mate more easily.",
+      "status": null,
+      "started": "2021.08",
+      "ended": "",
+      "ongoing": false,
+      "featured": false,
+      "liveUrl": "",
+      "repositoryUrl": "https://github.com/ghals5737/bcplus_legacy",
+      "category": [],
+      "role": [],
+      "tech": [
+        "Python"
+      ],
+      "highlights": [],
+      "highlightsTitle": null,
+      "team": [],
+      "myRole": "",
+      "unusedReason": "",
+      "pauseReason": "",
+      "replacedBy": null,
+      "coverImage": "",
+      "videos": [],
+      "awards": [],
+      "language": null,
+      "tagClass": "dev",
+      "indexable": true,
+      "screenshotRefresh": false,
+      "hasPortfolioYml": false,
+      "periodFallback": "",
+      "syncStatus": "ok",
+      "lastSynced": null,
+      "readmeSha": "",
+      "portfolioSha": ""
+    }
+  ]
+}

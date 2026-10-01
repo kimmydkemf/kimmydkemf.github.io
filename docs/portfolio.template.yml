@@ -1,0 +1,63 @@
+# portfolio.yml — dounselor.com 포트폴리오 표시용 메타데이터
+#
+# 각 프로젝트 Repository 루트에 이 파일을 두면 README 보다 우선 적용된다.
+# README 는 개발 문서, portfolio.yml 은 포트폴리오 표시용 메타데이터다.
+# 값이 비어 있는 항목은 README / GitHub 정보로 보완된다.
+#
+# 우선순위:  portfolio.yml  >  README (Claude / 파서)  >  GitHub repo metadata
+# 다음 값은 portfolio.yml 에서만 읽는다 (AI 나 파서가 추정하지 않음):
+#   status, started, ended, featured, live_url, unused_reason, pause_reason, replaced_by
+
+title:                      # 필수. 표시 제목
+slug:                       # 선택. URL / DOM id / Screenshot 경로용. 없으면 repo 이름으로 생성
+
+subtitle:                   # 한 줄 설명 (40자 내외 권장)
+
+# 필수. active | completed | paused | unused | archived
+#   active     현재 사용 중이거나 개발 중        → "시작월 – Present"
+#   completed  개발 완료, 목적 달성               → ended 권장
+#   paused     일시 중단, 재개 가능성 있음        → pause_reason 권장
+#   unused     만들었지만 더 이상 사용하지 않음   → unused_reason 권장, 카드가 간단히 표시됨
+#   archived   과거 기록으로만 보존
+status: active
+
+started:                    # YYYY-MM. 없으면 첫 커밋 월로 추정
+ended:                      # YYYY-MM. active 는 비워둔다
+
+category: []                # 예: [Personal, Web, AI, Infrastructure, Automation, Mobile]
+
+featured: false             # Featured 영역에 표시할지 (3~5개 권장)
+
+live_url:                   # 실제 서비스 URL. 있으면 Live Demo 버튼 표시 (unused 는 숨김)
+repository_url:             # 비우면 GitHub 레포 URL 사용
+
+summary: >
+  프로젝트 소개 2~3문장.
+
+tech: []                    # 예: [React, FastAPI, SQLite]
+
+highlights: []              # 핵심 기능 3~5개
+
+role: []                    # 내 역할. 예: [Planning, Frontend, Backend]
+
+team: []                    # "이름 — 역할" 형식. 예: ["홍길동 — Backend"]
+
+# status: unused 일 때
+unused_reason: >
+
+# status: paused 일 때
+pause_reason: >
+
+# 다른 프로젝트로 대체된 경우
+replaced_by:
+  title:
+  repository:
+  url:                      # 아직 공개 전이면 비워둔다 (링크 미표시)
+
+cover:
+  image:                    # 레포 내 경로. 예: docs/cover.png
+
+screenshot: true            # false 면 live_url 이 있어도 Screenshot 을 찍지 않음 (개인 데이터가 보이는 화면 등)
+screenshot_refresh: false   # true 면 다음 Sync 에서 Screenshot 재생성. 확인 후 false 로 돌려둘 것
+
+indexable: true             # false 면 검색엔진 노출 제외 (Phase 4 이후)
