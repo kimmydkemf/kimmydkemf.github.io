@@ -446,6 +446,46 @@
       "lastSynced": null,
       "readmeSha": "",
       "portfolioSha": ""
+    },
+    {
+      "slug": "bcplus-legacy",
+      "repo": "bcplus_legacy",
+      "source": "manual",
+      "title": "Business Calendar Plus",
+      "subtitle": "BC+ is a business Calendar. You can use this calendar if you",
+      "summary": "BC+ is a business Calendar. You can use this calendar if you connect internet.\nThis calendar make you to manage your private calendar and group calendar.\nAnd also this calendar help you to collaborate with your team mate more easily.",
+      "status": null,
+      "started": "2021.08",
+      "ended": "",
+      "ongoing": false,
+      "featured": false,
+      "liveUrl": "",
+      "repositoryUrl": "https://github.com/ghals5737/bcplus_legacy",
+      "category": [],
+      "role": [],
+      "tech": [
+        "Python"
+      ],
+      "highlights": [],
+      "highlightsTitle": null,
+      "team": [],
+      "myRole": "",
+      "unusedReason": "",
+      "pauseReason": "",
+      "replacedBy": null,
+      "coverImage": "",
+      "videos": [],
+      "awards": [],
+      "language": null,
+      "tagClass": "dev",
+      "indexable": true,
+      "screenshotRefresh": false,
+      "hasPortfolioYml": false,
+      "periodFallback": "",
+      "syncStatus": "ok",
+      "lastSynced": null,
+      "readmeSha": "",
+      "portfolioSha": ""
     }
   ]
 }

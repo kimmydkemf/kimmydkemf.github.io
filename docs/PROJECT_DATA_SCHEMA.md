@@ -36,7 +36,7 @@ data/projects.manual.json (수동) ─┘                                      �
 | 필드 | 타입 | 설명 |
 |------|------|------|
 | `slug` | string | 안정적인 식별자. portfolio.yml `slug` > repo 이름 기반 생성. DOM `data-slug`, Screenshot 경로(Phase 6)에 사용 |
-| `repo` | string \| null | GitHub repo 이름 (manual 은 null) |
+| `repo` | string \| null | GitHub repo 이름. manual 항목에 지정하면 sync 가 그 레포를 GitHub 에서 조회하지 않는다 (다른 사람 소유 레포 등) |
 | `source` | `"github"` \| `"manual"` | 출처 |
 | `title`, `subtitle`, `summary` | string | 표시 텍스트. `summary` 는 줄바꿈(`\n`)이 `<br>` 로 렌더됨 |
 | `status` | `active` \| `completed` \| `paused` \| `unused` \| `archived` \| null | portfolio.yml 에서만 옴. null 이면 배지 없음 (README 전용 프로젝트) |
@@ -117,6 +117,14 @@ Featured   featured: true 이고 unused 가 아닌 프로젝트, 최대 5개 (�
     }
   ]
 }
+```
+
+다른 사람 소유 레포의 프로젝트는 `"repo"` 를 지정해 둔다. sync 는 그 레포를 읽지 않고 이 항목을 그대로 쓴다.
+보통은 `status` 만 고친다.
+
+```json
+{ "slug": "bcplus-legacy", "repo": "bcplus_legacy", "source": "manual", "title": "Business Calendar Plus",
+  "status": null, "started": "2021.08", "repositoryUrl": "https://github.com/ghals5737/bcplus_legacy", "...": "..." }
 ```
 
 나머지 필드는 생략 가능하다 (sync 가 기본값을 채우지는 않지만 렌더러는 없는 필드를 빈 값으로 취급한다).

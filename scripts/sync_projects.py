@@ -166,19 +166,31 @@ def _fixture_file(full_name: str, filename: str) -> tuple[str, str]:
     return "", ""
 
 
+def _owner_of(repo: dict) -> str:
+    owner = (repo.get("owner") or {}).get("login") if isinstance(repo.get("owner"), dict) else None
+    return owner or (repo.get("full_name") or "").split("/")[0]
+
+
 def fetch_repos() -> list[dict]:
+    """본인(GITHUB_USER) 소유 레포만 반환한다.
+    다른 사람 소유 레포(collaborator 등)는 읽지 않는다 — 필요하면 data/projects.manual.json 에 직접 기록."""
     if FIXTURE_DIR:
         return _fixture_repos()
     token = os.environ.get("GITHUB_TOKEN", "")
     if token:
-        return _gh(
+        repos = _gh(
             "https://api.github.com/user/repos"
-            "?per_page=100&sort=updated&affiliation=owner,collaborator"
+            "?per_page=100&sort=updated&affiliation=owner"
         ) or []
-    return _gh(
-        f"https://api.github.com/users/{GITHUB_USER}/repos"
-        "?per_page=100&sort=updated"
-    ) or []
+    else:
+        repos = _gh(
+            f"https://api.github.com/users/{GITHUB_USER}/repos"
+            "?per_page=100&sort=updated&type=owner"
+        ) or []
+    owned = [r for r in repos if _owner_of(r).lower() == GITHUB_USER.lower()]
+    if len(owned) != len(repos):
+        print(f"  다른 사람 소유 레포 {len(repos) - len(owned)}개는 조회하지 않음")
+    return owned
 
 
 def fetch_readme(full_name: str) -> tuple[str, str]:
@@ -836,8 +848,21 @@ def load_generated(path: Path) -> dict:
     return data
 
 
+def manual_warnings(manual: list[dict]) -> list[str]:
+    """projects.manual.json 에서 사람이 고친 값 중 잘못된 것 (status 오타 등)"""
+    warns = []
+    for p in manual:
+        st = p.get("status")
+        if st is not None and st not in VALID_STATUSES:
+            warns.append(f"projects.manual.json [{p.get('slug')}]: 지원되지 않는 status {st!r} — "
+                         f"{', '.join(VALID_STATUSES)} 또는 null")
+    return warns
+
+
 def load_manual(path: Path) -> list[dict]:
-    """data/projects.manual.json — 사람이 편집하는 과거/레포 없는 프로젝트 목록"""
+    """data/projects.manual.json — 사람이 편집하는 프로젝트 목록.
+    레포가 없는 과거 프로젝트, 그리고 다른 사람 소유라 GitHub 에서 읽지 않는 프로젝트(`repo` 필드 지정)를 둔다.
+    `repo` 가 지정된 항목은 sync 가 해당 레포를 GitHub 에서 조회하지 않는다."""
     if not path.exists():
         return []
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -942,8 +967,11 @@ def main():
     repo_cfg = cfg.get("repos", {})
 
     prev        = load_generated(GENERATED_JSON)
-    prev_github = {p["repo"]: p for p in prev["projects"] if p.get("source") == "github" and p.get("repo")}
     manual      = load_manual(MANUAL_JSON)
+    # manual 에서 관리하는 레포 이름 — GitHub 조회 대상에서 제외
+    manual_repos = {p["repo"] for p in manual if p.get("repo")}
+    prev_github = {p["repo"]: p for p in prev["projects"]
+                   if p.get("source") == "github" and p.get("repo") and p["repo"] not in manual_repos}
 
     repos = fetch_repos()
     if not repos and not FIXTURE_DIR:
@@ -964,7 +992,9 @@ def main():
     new_entries: dict[str, dict] = {}
     seen: list[str] = []
     stats = {"checked": 0, "updated": 0, "skipped": 0, "failed": 0}
-    all_warnings: list[str] = []
+    all_warnings: list[str] = manual_warnings(manual)
+    for w in all_warnings:
+        print(f"  [WARN] {w}")
     failures: list[str] = []
 
     for repo in repos:
@@ -975,6 +1005,10 @@ def main():
             continue
         if name in skip:
             print(f"  [{name}] skip_repos 목록 — 스킵")
+            stats["skipped"] += 1
+            continue
+        if name in manual_repos:
+            print(f"  [{name}] projects.manual.json 에서 관리 — GitHub 조회 안 함")
             stats["skipped"] += 1
             continue
 

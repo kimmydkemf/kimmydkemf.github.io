@@ -577,6 +577,53 @@ class TestMigration(unittest.TestCase):
         self.assertEqual(len(cur_github), len(saved_gen))
 
 
+# ── 다른 사람 소유 레포 · manual 관리 ─────────────────────────────────────────
+class TestOwnership(unittest.TestCase):
+    def test_fetch_repos_keeps_only_owned(self):
+        repos = [
+            {"name": "mine", "full_name": f"{sp.GITHUB_USER}/mine", "owner": {"login": sp.GITHUB_USER}},
+            {"name": "Mine2", "full_name": f"{sp.GITHUB_USER.upper()}/Mine2"},
+            {"name": "bcplus_legacy", "full_name": "ghals5737/bcplus_legacy", "owner": {"login": "ghals5737"}},
+        ]
+        calls = []
+        orig_gh, orig_fx = sp._gh, sp.FIXTURE_DIR
+        sp._gh = lambda url: (calls.append(url), repos)[1]
+        sp.FIXTURE_DIR = None
+        try:
+            import os
+            old = os.environ.pop("GITHUB_TOKEN", None)
+            os.environ["GITHUB_TOKEN"] = "dummy"
+            try:
+                got = [r["name"] for r in sp.fetch_repos()]
+            finally:
+                os.environ.pop("GITHUB_TOKEN", None)
+                if old is not None:
+                    os.environ["GITHUB_TOKEN"] = old
+        finally:
+            sp._gh, sp.FIXTURE_DIR = orig_gh, orig_fx
+        self.assertEqual(got, ["mine", "Mine2"])
+        self.assertIn("affiliation=owner", calls[0])
+        self.assertNotIn("collaborator", calls[0])
+
+    def test_manual_warnings(self):
+        ws = sp.manual_warnings([{"slug": "a", "status": "archived"}, {"slug": "b", "status": None},
+                                 {"slug": "c", "status": "Done"}])
+        self.assertEqual(len(ws), 1)
+        self.assertIn("[c]", ws[0])
+
+    def test_other_owner_repo_lives_in_manual(self):
+        man = json.loads((ROOT / "data" / "projects.manual.json").read_text(encoding="utf-8"))["projects"]
+        bc = next(p for p in man if p["slug"] == "bcplus-legacy")
+        self.assertEqual(bc["repo"], "bcplus_legacy")
+        self.assertEqual(bc["source"], "manual")
+        self.assertEqual(bc["title"], "Business Calendar Plus")
+        self.assertIn("status", bc)
+        gen = json.loads((ROOT / "data" / "projects.generated.json").read_text(encoding="utf-8"))["projects"]
+        self.assertEqual([p["source"] for p in gen if p["slug"] == "bcplus-legacy"], ["manual"])
+        cfg = json.loads((ROOT / "scripts" / "projects.json").read_text(encoding="utf-8"))
+        self.assertNotIn("bcplus_legacy", cfg["repos"])
+
+
 # ── 통합: fixtures 로 실제 파이프라인 실행 ────────────────────────────────────
 class TestEndToEnd(unittest.TestCase):
     def setUp(self):
@@ -709,6 +756,48 @@ class TestEndToEnd(unittest.TestCase):
         self.assertEqual(r4.returncode, 0, r4.stderr)
         self.assertIn("편집된 부제", self.index.read_text(encoding="utf-8"))
         self.assertIn("편집된 부제", self.generated.read_text(encoding="utf-8"))
+
+    def test_manual_repo_is_not_fetched_and_status_is_editable(self):
+        # sample-tracker 를 manual 에서 관리 → GitHub(fixture) 조회 안 함, 기존 내용 그대로
+        m = json.loads(self.manual.read_text(encoding="utf-8"))
+        frozen = {"slug": "frozen-tracker", "repo": "sample-tracker", "source": "manual", "title": "Frozen Tracker",
+                  "subtitle": "그대로", "summary": "고정된 소개", "status": None, "started": "2024.01", "ended": "2024.06",
+                  "ongoing": False, "tech": ["Kotlin"], "tagClass": "mobile",
+                  "repositoryUrl": "https://github.com/other/sample-tracker"}
+        m["projects"].append(frozen)
+        self.manual.write_text(json.dumps(m, ensure_ascii=False), encoding="utf-8")
+        r = self.run_sync()
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("[sample-tracker] projects.manual.json 에서 관리 — GitHub 조회 안 함", r.stdout)
+        gen = json.loads(self.generated.read_text(encoding="utf-8"))["projects"]
+        slugs = [p["slug"] for p in gen]
+        self.assertNotIn("sample-tracker", slugs)               # fixture 내용으로 만들지 않음
+        self.assertIn("frozen-tracker", slugs)
+        html = self.index.read_text(encoding="utf-8")
+        self.assertIn("고정된 소개", html)
+        self.assertNotIn("습관 &amp; 컨디션", html)
+        self.assertNotIn("sample-tracker", json.loads(self.config.read_text(encoding="utf-8"))["repos"])
+        card = html.split('id="proj-frozen-tracker"')[1].split("</summary>")[0]
+        self.assertNotIn("status-badge", card)
+        self.assertIn('data-display-status="completed"', html.split('id="proj-frozen-tracker"')[1][:200])
+
+        # status 만 바꾸면 배지 · 그룹이 바뀐다
+        m["projects"][-1]["status"] = "archived"
+        self.manual.write_text(json.dumps(m, ensure_ascii=False), encoding="utf-8")
+        r2 = self.run_sync()
+        self.assertEqual(r2.returncode, 0, r2.stderr)
+        html = self.index.read_text(encoding="utf-8")
+        card = html.split('id="proj-frozen-tracker"')[1].split("</summary>")[0]
+        self.assertIn('status-archived">아카이브<', card)
+        archive = html.split('data-group="archive"')[1]
+        self.assertIn('id="proj-frozen-tracker"', archive)
+        self.assertIn("고정된 소개", html)                     # 내용은 그대로
+
+        # 잘못된 status → 경고 (commit 전 validate_site 가 막는다)
+        m["projects"][-1]["status"] = "Done"
+        self.manual.write_text(json.dumps(m, ensure_ascii=False), encoding="utf-8")
+        r3 = self.run_sync("--dry-run")
+        self.assertIn("지원되지 않는 status 'Done'", r3.stdout)
 
     def test_excluded_repo_is_dropped_from_json(self):
         cfg = json.loads(self.config.read_text(encoding="utf-8"))

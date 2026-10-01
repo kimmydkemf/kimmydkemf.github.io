@@ -308,6 +308,10 @@ data/projects.manual.json ───────┘                          ├�
   Featured 에 올리려면 해당 레포 `portfolio.yml` 에 `featured: true` (또는 manual JSON 의 `"featured": true`). 최대 5개.
   `live_url` 이 있으면 카드에 **Live Demo** 버튼이 생깁니다. 자세한 규칙은 스키마 문서의 "프로젝트 영역 구조" 참고.
 - **과거 프로젝트(레포 없음)** 는 `data/projects.manual.json` 을 편집한 뒤 `./sync.sh` 를 실행하면 반영됩니다.
+- **다른 사람 소유 레포는 읽지 않습니다.** sync 는 본인(`kimmydkemf`) 소유 레포만 조회합니다.
+  팀 프로젝트처럼 다른 사람 레포에 있는 프로젝트는 `data/projects.manual.json` 에 내용을 그대로 두고 (`"repo": "레포이름"` 지정),
+  **`status` 만 직접 고치면 됩니다** — `"active"` · `"completed"` · `"paused"` · `"unused"` · `"archived"` 또는 `null` (배지 없음, 기간 기준 그룹).
+  예: Business Calendar Plus (`ghals5737/bcplus_legacy`). 잘못된 값은 sync 에서 경고가 나고 Update 의 Validation 에서 commit 이 막힙니다.
 - GitHub 프로젝트의 표시 내용은 해당 레포의 `portfolio.yml` 로 조정합니다.
 - 레포가 삭제되거나 private 으로 바뀌어 목록에서 사라지면 항목은 `syncStatus: "unavailable"` 로 유지됩니다. 지우려면 `scripts/projects.json` 의 `excluded` 에 추가하세요.
 
