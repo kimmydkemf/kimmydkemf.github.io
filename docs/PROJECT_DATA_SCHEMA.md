@@ -76,7 +76,7 @@ data/projects.manual.json (수동) ─┘                                      �
 - 모든 텍스트는 HTML 이스케이프된다.
 - `<details [class="proj-unused"] id="proj-{slug}" data-slug data-source [data-status] data-display-status [data-featured]>`
 - 지난 프로젝트 그룹에는 시작 연도가 바뀔 때마다 `<div class="tl-year">YYYY</div>` 가 끼어든다 (연도 타임라인).
-- `render_stats()` / `renderStats()` 는 표지의 `<!-- STATS:START -->` 구간에 들어가는 연도별 막대(`.year-bars`)와 사실 요약(`.fact` 행)을 만든다.
+- `render_stats()` / `renderStats()` 는 표지의 `<!-- STATS:START -->` 구간에 들어가는 연도별 막대(`.year-bars`), 큰 숫자 4개(`.stat-grid > .stat`), 한 줄 메타(`.stat-meta`: 기록 시작 연도 · 마지막 동기화)를 만든다.
 - 카드 머리글자 아이콘 `.mark.hue-N`: N 은 slug 문자 코드 합 % 6 + 1 (Python `hue_index` / JS `hueIndex` 동일). 글자는 제목의 첫 영숫자·한글.
 
 ### 프로젝트 영역 구조 (Phase 4)

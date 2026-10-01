@@ -113,19 +113,27 @@ button { font: inherit; color: inherit; }
   backdrop-filter: saturate(140%) blur(12px); -webkit-backdrop-filter: saturate(140%) blur(12px);
   border-bottom: 1px solid var(--line);
 }
-.topbar .container { display: flex; align-items: center; gap: 18px; height: 58px; }
-.brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 700; }
+.topbar .container { display: flex; align-items: center; gap: 14px; height: 58px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 700; flex-shrink: 0; }
 .brand::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--accent); transform: rotate(45deg); flex-shrink: 0; }
 .brand .brand-name { font-family: var(--font-mono); font-size: 0.95rem; letter-spacing: 0.04em; }
 .brand .brand-sub { font-size: 0.84rem; font-weight: 500; color: var(--muted); }
-.topnav { display: flex; gap: 4px; margin-left: auto; }
+.topnav { display: flex; gap: 4px; margin-left: auto; min-width: 0; }
 .topnav a { font-size: 0.9rem; color: var(--text-2); padding: 6px 10px; border-radius: 999px; }
 .topnav a:hover { background: var(--surface-2); color: var(--text); }
 .theme-toggle {
-  display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 999px;
-  border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 0.8rem; cursor: pointer; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 36px; min-width: 36px; padding: 0 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 0.8rem; cursor: pointer; white-space: nowrap; flex-shrink: 0;
 }
-.theme-toggle:hover { border-color: var(--line-strong); }
+.theme-toggle:hover { border-color: var(--line-strong); color: var(--text); }
+.theme-toggle svg { flex-shrink: 0; }
+.theme-toggle .icon-moon { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icon-sun { display: none; }
+  :root:not([data-theme="light"]) .theme-toggle .icon-moon { display: block; }
+}
+:root[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
 
 /* ── 표지 ───────────────────────────────────────────────────────────────── */
 .cover {
@@ -179,19 +187,22 @@ button { font: inherit; color: inherit; }
   box-shadow: var(--shadow); padding: 18px 20px 8px; position: relative; overflow: hidden;
 }
 .facts-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-soft)); }
-.facts-card .eyebrow { margin-bottom: 10px; }
-.year-bars { display: flex; align-items: flex-end; gap: 4px; height: 64px; padding: 0 2px 6px; margin-bottom: 8px; border-bottom: 1px solid var(--line); }
+.facts-title { font-size: 0.86rem; font-weight: 600; color: var(--muted); margin-bottom: 12px; letter-spacing: 0; }
+.year-bars { display: flex; align-items: flex-end; gap: 4px; height: 64px; padding: 0 2px 6px; margin-bottom: 14px; border-bottom: 1px solid var(--line); }
 .ybar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; height: 100%; min-width: 0; }
 .ybar i { display: block; width: 100%; border-radius: 3px 3px 1px 1px; background: var(--accent); height: calc(10% + var(--v) * 70%); opacity: calc(.35 + var(--v) * .65); }
 .ybar b { font-family: var(--font-mono); font-size: 0.66rem; font-weight: 500; color: var(--muted); }
-.facts { display: block; }
+.stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.stat { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px 8px 9px; text-align: center; min-width: 0; }
+.stat b { display: block; font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 1.5rem; font-weight: 500; line-height: 1.1; color: var(--text); }
+.stat[data-fact="current"] b { color: var(--ok); }
+.stat span { display: block; margin-top: 4px; font-size: 0.76rem; color: var(--muted); white-space: nowrap; }
+.stat-meta { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 12px; font-size: 0.84rem; color: var(--muted); }
+.stat-meta time { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-2); }
+.facts-static { margin-top: 10px; }
 .fact { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); }
-.facts .fact:first-child { border-top: 0; }
-.fact dt { font-size: 0.88rem; color: var(--muted); }
-.fact dd { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 1.06rem; font-weight: 500; text-align: right; }
-.fact dd .unit { font-size: 0.78rem; color: var(--muted); margin-left: 1px; }
-.fact.fact-static dd { font-family: var(--font-sans); font-size: 0.92rem; font-weight: 500; }
-.facts-static .fact:first-child { border-top: 1px solid var(--line); }
+.fact dt { font-size: 0.88rem; color: var(--muted); white-space: nowrap; }
+.fact dd { font-size: 0.92rem; font-weight: 500; text-align: right; }
 
 /* ── 섹션 공통 ───────────────────────────────────────────────────────────── */
 .section { padding-block: clamp(48px, 6vw, 76px); border-bottom: 1px solid var(--line); }
@@ -405,17 +416,9 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
   .cover::after { width: 360px; height: 360px; right: -140px; top: -160px; }
   .proj-group-list { grid-template-columns: 1fr; }
   .proj-group-list > details:last-child:nth-child(odd) { grid-column: auto; }
-  .facts-card { padding: 16px 16px 14px; }
+  .facts-card { padding: 16px 16px 16px; }
   .year-bars { height: 56px; }
-  .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-  .fact { flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--bg); }
-  .facts .fact:first-child { border-top: 1px solid var(--line); }
-  .fact dt { font-size: 0.78rem; }
-  .fact dd { text-align: left; font-size: 1.04rem; }
-  .facts.facts-static { margin-top: 12px; grid-template-columns: 1fr; gap: 0; }
-  .facts-static .fact { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 12px; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: none; padding: 9px 0; }
-  .facts-static .fact dt { white-space: nowrap; }
-  .facts-static .fact dd { text-align: right; }
+  .facts-static { display: none; }          /* 소속 · 이력은 소개 섹션에 있다 */
 }
 @media (max-width: 560px) {
   body { line-height: 1.75; }
@@ -425,14 +428,20 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
   .topnav a { font-size: 0.84rem; padding: 6px 8px; }
   .theme-toggle .toggle-label { display: none; }
   .theme-toggle { width: 34px; padding: 0; justify-content: center; }
-  .cover-intro .eyebrow { font-size: 0.74rem; }
-  .cover-name { font-size: 2.3rem; }
-  .cover-lead { font-size: 1.06rem; }
-  .cover-note { font-size: 0.92rem; }
-  .cover-actions .btn { flex: 1 1 auto; justify-content: center; }
-  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .facts.facts-static { grid-template-columns: 1fr; }
-  .fact dd { font-size: 1.08rem; }
+  .cover { padding-block: 36px 28px; }
+  .cover .container { gap: 24px; }
+  .cover-intro .eyebrow { font-size: 0.72rem; margin-bottom: 14px; }
+  .cover-name { font-size: 2.4rem; gap: 6px 14px; }
+  .cover-lead { font-size: 1.04rem; margin-top: 14px; }
+  .cover-note { display: none; }            /* 이름 설명은 소개에서 */
+  .cover-actions { margin-top: 20px; gap: 8px; }
+  .cover-actions .btn { height: 44px; flex: 1 1 auto; justify-content: center; }
+  .cover-actions .btn.primary { flex-basis: 100%; }
+  .stat b { font-size: 1.35rem; }
+  .stat span { font-size: 0.72rem; }
+  .section { padding-block: 40px; }
+  .section-head { margin-bottom: 18px; }
+  .section-head h2 { font-size: 1.4rem; }
 
   .proj-filter { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: calc(var(--gutter) * -1); padding-inline: var(--gutter); }
   .proj-filter::-webkit-scrollbar { display: none; }

@@ -475,21 +475,22 @@ def render_year_bars(projects: list[dict]) -> str:
 
 
 def render_stats(projects: list[dict], generated_at: str | None = None) -> str:
-    """첫 화면 사실 요약 (STATS 마커 사이). JS 가 같은 JSON 으로 다시 그린다."""
+    """첫 화면 기록 현황 (STATS 마커 사이): 연도 막대 · 큰 숫자 4개 · 한 줄 메타. JS 가 같은 JSON 으로 다시 그린다."""
     c = project_stats(projects)
-    rows = [
-        ("프로젝트", f"{c['total']}<span class=\"unit\">개</span>", "total"),
-        ("진행 중", str(c["current"]), "current"),
-        ("완료", str(c["completed"] + c["paused"]), "done"),
-        ("지난 프로젝트", str(c["archive"]), "archive"),
-    ]
+    stats = [("total", c["total"], "프로젝트"), ("current", c["current"], "진행 중"),
+             ("done", c["completed"] + c["paused"], "완료"), ("archive", c["archive"], "과거")]
+    grid = "".join(f"""
+          <div class="stat" data-fact="{key}"><b>{n}</b><span>{E(label)}</span></div>""" for key, n, label in stats)
+    meta = []
     if c["since"]:
-        rows.append(("기록 시작", c["since"], "since"))
+        meta.append(f"<span>{E(c['since'])}년부터 기록</span>")
     if generated_at:
-        rows.append(("마지막 동기화", E(generated_at[:10].replace("-", ".")), "synced"))
-    facts = "".join(f"""
-        <div class="fact" data-fact="{key}"><dt>{E(label)}</dt><dd>{value}</dd></div>""" for label, value, key in rows)
-    return render_year_bars(projects) + facts
+        meta.append(f"<span>마지막 동기화 <time datetime=\"{E(generated_at[:10])}\">{E(generated_at[:10].replace('-', '.'))}</time></span>")
+    meta_html = f"""
+        <p class="stat-meta">{"".join(meta)}</p>""" if meta else ""
+    return render_year_bars(projects) + f"""
+        <div class="stat-grid">{grid}
+        </div>""" + meta_html
 
 
 def render_auto_section(html: str, projects: list[dict], generated_at: str | None = None) -> str:
