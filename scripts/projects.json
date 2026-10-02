@@ -14,9 +14,13 @@
       "title": "Pacer"
     },
     "kimmydkemf.github.io": {
-      "sha": "1676ce2244c5952588569ed720aa19264eb120ea",
-      "start": "2026.05",
-      "end": "2026.05",
+      "sha": "f419c687efa3f58064838eb6a0a13bfe53ae39da",
+      "portfolioSha": "",
+      "start": "2026.04",
+      "end": "",
+      "commitStart": "2026.04",
+      "commitEnd": "2026.10",
+      "status": null,
       "title": "Dounselor Portfolio"
     },
     "dounselor-blog": {
@@ -26,9 +30,13 @@
       "title": "Dounselor Blog"
     },
     "life-manager": {
-      "sha": "3b9276480e3f800954a739d649941e8619ea430d",
-      "start": "2026.05",
-      "end": "2026.05",
+      "sha": "ea66644feb3aef509b1a04c9f8427978b7cf5222",
+      "portfolioSha": "",
+      "start": "2026.04",
+      "end": "",
+      "commitStart": "2026.04",
+      "commitEnd": "2026.09",
+      "status": null,
       "title": "Life Manager"
     },
     "MyNote": {
@@ -36,6 +44,26 @@
       "start": "2026.05",
       "end": "2026.05",
       "title": "MyNote — Personal Obsidian Vault"
+    },
+    "archive": {
+      "sha": "d26c9f9fc6c977193a98101ced044b8e21e247c9",
+      "portfolioSha": "",
+      "start": "2026.10",
+      "end": "",
+      "commitStart": "2026.10",
+      "commitEnd": "2026.10",
+      "status": null,
+      "title": "Personal Archive"
+    },
+    "LineManager": {
+      "sha": "f9e220f08ef7d381c9f65de154451df1d059f96d",
+      "portfolioSha": "",
+      "start": "2026.09",
+      "end": "",
+      "commitStart": "2026.09",
+      "commitEnd": "2026.09",
+      "status": null,
+      "title": "LineManager - 전용회선 관제 시스템"
     }
   }
 }
