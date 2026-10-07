@@ -37,6 +37,9 @@ echo "$*" >> "$FAKE_GH_LOG"
 case "$1 $2" in
   "pr list") [ "${FAKE_GH_MODE:-}" = "existing" ] && echo "https://github.com/x/y/pull/7"; exit 0 ;;
   "pr edit") exit 0 ;;
+  "pr view") echo "${FAKE_GH_MERGEABLE:-MERGEABLE}"; exit 0 ;;
+  "pr merge") [ "${FAKE_GH_MODE:-}" = "merge-fail" ] && exit 1; exit 0 ;;
+  "api -X") exit 0 ;;
   "pr create")
     if [ "${FAKE_GH_MODE:-}" = "forbidden" ]; then
       echo "pull request create failed: GraphQL: GitHub Actions is not permitted to create or approve pull requests" >&2; exit 1
@@ -105,10 +108,38 @@ class TestCiSync(UpdaterTestBase):
         self.assertTrue(self.remote_head_of("automation/portfolio-sync").startswith("chore: sync portfolio projects"))
         gh = self.gh_log.read_text(encoding="utf-8")
         self.assertIn("pr create --head automation/portfolio-sync --base main", gh)
+        self.assertNotIn("pr merge", gh)                               # pr 모드는 병합하지 않음
         summary = self.summary.read_text(encoding="utf-8")
         self.assertIn("📝 PR 생성: https://github.com/x/y/pull/8", summary)
         self.assertIn("🔒 Secret 검사 통과", summary)
         self.assert_no_pat(r)
+
+    def test_pr_auto_mode_merges(self):
+        r = self.run_ci(SYNC_MODE="pr-auto")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        gh = self.gh_log.read_text(encoding="utf-8")
+        self.assertIn("pr create --head automation/portfolio-sync --base main", gh)
+        self.assertIn("pr merge https://github.com/x/y/pull/8 --merge", gh)
+        self.assertIn("api -X DELETE repos/kimmydkemf/kimmydkemf.github.io/git/refs/heads/automation/portfolio-sync", gh)
+        self.assertIn("✅ 자동 병합 완료", self.summary.read_text(encoding="utf-8"))
+        self.assertEqual(self.remote_head_of("main"), "base")          # 병합은 GitHub 쪽(gh) 이 하므로 bare 원격 main 은 그대로
+
+    def test_pr_auto_default_and_failure_paths(self):
+        r = self.run_ci(SYNC_MODE=None)                                # 기본값 = pr-auto
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("모드: `pr-auto`", self.summary.read_text(encoding="utf-8"))
+        self.assertIn("pr merge", self.gh_log.read_text(encoding="utf-8"))
+        # 병합 실패 → PR 은 열어 두고 안내
+        self.setUp()
+        r2 = self.run_ci(SYNC_MODE="pr-auto", FAKE_GH_MODE="merge-fail")
+        self.assertEqual(r2.returncode, 0, r2.stdout + r2.stderr)
+        self.assertIn("자동 병합 실패 — PR 은 열려 있습니다", self.summary.read_text(encoding="utf-8"))
+        # 충돌 → 병합 시도하지 않음
+        self.setUp()
+        r3 = self.run_ci(SYNC_MODE="pr-auto", FAKE_GH_MERGEABLE="CONFLICTING")
+        self.assertEqual(r3.returncode, 0, r3.stdout + r3.stderr)
+        self.assertIn("충돌해 자동 병합하지 못했습니다", self.summary.read_text(encoding="utf-8"))
+        self.assertNotIn("pr merge", self.gh_log.read_text(encoding="utf-8"))
 
     def test_pr_mode_updates_existing_pr(self):
         r = self.run_ci(SYNC_MODE="pr", FAKE_GH_MODE="existing")
@@ -149,7 +180,7 @@ class TestCiSync(UpdaterTestBase):
     def test_invalid_mode(self):
         r = self.run_ci(SYNC_MODE="merge")
         self.assertNotEqual(r.returncode, 0)
-        self.assertIn("SYNC_MODE 는 pr | push | dry-run", r.stdout)
+        self.assertIn("SYNC_MODE 는 pr-auto | pr | push | dry-run", r.stdout)
 
     def test_literal_token_in_data_blocks_push(self):
         # 패턴에는 안 걸리는 실제 토큰 값이 생성 데이터에 섞였다고 가정 → push 전 검사에서 막혀야 함
@@ -236,7 +267,7 @@ class TestWorkflow(unittest.TestCase):
         on = self.wf[True]                                   # YAML 의 'on' 은 True 로 읽힌다
         self.assertEqual(on["schedule"], [{"cron": "0 18 * * *"}])  # 03:00 KST
         self.assertEqual(on["repository_dispatch"]["types"], ["portfolio-sync"])
-        self.assertEqual(on["workflow_dispatch"]["inputs"]["mode"]["default"], "pr")
+        self.assertEqual(on["workflow_dispatch"]["inputs"]["mode"]["default"], "pr-auto")
 
     def test_permissions_and_concurrency(self):
         self.assertEqual(self.wf["permissions"], {"contents": "write", "pull-requests": "write"})
