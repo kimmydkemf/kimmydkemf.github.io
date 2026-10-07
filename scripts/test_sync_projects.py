@@ -812,7 +812,7 @@ class TestEndToEnd(unittest.TestCase):
         starts = [p["started"] for p in projects]
         self.assertEqual(starts, sorted(starts, reverse=True))
         slugs = [p["slug"] for p in projects]
-        self.assertEqual(slugs[0], "health-tracker")               # 2026.05 (기존) 가 가장 먼저
+        self.assertEqual(slugs[0], self.original_gen["projects"][0]["slug"])   # 기존 항목 중 가장 최근 것이 맨 앞 (저장소 데이터 기준)
         self.assertLess(slugs.index("mynote"), slugs.index("sample-tracker"))          # 2026.05 > 2026.03
         self.assertLess(slugs.index("sample-tracker"), slugs.index("sample-legacy-blog"))  # 2026.03 > 2026.01
         self.assertLess(slugs.index("bcplus-legacy"), slugs.index("p-s-private-secretary"))  # 2021.08 > 2020.10
