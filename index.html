@@ -64,24 +64,24 @@
       <div class="facts" id="facts">
         <!-- STATS:START -->
         <div class="year-bars" aria-label="연도별 시작한 프로젝트 수">
-          <div class="ybar" style="--v:0.20" title="2017 · 1개"><i></i><b>17</b></div>
+          <div class="ybar" style="--v:0.17" title="2017 · 1개"><i></i><b>17</b></div>
           <div class="ybar" style="--v:0.00" title="2018 · 0개"><i></i><b>18</b></div>
-          <div class="ybar" style="--v:0.40" title="2019 · 2개"><i></i><b>19</b></div>
-          <div class="ybar" style="--v:0.60" title="2020 · 3개"><i></i><b>20</b></div>
-          <div class="ybar" style="--v:0.20" title="2021 · 1개"><i></i><b>21</b></div>
+          <div class="ybar" style="--v:0.33" title="2019 · 2개"><i></i><b>19</b></div>
+          <div class="ybar" style="--v:0.50" title="2020 · 3개"><i></i><b>20</b></div>
+          <div class="ybar" style="--v:0.17" title="2021 · 1개"><i></i><b>21</b></div>
           <div class="ybar" style="--v:0.00" title="2022 · 0개"><i></i><b>22</b></div>
           <div class="ybar" style="--v:0.00" title="2023 · 0개"><i></i><b>23</b></div>
           <div class="ybar" style="--v:0.00" title="2024 · 0개"><i></i><b>24</b></div>
           <div class="ybar" style="--v:0.00" title="2025 · 0개"><i></i><b>25</b></div>
-          <div class="ybar" style="--v:1.00" title="2026 · 5개"><i></i><b>26</b></div>
+          <div class="ybar" style="--v:1.00" title="2026 · 6개"><i></i><b>26</b></div>
         </div>
         <div class="stat-grid">
-          <div class="stat" data-fact="total"><b>12</b><span>프로젝트</span></div>
-          <div class="stat" data-fact="current"><b>5</b><span>진행 중</span></div>
+          <div class="stat" data-fact="total"><b>13</b><span>프로젝트</span></div>
+          <div class="stat" data-fact="current"><b>6</b><span>진행 중</span></div>
           <div class="stat" data-fact="done"><b>1</b><span>완료</span></div>
           <div class="stat" data-fact="archive"><b>6</b><span>과거</span></div>
         </div>
-        <p class="stat-meta"><span>2017년부터 기록</span><span>마지막 동기화 <time datetime="2026-10-01">2026.10.01</time></span></p>
+        <p class="stat-meta"><span>2017년부터 기록</span><span>마지막 동기화 <time datetime="2026-10-08">2026.10.08</time></span></p>
         <!-- STATS:END -->
       </div>
       <dl class="facts-static">
@@ -104,8 +104,46 @@
 
       <!-- AUTO:START — 아래 카드는 sync_projects.py 가 data/projects.generated.json 에서 자동 생성합니다. 직접 편집하지 마세요 -->
       <div class="proj-group" data-group="current">
-        <h3 class="proj-group-title">진행 중<span class="proj-group-en">Current</span><span class="proj-group-count">5</span></h3>
+        <h3 class="proj-group-title">진행 중<span class="proj-group-en">Current</span><span class="proj-group-count">6</span></h3>
         <div class="proj-group-list">
+      <!-- AUTO:archive -->
+      <details id="proj-archive" data-slug="archive" data-source="github" data-display-status="active">
+        <summary>
+          <div class="card-top">
+            <span class="proj-period">2026.10 – Present</span>
+          </div>
+          <div class="card-head">
+            <span class="mark hue-1" aria-hidden="true">P</span>
+            <div class="proj-main">
+              <div class="proj-title">Personal Archive</div>
+              <div class="proj-sub">사진·글·영상으로 기억을 Digital Book처럼 남기는 개인용 Digital Life Archive.</div>
+            </div>
+          </div>
+          <div class="card-foot">
+            <div class="proj-chips">
+              <span class="chip dev">TypeScript</span>
+            </div>
+            <div class="card-links">
+              <a class="proj-repo" href="https://github.com/kimmydkemf/archive" target="_blank" rel="noopener">GitHub ↗</a>
+            </div>
+          </div>
+        </summary>
+        <div class="detail">
+          <div class="dl-section">
+            <h4>프로젝트 소개</h4>
+            <p>사진·글·영상으로 기억을 Digital Book처럼 남기는 개인용 Digital Life Archive.<br>
+              Next.js + Payload CMS 하나의 애플리케이션으로 Journal / Bookshelf / Special Page / Timeline / Media Library를 제공한다.<br>
+              &gt; 현재 상태: Phase 1 — 기본 인프라 (Next.js, Payload, PostgreSQL, Docker, Caddy, 로그인, Media Upload)</p>
+          </div>
+          <div class="dl-section">
+            <h4>Links</h4>
+            <div class="proj-links">
+              <a class="proj-link" href="https://github.com/kimmydkemf/archive" target="_blank" rel="noopener">GitHub</a>
+            </div>
+          </div>
+        </div>
+      </details>
+      <!-- /AUTO:archive -->
       <!-- AUTO:health-tracker -->
       <details id="proj-health-tracker" data-slug="health-tracker" data-source="github" data-display-status="active">
         <summary>
@@ -159,69 +197,6 @@
         </div>
       </details>
       <!-- /AUTO:health-tracker -->
-      <!-- AUTO:kimmydkemf.github.io -->
-      <details id="proj-kimmydkemf-github-io" data-slug="kimmydkemf-github-io" data-source="github" data-display-status="active">
-        <summary>
-          <div class="card-top">
-            <span class="proj-period">2026.05 – Present</span>
-          </div>
-          <div class="card-head">
-            <span class="mark hue-4" aria-hidden="true">D</span>
-            <div class="proj-main">
-              <div class="proj-title">Dounselor Portfolio</div>
-              <div class="proj-sub">dounselor.com (GitHub Pages 호스팅, kimmydkemf.github.io → 커스텀 도메인 CNAME) — 개인…</div>
-            </div>
-          </div>
-          <div class="card-foot">
-            <div class="proj-chips">
-              <span class="chip dev">HTML</span>
-              <span class="chip dev">CSS</span>
-              <span class="chip dev">Vanilla JS</span>
-              <span class="chip dev">Python</span>
-              <span class="chip more" title="펼치면 전체 기술 스택">+3</span>
-            </div>
-            <div class="card-links">
-              <a class="proj-repo" href="https://github.com/kimmydkemf/kimmydkemf.github.io" target="_blank" rel="noopener">GitHub ↗</a>
-            </div>
-          </div>
-        </summary>
-        <div class="detail">
-          <div class="dl-section">
-            <h4>프로젝트 소개</h4>
-            <p>dounselor.com (GitHub Pages 호스팅, kimmydkemf.github.io → 커스텀 도메인 CNAME) — 개인 포트폴리오 사이트.<br>
-              GitHub 레포지토리의 README를 자동으로 읽어 프로젝트 카드를 생성·업데이트하는 동기화 기능을 포함합니다.</p>
-          </div>
-          <div class="dl-section">
-            <h4>주요 기능</h4>
-            <ul>
-              <li>Apple 스타일 디자인 — 다크/라이트 모두 깔끔하고 임팩트 있는 비주얼 (라이트 배경 #f5f5f7, SF Pro 폴백 폰트, 부드러운 그림자·진입 페이드 애니메이션, 호버 lift)</li>
-              <li>다크 / 라이트 테마 전환 — nav 우측 버튼으로 전환, 선택값 localStorage 저장, 시스템 prefers-color-scheme 자동 감지</li>
-              <li>GitHub 자동 동기화 — README가 있는 레포를 감지해 포트폴리오 카드 자동 생성</li>
-              <li>Claude AI 카드 생성 — ANTHROPIC_API_KEY 설정 시 Claude가 README를 분석해 소개 문장을 다듬어 줌</li>
-              <li>최신순 자동 정렬 — 시작일 기준 내림차순 정렬</li>
-            </ul>
-          </div>
-          <div class="dl-section">
-            <h4>기술 스택</h4>
-            <div class="proj-chips">
-              <span class="chip dev">HTML</span>
-              <span class="chip dev">CSS</span>
-              <span class="chip dev">Vanilla JS</span>
-              <span class="chip dev">Python</span>
-              <span class="chip dev">GitHub REST API</span>
-              <span class="chip dev">Claude API</span>
-              <span class="chip dev">GitHub Pages</span>
-            </div>
-          </div>
-          <div class="dl-section">
-            <h4>Links</h4>
-            <div class="proj-links">
-              <a class="proj-link" href="https://github.com/kimmydkemf/kimmydkemf.github.io" target="_blank" rel="noopener">GitHub</a>
-            </div>
-          </div>
-        </div>
-      </details>
-      <!-- /AUTO:kimmydkemf.github.io -->
       <!-- AUTO:dounselor-blog -->
       <details id="proj-dounselor-blog" data-slug="dounselor-blog" data-source="github" data-display-status="active">
         <summary>
@@ -277,71 +252,6 @@
         </div>
       </details>
       <!-- /AUTO:dounselor-blog -->
-      <!-- AUTO:life-manager -->
-      <details id="proj-life-manager" data-slug="life-manager" data-source="github" data-display-status="active">
-        <summary>
-          <div class="card-top">
-            <span class="proj-period">2026.05 – Present</span>
-          </div>
-          <div class="card-head">
-            <span class="mark hue-5" aria-hidden="true">L</span>
-            <div class="proj-main">
-              <div class="proj-title">Life Manager</div>
-              <div class="proj-sub">life.dounselor.com — 개인 일정·가계부·습관 관리 PWA (Next.js).</div>
-            </div>
-          </div>
-          <div class="card-foot">
-            <div class="proj-chips">
-              <span class="chip dev">Next.js</span>
-              <span class="chip dev">React</span>
-              <span class="chip dev">Tailwind CSS</span>
-              <span class="chip dev">PWA</span>
-              <span class="chip more" title="펼치면 전체 기술 스택">+5</span>
-            </div>
-            <div class="card-links">
-              <a class="proj-repo" href="https://github.com/kimmydkemf/life-manager" target="_blank" rel="noopener">GitHub ↗</a>
-            </div>
-          </div>
-        </summary>
-        <div class="detail">
-          <div class="dl-section">
-            <h4>프로젝트 소개</h4>
-            <p>life.dounselor.com — 개인 일정·가계부·습관 관리 PWA (Next.js).<br>
-              가계부 자동 등록 (카드/은행 알림 → 텔레그램 봇 또는 MacroDroid POST), 일정 자연어 입력, 월간 요약, 텔레그램 봇 명령어 지원.</p>
-          </div>
-          <div class="dl-section">
-            <h4>주요 기능</h4>
-            <ul>
-              <li>2단계 인증 (텔레그램 OTP) — 비밀번호 검증 후 텔레그램 봇으로 6자리 코드 발송, 코드 입력해야만 로그인 완료</li>
-              <li>자연어 일정 입력 — &quot;내일 오후 2시 팀 회의 #work 긴급&quot; 같은 자유 입력</li>
-              <li>가계부 — 수입/지출 카테고리 분류, 월간 요약, 일별 그래프</li>
-              <li>습관 트래커 — 일일 카운트, 캘린더, 완료율 추적</li>
-              <li>카드/은행 알림 자동 등록 (확인/즉시 모드) — lib/cardParser.js 기반, 가맹점→카테고리 자동 매핑, 5분 중복 방지. 기본 동작은 텔레그램 인라인 버튼으로 등록 여부 확인 후 처리. 대시보드에서 즉시 등록 모드로 전환 가능</li>
-            </ul>
-          </div>
-          <div class="dl-section">
-            <h4>기술 스택</h4>
-            <div class="proj-chips">
-              <span class="chip dev">Next.js</span>
-              <span class="chip dev">React</span>
-              <span class="chip dev">Tailwind CSS</span>
-              <span class="chip dev">PWA</span>
-              <span class="chip dev">SQLite</span>
-              <span class="chip dev">JWT</span>
-              <span class="chip dev">Telegram Bot</span>
-              <span class="chip dev">node-cron</span>
-              <span class="chip dev">Cloudflare Tunnel</span>
-            </div>
-          </div>
-          <div class="dl-section">
-            <h4>Links</h4>
-            <div class="proj-links">
-              <a class="proj-link" href="https://github.com/kimmydkemf/life-manager" target="_blank" rel="noopener">GitHub</a>
-            </div>
-          </div>
-        </div>
-      </details>
-      <!-- /AUTO:life-manager -->
       <!-- AUTO:MyNote -->
       <details id="proj-mynote" data-slug="mynote" data-source="github" data-display-status="active">
         <summary>
@@ -379,6 +289,135 @@
         </div>
       </details>
       <!-- /AUTO:MyNote -->
+      <!-- AUTO:kimmydkemf.github.io -->
+      <details id="proj-kimmydkemf-github-io" data-slug="kimmydkemf-github-io" data-source="github" data-display-status="active">
+        <summary>
+          <div class="card-top">
+            <span class="proj-period">2026.04 – Present</span>
+          </div>
+          <div class="card-head">
+            <span class="mark hue-4" aria-hidden="true">D</span>
+            <div class="proj-main">
+              <div class="proj-title">Dounselor Portfolio</div>
+              <div class="proj-sub">dounselor.com (GitHub Pages 호스팅, kimmydkemf.github.io → 커스텀 도메인 CNAME) — 개인…</div>
+            </div>
+          </div>
+          <div class="card-foot">
+            <div class="proj-chips">
+              <span class="chip dev">HTML</span>
+              <span class="chip dev">CSS</span>
+              <span class="chip dev">Vanilla JS</span>
+              <span class="chip dev">Python</span>
+              <span class="chip more" title="펼치면 전체 기술 스택">+3</span>
+            </div>
+            <div class="card-links">
+              <a class="proj-repo" href="https://github.com/kimmydkemf/kimmydkemf.github.io" target="_blank" rel="noopener">GitHub ↗</a>
+            </div>
+          </div>
+        </summary>
+        <div class="detail">
+          <div class="dl-section">
+            <h4>프로젝트 소개</h4>
+            <p>dounselor.com (GitHub Pages 호스팅, kimmydkemf.github.io → 커스텀 도메인 CNAME) — 개인 포트폴리오 사이트.<br>
+              GitHub 레포지토리의 README를 자동으로 읽어 프로젝트 카드를 생성·업데이트하는 동기화 기능을 포함합니다.</p>
+          </div>
+          <div class="dl-section">
+            <h4>주요 기능</h4>
+            <ul>
+              <li>프로젝트 아카이브 디자인 — 표지(소개 + 사실 요약) → 프로젝트(상태별 2열 카드, 과거 기록은 연도 타임라인) → 소개 → 연락. 한 가지 강조색, 두 테마 같은 구조</li>
+              <li>다크 / 라이트 테마 전환 — 상단 버튼으로 전환, 선택값 localStorage 저장, 저장값이 없으면 시스템 prefers-color-scheme 를 따름</li>
+              <li>GitHub 자동 동기화 — README / portfolio.yml 이 있는 레포를 감지해 data/projects.generated.json 생성 → 포트폴리오 카드 자동 생성 (정적 HTML + JS 렌더)</li>
+              <li>Claude AI 카드 생성 — ANTHROPIC_API_KEY 설정 시 Claude가 README를 분석해 소개 문장을 다듬어 줌</li>
+              <li>최신순 자동 정렬 — 시작일 기준 내림차순 정렬</li>
+            </ul>
+          </div>
+          <div class="dl-section">
+            <h4>기술 스택</h4>
+            <div class="proj-chips">
+              <span class="chip dev">HTML</span>
+              <span class="chip dev">CSS</span>
+              <span class="chip dev">Vanilla JS</span>
+              <span class="chip dev">Python</span>
+              <span class="chip dev">GitHub REST API</span>
+              <span class="chip dev">Claude API</span>
+              <span class="chip dev">GitHub Pages</span>
+            </div>
+          </div>
+          <div class="dl-section">
+            <h4>Links</h4>
+            <div class="proj-links">
+              <a class="proj-link" href="https://github.com/kimmydkemf/kimmydkemf.github.io" target="_blank" rel="noopener">GitHub</a>
+            </div>
+          </div>
+        </div>
+      </details>
+      <!-- /AUTO:kimmydkemf.github.io -->
+      <!-- AUTO:life-manager -->
+      <details id="proj-life-manager" data-slug="life-manager" data-source="github" data-display-status="active">
+        <summary>
+          <div class="card-top">
+            <span class="proj-period">2026.04 – Present</span>
+          </div>
+          <div class="card-head">
+            <span class="mark hue-5" aria-hidden="true">L</span>
+            <div class="proj-main">
+              <div class="proj-title">Life Manager</div>
+              <div class="proj-sub">추가 오류 점검과 남은 개선 항목은 추가 점검 결과를 참고하세요.</div>
+            </div>
+          </div>
+          <div class="card-foot">
+            <div class="proj-chips">
+              <span class="chip dev">Next.js</span>
+              <span class="chip dev">React</span>
+              <span class="chip dev">Tailwind CSS</span>
+              <span class="chip dev">PWA</span>
+              <span class="chip more" title="펼치면 전체 기술 스택">+5</span>
+            </div>
+            <div class="card-links">
+              <a class="proj-repo" href="https://github.com/kimmydkemf/life-manager" target="_blank" rel="noopener">GitHub ↗</a>
+            </div>
+          </div>
+        </summary>
+        <div class="detail">
+          <div class="dl-section">
+            <h4>프로젝트 소개</h4>
+            <p>추가 오류 점검과 남은 개선 항목은 추가 점검 결과를 참고하세요.<br>
+              Mac Docker 운영과 Windows 데이터 이전은 Mac 이전 안내를 먼저 참고하세요.<br>
+              새 가계부 입력: 한 줄 입력 및 CSV/TSV 미리보기 가져오기. 실행: node scripts/setupDocker.js → docker compose up -d --build.</p>
+          </div>
+          <div class="dl-section">
+            <h4>주요 기능</h4>
+            <ul>
+              <li>2단계 인증 (텔레그램 OTP) — 비밀번호 검증 후 텔레그램 봇으로 6자리 코드 발송, 코드 입력해야만 로그인 완료</li>
+              <li>자연어 일정 입력 — &quot;내일 오후 2시 팀 회의 #work 긴급&quot; 같은 자유 입력</li>
+              <li>데일리 계획표 (당일 전용) — 그날 하루만 유지되는 계획. 시간표 뷰로 몇 시부터 몇 시까지 뭘 할지 배치하고, 자정(서울)에 자동 정리되며 달성률만 기록으로 남음. 진행률 링 · 연속 완주 스트릭 · 주간 포인트/레벨 · 완주 축하 연출로 완성도 동기부여, 항목별 비용을 가계부로 이관 가능 (자세히)</li>
+              <li>가계부 — 수입/지출 카테고리 분류, 월간 요약, 일별 그래프</li>
+              <li>자산 보관함 — 현금·예금·부동산·주식·코인을 함께 기록하고 평가액·손익·자산 배분을 원화로 확인. API 키 없이 CoinGecko·네이버 증권·Yahoo Finance 시세를 조회. 일별 스냅샷, 1·4·12주 추이, 일부 매매와 현금 정산 지원</li>
+            </ul>
+          </div>
+          <div class="dl-section">
+            <h4>기술 스택</h4>
+            <div class="proj-chips">
+              <span class="chip dev">Next.js</span>
+              <span class="chip dev">React</span>
+              <span class="chip dev">Tailwind CSS</span>
+              <span class="chip dev">PWA</span>
+              <span class="chip dev">SQLite</span>
+              <span class="chip dev">JWT</span>
+              <span class="chip dev">Telegram Bot</span>
+              <span class="chip dev">node-cron</span>
+              <span class="chip dev">Cloudflare Tunnel</span>
+            </div>
+          </div>
+          <div class="dl-section">
+            <h4>Links</h4>
+            <div class="proj-links">
+              <a class="proj-link" href="https://github.com/kimmydkemf/life-manager" target="_blank" rel="noopener">GitHub</a>
+            </div>
+          </div>
+        </div>
+      </details>
+      <!-- /AUTO:life-manager -->
         </div>
       </div>
       <div class="proj-group" data-group="completed">
