@@ -48,12 +48,12 @@
     },
     "archive": {
       "sha": "d26c9f9fc6c977193a98101ced044b8e21e247c9",
-      "portfolioSha": "",
+      "portfolioSha": "a0aa35453c8ba883a1979990291e84e6a1bb12e6",
       "start": "2026.10",
       "end": "",
       "commitStart": "2026.10",
       "commitEnd": "2026.10",
-      "status": null,
+      "status": "active",
       "title": "Personal Archive"
     }
   }

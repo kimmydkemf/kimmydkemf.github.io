@@ -103,25 +103,56 @@
     <div class="project-list">
 
       <!-- AUTO:START — 아래 카드는 sync_projects.py 가 data/projects.generated.json 에서 자동 생성합니다. 직접 편집하지 마세요 -->
+      <div class="proj-featured">
+        <h3 class="proj-group-title">Featured</h3>
+        <div class="feat-grid">
+        <article class="feat-card" data-slug="personal-archive" data-display-status="active">
+          <div class="feat-cover feat-cover-empty" aria-hidden="true"><span>P</span></div>
+          <div class="feat-body">
+            <div class="feat-meta">
+              <span class="proj-period">2026.10 – Present</span>
+            <span class="status-badge status-active">진행 중</span>
+            </div>
+            <h4 class="feat-title">Personal Archive</h4>
+            <p class="feat-sub">사진 · 글 · 영상으로 기억을 Digital Book처럼 남기는 개인용 Life Archive</p>
+            <div class="proj-chips">
+              <span class="chip dev">Next.js</span>
+              <span class="chip dev">TypeScript</span>
+              <span class="chip dev">Payload CMS</span>
+              <span class="chip dev">PostgreSQL</span>
+            </div>
+            <div class="card-links">
+              <a class="proj-link" href="https://github.com/kimmydkemf/archive" target="_blank" rel="noopener">GitHub</a>
+              <a class="proj-link more" href="#proj-personal-archive">자세히</a>
+            </div>
+          </div>
+        </article>
+        </div>
+      </div>
       <div class="proj-group" data-group="current">
         <h3 class="proj-group-title">진행 중<span class="proj-group-en">Current</span><span class="proj-group-count">6</span></h3>
         <div class="proj-group-list">
       <!-- AUTO:archive -->
-      <details id="proj-archive" data-slug="archive" data-source="github" data-display-status="active">
+      <details id="proj-personal-archive" data-slug="personal-archive" data-source="github" data-status="active" data-display-status="active" data-featured="true">
         <summary>
           <div class="card-top">
+            <span class="status-badge status-active">진행 중</span>
             <span class="proj-period">2026.10 – Present</span>
           </div>
           <div class="card-head">
-            <span class="mark hue-1" aria-hidden="true">P</span>
+            <span class="mark hue-2" aria-hidden="true">P</span>
             <div class="proj-main">
               <div class="proj-title">Personal Archive</div>
-              <div class="proj-sub">사진·글·영상으로 기억을 Digital Book처럼 남기는 개인용 Digital Life Archive.</div>
+              <div class="proj-sub">사진 · 글 · 영상으로 기억을 Digital Book처럼 남기는 개인용 Life Archive</div>
             </div>
           </div>
           <div class="card-foot">
             <div class="proj-chips">
+              <span class="chip dev">Next.js</span>
               <span class="chip dev">TypeScript</span>
+              <span class="chip dev">Payload CMS</span>
+              <span class="chip dev">PostgreSQL</span>
+              <span class="chip more" title="펼치면 전체 기술 스택">+2</span>
             </div>
             <div class="card-links">
               <a class="proj-repo" href="https://github.com/kimmydkemf/archive" target="_blank" rel="noopener">GitHub ↗</a>
@@ -131,9 +162,32 @@
         <div class="detail">
           <div class="dl-section">
             <h4>프로젝트 소개</h4>
-            <p>사진·글·영상으로 기억을 Digital Book처럼 남기는 개인용 Digital Life Archive.<br>
-              Next.js + Payload CMS 하나의 애플리케이션으로 Journal / Bookshelf / Special Page / Timeline / Media Library를 제공한다.<br>
-              &gt; 현재 상태: Phase 1 — 기본 인프라 (Next.js, Payload, PostgreSQL, Docker, Caddy, 로그인, Media Upload)</p>
+            <p>사진, 글, 영상을 한 곳에 모아 디지털 책처럼 넘겨보는 개인용 Life Archive. Next.js와 Payload CMS 하나의 애플리케이션으로 Journal, Bookshelf, Special Page, Timeline, Media Library를 제공한다. 기존 Dounselor Blog의 기록 기능을 이어받아 통합하는 것이 목표다.</p>
+          </div>
+          <div class="dl-section">
+            <h4>주요 기능</h4>
+            <ul>
+              <li>Journal — 날짜별 글과 사진 기록</li>
+              <li>Bookshelf — 기록을 책 단위로 묶어 넘겨보기</li>
+              <li>Special Page / Timeline — 주제별 페이지와 연대기 보기</li>
+              <li>Media Library — 사진 · 영상 업로드와 관리</li>
+              <li>로그인 기반 개인 공간, Docker + Caddy 로 직접 배포</li>
+            </ul>
+          </div>
+          <div class="dl-section">
+            <h4>담당 역할</h4>
+            <p>Planning · Frontend · Backend · Infrastructure</p>
+          </div>
+          <div class="dl-section">
+            <h4>기술 스택</h4>
+            <div class="proj-chips">
+              <span class="chip dev">Next.js</span>
+              <span class="chip dev">TypeScript</span>
+              <span class="chip dev">Payload CMS</span>
+              <span class="chip dev">PostgreSQL</span>
+              <span class="chip dev">Docker</span>
+              <span class="chip dev">Caddy</span>
+            </div>
           </div>
           <div class="dl-section">
             <h4>Links</h4>

@@ -1,30 +1,49 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T07:00:44+09:00",
+  "generatedAt": "2026-10-08T08:10:11+09:00",
   "projects": [
     {
-      "slug": "archive",
+      "slug": "personal-archive",
       "repo": "archive",
       "source": "github",
       "title": "Personal Archive",
-      "subtitle": "사진·글·영상으로 기억을 Digital Book처럼 남기는 개인용 Digital Life Archive.",
-      "summary": "사진·글·영상으로 기억을 Digital Book처럼 남기는 개인용 Digital Life Archive.\nNext.js + Payload CMS 하나의 애플리케이션으로 Journal / Bookshelf / Special Page / Timeline / Media Library를 제공한다.\n> 현재 상태: Phase 1 — 기본 인프라 (Next.js, Payload, PostgreSQL, Docker, Caddy, 로그인, Media Upload)",
-      "status": null,
+      "subtitle": "사진 · 글 · 영상으로 기억을 Digital Book처럼 남기는 개인용 Life Archive",
+      "summary": "사진, 글, 영상을 한 곳에 모아 디지털 책처럼 넘겨보는 개인용 Life Archive. Next.js와 Payload CMS 하나의 애플리케이션으로 Journal, Bookshelf, Special Page, Timeline, Media Library를 제공한다. 기존 Dounselor Blog의 기록 기능을 이어받아 통합하는 것이 목표다.",
+      "status": "active",
       "started": "2026.10",
       "ended": "",
       "ongoing": true,
-      "featured": false,
+      "featured": true,
       "liveUrl": "",
       "repositoryUrl": "https://github.com/kimmydkemf/archive",
-      "category": [],
-      "role": [],
-      "tech": [
-        "TypeScript"
+      "category": [
+        "Personal",
+        "Web"
       ],
-      "highlights": [],
+      "role": [
+        "Planning",
+        "Frontend",
+        "Backend",
+        "Infrastructure"
+      ],
+      "tech": [
+        "Next.js",
+        "TypeScript",
+        "Payload CMS",
+        "PostgreSQL",
+        "Docker",
+        "Caddy"
+      ],
+      "highlights": [
+        "Journal — 날짜별 글과 사진 기록",
+        "Bookshelf — 기록을 책 단위로 묶어 넘겨보기",
+        "Special Page / Timeline — 주제별 페이지와 연대기 보기",
+        "Media Library — 사진 · 영상 업로드와 관리",
+        "로그인 기반 개인 공간, Docker + Caddy 로 직접 배포"
+      ],
       "highlightsTitle": null,
       "team": [],
-      "myRole": "",
+      "myRole": "Planning · Frontend · Backend · Infrastructure",
       "unusedReason": "",
       "pauseReason": "",
       "replacedBy": null,
@@ -35,13 +54,13 @@
       "tagClass": "dev",
       "indexable": true,
       "screenshotRefresh": false,
-      "screenshotEnabled": true,
-      "hasPortfolioYml": false,
+      "screenshotEnabled": false,
+      "hasPortfolioYml": true,
       "periodFallback": "2026.10",
       "syncStatus": "ok",
       "lastSynced": "2026-10-07",
       "readmeSha": "d26c9f9fc6c977193a98101ced044b8e21e247c9",
-      "portfolioSha": ""
+      "portfolioSha": "a0aa35453c8ba883a1979990291e84e6a1bb12e6"
     },
     {
       "slug": "health-tracker",
