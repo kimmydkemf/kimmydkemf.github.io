@@ -775,8 +775,9 @@ class TestEndToEnd(unittest.TestCase):
         projects = gen["projects"]
         by_slug = {p["slug"]: p for p in projects}
 
-        # JSON: 기존 12 + fixture 4
-        self.assertEqual(len(projects), 16)
+        # JSON: 저장소의 기존 항목 + fixture 4 (기존 개수는 자동 sync 로 늘어나므로 데이터에서 읽는다)
+        base = len(self.original_gen["projects"])
+        self.assertEqual(len(projects), base + 4)
         self.assertTrue(gen["generatedAt"])
         # 기존 github 항목은 fixture 목록에 없으므로 unavailable 로 표시되지만 데이터는 그대로
         for p in self.original_gen["projects"]:
@@ -817,7 +818,7 @@ class TestEndToEnd(unittest.TestCase):
         self.assertLess(slugs.index("bcplus-legacy"), slugs.index("p-s-private-secretary"))  # 2021.08 > 2020.10
 
         # 정적 HTML: AUTO 구간이 JSON 과 같은 순서/내용
-        self.assertEqual(html.count("<details"), 16)
+        self.assertEqual(html.count("<details"), base + 4)
         self.assertEqual(html.count("<details"), html.count("</details>"))
         order_in_html = [m for m in re.findall(r"<!-- AUTO:([\w\-\.가-힣]+) -->", html) if m != "END"]
         expected_order = [p.get("repo") or p["slug"]
