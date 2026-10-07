@@ -8,10 +8,10 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "반영 방식 (pr: PR 생성 / push: main 에 바로 / dry-run: 확인만)"
+        description: "반영 방식 (pr-auto: PR 생성 후 자동 병합 / pr: PR 만 / push: main 에 바로 / dry-run: 확인만)"
         type: choice
-        options: [pr, push, dry-run]
-        default: pr
+        options: [pr-auto, pr, push, dry-run]
+        default: pr-auto
       force:
         description: "전체 재생성 (README SHA 무시)"
         type: boolean
@@ -71,8 +71,8 @@ jobs:
           PORTFOLIO_PAT: ${{ secrets.PORTFOLIO_PAT }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GH_TOKEN: ${{ github.token }}          # gh CLI (PR 생성) 용 — 레포 읽기에는 쓰지 않음
-          # 수동 실행 입력 > 저장소 변수 PORTFOLIO_SYNC_MODE > 기본 pr
-          SYNC_MODE: ${{ inputs.mode || vars.PORTFOLIO_SYNC_MODE || 'pr' }}
+          # 수동 실행 입력 > 저장소 변수 PORTFOLIO_SYNC_MODE > 기본 pr-auto
+          SYNC_MODE: ${{ inputs.mode || vars.PORTFOLIO_SYNC_MODE || 'pr-auto' }}
           SYNC_FORCE: ${{ inputs.force }}
           SYNC_SCREENSHOTS: ${{ ((github.event_name == 'workflow_dispatch' && !inputs.screenshots) || vars.PORTFOLIO_SCREENSHOTS == '0') && '0' || '1' }}
           BASE_BRANCH: ${{ github.event.repository.default_branch }}

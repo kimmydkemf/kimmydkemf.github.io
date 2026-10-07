@@ -139,7 +139,7 @@ replaced_by:              # 선택 — 대체 프로젝트
 
 ### 반영 시점
 
-- **자동**: 매일 03:00 KST 에 GitHub Actions 가 변경을 감지해 PR 을 만듭니다. PR 을 확인하고 병합하면 사이트에 반영됩니다.
+- **자동**: 매일 03:00 KST 에 GitHub Actions 가 변경을 감지해 PR 을 만들고 바로 병합합니다. 몇 분 뒤 사이트에 반영됩니다. (직접 확인 후 병합하고 싶으면 저장소 변수 `PORTFOLIO_SYNC_MODE=pr`)
 - **바로**: GitHub → Actions → Sync GitHub Projects → Run workflow, 또는 Mac 에서 `Update Portfolio.command`.
 
 ### 상태별로 화면이 바뀌는 방식
@@ -256,8 +256,9 @@ checkout → 테스트 → scripts/ci_sync.sh
             └ portfolio_update.sh --mode update --yes --no-push   (sync → Screenshot → Validation → commit)
             └ Secret 검사 (패턴 + 실제 토큰 값 비교) → 반영
 반영 방식 (SYNC_MODE):
-  pr      (기본) automation/portfolio-sync 브랜치에 push → main 으로 가는 PR 생성/갱신 → 확인 후 병합
-  push    main 에 바로 push (Pages 즉시 반영)
+  pr-auto (기본) automation/portfolio-sync 브랜치에 push → main 으로 가는 PR 생성 → 바로 자동 병합 (기록은 PR 로 남음)
+  pr      PR 생성/갱신만 — 확인 후 직접 병합
+  push    main 에 바로 push (PR 없음)
   dry-run 결과만 확인
 ```
 
@@ -270,9 +271,10 @@ checkout → 테스트 → scripts/ci_sync.sh
 2. 이 레포 Settings → Secrets and variables → Actions → **Secrets**
    - `PORTFOLIO_PAT` = 위 토큰 (필수)
    - `ANTHROPIC_API_KEY` (선택, Claude 요약)
-3. PR 모드를 쓰려면 Settings → Actions → General → Workflow permissions →
+3. pr-auto / pr 모드를 쓰려면 Settings → Actions → General → Workflow permissions →
    **"Allow GitHub Actions to create and approve pull requests"** 체크. 끄면 브랜치만 push 하고 실행 요약에 비교 링크를 남깁니다.
-4. (선택) **Variables**: `PORTFOLIO_SYNC_MODE` = `pr` | `push` | `dry-run`, `PORTFOLIO_SCREENSHOTS` = `0` (끄기)
+   자동 병합이 안 되면(충돌, 권한, 보호 규칙) PR 을 열어 둔 채 실행 요약에 이유를 남깁니다.
+4. (선택) **Variables**: `PORTFOLIO_SYNC_MODE` = `pr-auto` | `pr` | `push` | `dry-run`, `PORTFOLIO_SCREENSHOTS` = `0` (끄기)
 5. 이 워크플로 파일이 **main 에 병합된 뒤부터** schedule / repository_dispatch 가 동작합니다 (GitHub 규칙).
    수동 실행: Actions → Sync GitHub Projects → Run workflow.
 
