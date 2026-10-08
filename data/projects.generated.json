@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T23:10:38+09:00",
+  "generatedAt": "2026-10-08T23:14:54+09:00",
   "projects": [
     {
       "slug": "personal-archive",
@@ -286,7 +286,7 @@
       ],
       "highlights": [
         "가계부 자동화 — 카드 · 은행 알림 → 텔레그램 봇 → 가맹점 자동 분류 → 등록 (5분 중복 방지, 확인/즉시 모드)",
-        "자연어 일정 — \"내일 오후 2시 팀 회의",
+        "자연어 일정 — \"내일 오후 2시 팀 회의 #work 긴급\" 한 줄로 등록",
         "데일리 계획표 — 시간표 배치, 자정 자동 정리, 달성률 · 연속 완주 스트릭 · 주간 포인트",
         "자산 보관함 — 현금 · 예금 · 부동산 · 주식 · 코인을 API 키 없이 시세 조회, 일별 스냅샷과 12주 추이",
         "텔레그램 OTP 2단계 인증 · PWA · 자체 호스팅 (Docker + Cloudflare Tunnel)"
@@ -310,7 +310,7 @@
       "syncStatus": "ok",
       "lastSynced": "2026-10-08",
       "readmeSha": "21761811f5b82325aa1a791d1b95835e3b8556f5",
-      "portfolioSha": "3c33e347514afd4104dcd5f350ca722116562cd8"
+      "portfolioSha": "6099298731424b0def12fa1e354b8c682d86b65a"
     },
     {
       "slug": "bcplus-legacy",
