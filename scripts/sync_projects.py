@@ -491,11 +491,18 @@ def _yaml_scalar(v: str):
 
 
 def _yaml_strip_comment(line: str) -> str:
+    """따옴표 밖의 ' #' 부터 주석으로 잘라낸다 (따옴표 안의 # 은 내용)"""
     if line.lstrip().startswith("#"):
         return ""
-    m = re.search(r'\s#', line)
-    if m and line.count('"') % 2 == 0 and line.count("'") % 2 == 0:
-        return line[: m.start()]
+    quote = None
+    for i, ch in enumerate(line):
+        if quote:
+            if ch == quote:
+                quote = None
+        elif ch in ("'", '"'):
+            quote = ch
+        elif ch == "#" and i > 0 and line[i - 1] in (" ", "\t"):
+            return line[:i]
     return line
 
 
