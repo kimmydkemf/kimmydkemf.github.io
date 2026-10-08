@@ -391,6 +391,7 @@ class TestSections(unittest.TestCase):
         self.assertEqual(rc.display_status({"status": "paused"}), "paused")
         self.assertEqual(rc.display_status({"status": None, "ongoing": True}), "active")
         self.assertEqual(rc.display_status({"status": None, "ongoing": False}), "completed")
+        self.assertEqual(rc.GROUP_OF["completed"], "archive")
         self.assertEqual(rc.display_status({"status": "weird", "ongoing": True}), "active")
 
     def test_groups_and_featured(self):
@@ -406,14 +407,13 @@ class TestSections(unittest.TestCase):
         ]
         html = rc.render_sections(ps)
         groups = re.findall(r'data-group="(\w+)"', html)
-        self.assertEqual(groups, ["current", "paused", "completed", "archive"])
+        self.assertEqual(groups, ["current", "paused", "archive"])
         def members(key):
             block = html.split(f'data-group="{key}"')[1].split('data-group=')[0]
             return re.findall(r'<details[^>]* data-slug="(\w+)"', block)
         self.assertEqual(members("current"), ["a", "n"])
         self.assertEqual(members("paused"), ["p"])
-        self.assertEqual(members("completed"), ["c", "o"])
-        self.assertEqual(members("archive"), ["u", "r"])
+        self.assertEqual(members("archive"), ["c", "o", "u", "r"])      # 완료 · 상태 없음+오래됨 · 미사용 · 과거 모두 지난 프로젝트
         self.assertIn('<span class="proj-group-count">2</span>', html)
         # Featured: unused 는 제외, 최대 4 chips, 링크 3개
         feat = html.split('class="proj-featured"')[1].split('class="proj-group"')[0]

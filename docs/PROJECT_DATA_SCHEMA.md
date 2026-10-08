@@ -76,7 +76,7 @@ data/projects.manual.json (수동) ─┘                                      �
 - 모든 텍스트는 HTML 이스케이프된다.
 - `<details [class="proj-unused"] id="proj-{slug}" data-slug data-source [data-status] data-display-status [data-featured]>`
 - 지난 프로젝트 그룹에는 시작 연도가 바뀔 때마다 `<div class="tl-year">YYYY</div>` 가 끼어든다 (연도 타임라인).
-- `render_stats()` / `renderStats()` 는 표지의 `<!-- STATS:START -->` 구간에 들어가는 연도별 막대(`.year-bars`), 큰 숫자 4개(`.stat-grid > .stat`), 한 줄 메타(`.stat-meta`: 기록 시작 연도 · 마지막 동기화)를 만든다.
+- `render_stats()` / `renderStats()` 는 표지의 `<!-- STATS:START -->` 구간에 들어가는 연도별 막대(`.year-bars`), 큰 숫자 3개(`.stat-grid > .stat`: 프로젝트 · 진행 중 · 지난 프로젝트), 한 줄 메타(`.stat-meta`: 기록 시작 연도 · 마지막 동기화)를 만든다.
 - 카드 머리글자 아이콘 `.mark.hue-N`: N 은 slug 문자 코드 합 % 6 + 1 (Python `hue_index` / JS `hueIndex` 동일). 글자는 제목의 첫 영숫자·한글.
 
 ### 프로젝트 영역 구조 (Phase 4)
@@ -86,8 +86,7 @@ data/projects.manual.json (수동) ─┘                                      �
 Featured   featured: true 이고 unused 가 아닌 프로젝트, 최대 5개 (카드 그리드)
 진행 중    Current
 일시 중단  Paused
-완료       Completed
-지난 프로젝트 (미사용 · 과거) — 기본 접힘, 연도 타임라인
+지난 프로젝트 (완료 · 미사용 · 과거) — 기본 접힘, 연도 타임라인
 ```
 
 - 그룹과 필터는 `data-display-status` 기준이다. 명시적 `status` 가 있으면 그 값, 없으면 `ongoing` 이면 `active`, 아니면 `completed`.
