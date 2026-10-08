@@ -28,10 +28,9 @@
   var GROUPS = [
     ['current', '진행 중', 'Current'],
     ['paused', '일시 중단', 'Paused'],
-    ['completed', '완료', 'Completed'],
     ['archive', '지난 프로젝트', 'Past']
   ];
-  var GROUP_OF = { active: 'current', paused: 'paused', completed: 'completed', unused: 'archive', archived: 'archive' };
+  var GROUP_OF = { active: 'current', paused: 'paused', completed: 'archive', unused: 'archive', archived: 'archive' };
   var FEATURED_MAX = 5;
   var CHIP_LIMIT = 4;
   var PLACEHOLDER = '내용을 입력하세요.';
@@ -325,7 +324,7 @@
 
   // ── 첫 화면 사실 요약 (STATS 마커 안) ───────────────────────────────────────
   function projectStats(projects) {
-    var c = { total: projects.length, current: 0, paused: 0, completed: 0, archive: 0, live: 0, since: '' };
+    var c = { total: projects.length, current: 0, paused: 0, archive: 0, live: 0, since: '' };
     var years = [];
     projects.forEach(function (p) {
       c[GROUP_OF[displayStatus(p)]] += 1;
@@ -356,7 +355,7 @@
 
   function renderStats(projects, generatedAt) {
     var c = projectStats(projects);
-    var stats = [['total', c.total, '프로젝트'], ['current', c.current, '진행 중'], ['done', c.completed + c.paused, '완료'], ['archive', c.archive, '과거']];
+    var stats = [['total', c.total, '프로젝트'], ['current', c.current + c.paused, '진행 중'], ['archive', c.archive, '지난 프로젝트']];
     var grid = stats.map(function (s) {
       return '\n<div class="stat" data-fact="' + s[0] + '"><b>' + s[1] + '</b><span>' + E(s[2]) + '</span></div>';
     }).join('');

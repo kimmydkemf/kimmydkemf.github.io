@@ -32,10 +32,9 @@ PLACEHOLDER = "내용을 입력하세요."
 GROUPS = (
     ("current",   "진행 중",           "Current"),
     ("paused",    "일시 중단",         "Paused"),
-    ("completed", "완료",              "Completed"),
     ("archive",   "지난 프로젝트", "Past"),
 )
-GROUP_OF = {"active": "current", "paused": "paused", "completed": "completed",
+GROUP_OF = {"active": "current", "paused": "paused", "completed": "archive",
             "unused": "archive", "archived": "archive"}
 FEATURED_MAX = 5
 CHIP_LIMIT = 4          # 접힌 카드에 보이는 기술 태그 수 (나머지는 +N, 펼치면 "기술 스택")
@@ -442,7 +441,7 @@ def render_sections(projects: list[dict], with_markers: bool = True) -> str:
 
 
 def project_stats(projects: list[dict]) -> dict:
-    counts = {"total": len(projects), "current": 0, "paused": 0, "completed": 0, "archive": 0, "live": 0}
+    counts = {"total": len(projects), "current": 0, "paused": 0, "archive": 0, "live": 0}
     for p in projects:
         counts[GROUP_OF[display_status(p)]] += 1
         if p.get("liveUrl") and p.get("status") != "unused":
@@ -477,8 +476,8 @@ def render_year_bars(projects: list[dict]) -> str:
 def render_stats(projects: list[dict], generated_at: str | None = None) -> str:
     """첫 화면 기록 현황 (STATS 마커 사이): 연도 막대 · 큰 숫자 4개 · 한 줄 메타. JS 가 같은 JSON 으로 다시 그린다."""
     c = project_stats(projects)
-    stats = [("total", c["total"], "프로젝트"), ("current", c["current"], "진행 중"),
-             ("done", c["completed"] + c["paused"], "완료"), ("archive", c["archive"], "과거")]
+    stats = [("total", c["total"], "프로젝트"), ("current", c["current"] + c["paused"], "진행 중"),
+             ("archive", c["archive"], "지난 프로젝트")]
     grid = "".join(f"""
           <div class="stat" data-fact="{key}"><b>{n}</b><span>{E(label)}</span></div>""" for key, n, label in stats)
     meta = []
