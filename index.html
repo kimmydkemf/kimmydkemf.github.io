@@ -126,6 +126,28 @@
             </div>
           </div>
         </article>
+        <article class="feat-card" data-slug="life-manager" data-display-status="active">
+          <div class="feat-cover feat-cover-empty" aria-hidden="true"><span>L</span></div>
+          <div class="feat-body">
+            <div class="feat-meta">
+              <span class="proj-period">2026.04 – Present</span>
+            <span class="status-badge status-active">진행 중</span>
+            </div>
+            <h4 class="feat-title">Life Manager</h4>
+            <p class="feat-sub">일정 · 가계부 · 습관 · 자산을 한 곳에서 관리하는 개인용 PWA</p>
+            <div class="proj-chips">
+              <span class="chip dev">Next.js</span>
+              <span class="chip dev">React</span>
+              <span class="chip dev">Tailwind CSS</span>
+              <span class="chip dev">SQLite</span>
+            </div>
+            <div class="card-links">
+              <a class="proj-link live" href="https://life.dounselor.com" target="_blank" rel="noopener">Live Demo</a>
+              <a class="proj-link" href="https://github.com/kimmydkemf/life-manager" target="_blank" rel="noopener">GitHub</a>
+              <a class="proj-link more" href="#proj-life-manager">자세히</a>
+            </div>
+          </div>
+        </article>
         </div>
       </div>
       <div class="proj-group" data-group="current">
@@ -406,16 +428,17 @@
       </details>
       <!-- /AUTO:kimmydkemf.github.io -->
       <!-- AUTO:life-manager -->
-      <details id="proj-life-manager" data-slug="life-manager" data-source="github" data-display-status="active">
+      <details id="proj-life-manager" data-slug="life-manager" data-source="github" data-status="active" data-display-status="active" data-featured="true">
         <summary>
           <div class="card-top">
+            <span class="status-badge status-active">진행 중</span>
             <span class="proj-period">2026.04 – Present</span>
           </div>
           <div class="card-head">
             <span class="mark hue-5" aria-hidden="true">L</span>
             <div class="proj-main">
               <div class="proj-title">Life Manager</div>
-              <div class="proj-sub">추가 오류 점검과 남은 개선 항목은 추가 점검 결과를 참고하세요.</div>
+              <div class="proj-sub">일정 · 가계부 · 습관 · 자산을 한 곳에서 관리하는 개인용 PWA</div>
             </div>
           </div>
           <div class="card-foot">
@@ -423,10 +446,11 @@
               <span class="chip dev">Next.js</span>
               <span class="chip dev">React</span>
               <span class="chip dev">Tailwind CSS</span>
-              <span class="chip dev">PWA</span>
-              <span class="chip more" title="펼치면 전체 기술 스택">+5</span>
+              <span class="chip dev">SQLite</span>
+              <span class="chip more" title="펼치면 전체 기술 스택">+3</span>
             </div>
             <div class="card-links">
+              <a class="proj-live" href="https://life.dounselor.com" target="_blank" rel="noopener">Live ↗</a>
               <a class="proj-repo" href="https://github.com/kimmydkemf/life-manager" target="_blank" rel="noopener">GitHub ↗</a>
             </div>
           </div>
@@ -434,19 +458,21 @@
         <div class="detail">
           <div class="dl-section">
             <h4>프로젝트 소개</h4>
-            <p>추가 오류 점검과 남은 개선 항목은 추가 점검 결과를 참고하세요.<br>
-              Mac Docker 운영과 Windows 데이터 이전은 Mac 이전 안내를 먼저 참고하세요.<br>
-              새 가계부 입력: 한 줄 입력 및 CSV/TSV 미리보기 가져오기. 실행: node scripts/setupDocker.js → docker compose up -d --build.</p>
+            <p>일정, 가계부, 습관, 자산을 하나의 PWA 로 관리한다. 자연어로 일정을 넣고, 카드 · 은행 알림을 텔레그램 봇으로 받아 가계부에 자동 등록하며, 데일리 계획표와 자산 보관함까지 한 앱에서 본다. Next.js 와 SQLite 로 만들어 집 PC 에 Docker 로 띄우고 Cloudflare Tunnel 로 밖에서 접속한다.</p>
           </div>
           <div class="dl-section">
             <h4>주요 기능</h4>
             <ul>
-              <li>2단계 인증 (텔레그램 OTP) — 비밀번호 검증 후 텔레그램 봇으로 6자리 코드 발송, 코드 입력해야만 로그인 완료</li>
-              <li>자연어 일정 입력 — &quot;내일 오후 2시 팀 회의 #work 긴급&quot; 같은 자유 입력</li>
-              <li>데일리 계획표 (당일 전용) — 그날 하루만 유지되는 계획. 시간표 뷰로 몇 시부터 몇 시까지 뭘 할지 배치하고, 자정(서울)에 자동 정리되며 달성률만 기록으로 남음. 진행률 링 · 연속 완주 스트릭 · 주간 포인트/레벨 · 완주 축하 연출로 완성도 동기부여, 항목별 비용을 가계부로 이관 가능 (자세히)</li>
-              <li>가계부 — 수입/지출 카테고리 분류, 월간 요약, 일별 그래프</li>
-              <li>자산 보관함 — 현금·예금·부동산·주식·코인을 함께 기록하고 평가액·손익·자산 배분을 원화로 확인. API 키 없이 CoinGecko·네이버 증권·Yahoo Finance 시세를 조회. 일별 스냅샷, 1·4·12주 추이, 일부 매매와 현금 정산 지원</li>
+              <li>텔레그램 OTP 2단계 인증</li>
+              <li>자연어 일정 입력 — &quot;내일 오후 2시 팀 회의</li>
+              <li>데일리 계획표 — 시간표 배치, 달성률 · 연속 완주 스트릭</li>
+              <li>가계부 — 카드 · 은행 알림 자동 등록, 월간 요약, 일별 그래프</li>
+              <li>자산 보관함 — 현금 · 예금 · 주식 · 코인 평가액과 추이</li>
             </ul>
+          </div>
+          <div class="dl-section">
+            <h4>담당 역할</h4>
+            <p>Planning · Frontend · Backend · Infrastructure</p>
           </div>
           <div class="dl-section">
             <h4>기술 스택</h4>
@@ -454,17 +480,16 @@
               <span class="chip dev">Next.js</span>
               <span class="chip dev">React</span>
               <span class="chip dev">Tailwind CSS</span>
-              <span class="chip dev">PWA</span>
               <span class="chip dev">SQLite</span>
-              <span class="chip dev">JWT</span>
               <span class="chip dev">Telegram Bot</span>
-              <span class="chip dev">node-cron</span>
+              <span class="chip dev">Docker</span>
               <span class="chip dev">Cloudflare Tunnel</span>
             </div>
           </div>
           <div class="dl-section">
             <h4>Links</h4>
             <div class="proj-links">
+              <a class="proj-link live" href="https://life.dounselor.com" target="_blank" rel="noopener">Live Demo</a>
               <a class="proj-link" href="https://github.com/kimmydkemf/life-manager" target="_blank" rel="noopener">GitHub</a>
             </div>
           </div>

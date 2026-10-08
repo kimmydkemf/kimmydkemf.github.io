@@ -15,7 +15,7 @@
       "title": "Pacer"
     },
     "kimmydkemf.github.io": {
-      "sha": "a15474739e1715895474f415485a0b3734a5c64b",
+      "sha": "85aa48dbda28f348ea0e8667abd29be0cc1fcde8",
       "portfolioSha": "",
       "start": "2026.04",
       "end": "",
@@ -32,12 +32,12 @@
     },
     "life-manager": {
       "sha": "21761811f5b82325aa1a791d1b95835e3b8556f5",
-      "portfolioSha": "",
+      "portfolioSha": "627ffd57fb2aa5b72b39577ba102fb25534610e5",
       "start": "2026.04",
       "end": "",
       "commitStart": "2026.04",
       "commitEnd": "2026.10",
-      "status": null,
+      "status": "active",
       "title": "Life Manager"
     },
     "MyNote": {
