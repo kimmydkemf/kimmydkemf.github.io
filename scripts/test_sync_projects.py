@@ -74,6 +74,18 @@ inline_comment: value   # 뒤 주석
         self.assertEqual(d["replaced_by"], {"title": "Archive", "url": "https://archive.example.com"})
         self.assertEqual(d["inline_comment"], "value")
 
+    def test_hash_inside_quotes_is_not_a_comment(self):
+        d = sp._parse_simple_yaml("""highlights:
+  - '자연어 일정 — "내일 오후 2시 팀 회의 #work 긴급" 한 줄로 등록'
+  - "태그 #work 포함"   # 진짜 주석
+  - 따옴표 없는 줄 #여기부터는 주석
+title: "a # b"  # c
+""")
+        self.assertEqual(d["highlights"][0], '자연어 일정 — "내일 오후 2시 팀 회의 #work 긴급" 한 줄로 등록')
+        self.assertEqual(d["highlights"][1], "태그 #work 포함")
+        self.assertEqual(d["highlights"][2], "따옴표 없는 줄")
+        self.assertEqual(d["title"], "a # b")
+
     def test_list_at_same_indent(self):
         d = sp._parse_simple_yaml("tech:\n- A\n- B\nnext: x\n")
         self.assertEqual(d["tech"], ["A", "B"])
