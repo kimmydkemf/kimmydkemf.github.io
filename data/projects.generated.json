@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T23:14:54+09:00",
+  "generatedAt": "2026-10-10T07:00:32+09:00",
   "projects": [
     {
       "slug": "personal-archive",
@@ -58,8 +58,8 @@
       "hasPortfolioYml": true,
       "periodFallback": "2026.10",
       "syncStatus": "ok",
-      "lastSynced": "2026-10-07",
-      "readmeSha": "d26c9f9fc6c977193a98101ced044b8e21e247c9",
+      "lastSynced": "2026-10-09",
+      "readmeSha": "e8c267a7e5050f40573fc457076d6d168332a8f5",
       "portfolioSha": "a0aa35453c8ba883a1979990291e84e6a1bb12e6"
     },
     {
@@ -308,8 +308,8 @@
       "hasPortfolioYml": true,
       "periodFallback": "2026.10",
       "syncStatus": "ok",
-      "lastSynced": "2026-10-08",
-      "readmeSha": "21761811f5b82325aa1a791d1b95835e3b8556f5",
+      "lastSynced": "2026-10-09",
+      "readmeSha": "cff80a6f5d2b335be7e2c571630164e4e992a811",
       "portfolioSha": "6099298731424b0def12fa1e354b8c682d86b65a"
     },
     {
