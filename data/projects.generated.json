@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-11T05:52:45+09:00",
+  "generatedAt": "2026-10-23T05:58:42+09:00",
   "projects": [
     {
       "slug": "personal-archive",
@@ -308,8 +308,8 @@
       "hasPortfolioYml": true,
       "periodFallback": "2026.10",
       "syncStatus": "ok",
-      "lastSynced": "2026-10-10",
-      "readmeSha": "1582837738608db54ed4afe79059fc9dcf66dc91",
+      "lastSynced": "2026-10-22",
+      "readmeSha": "f8f8105a31681928f877a9f4167b67cd73b71230",
       "portfolioSha": "6099298731424b0def12fa1e354b8c682d86b65a"
     },
     {
